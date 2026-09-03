@@ -14,6 +14,7 @@ describe("supabase migrations", () => {
   it("includes phase 1 migration files", () => {
     expect(files).toContain("20250102000000_phase1_schema.sql");
     expect(files).toContain("20250102000001_phase1_seed_demo.sql");
+    expect(files).toContain("20250103000000_organization_settings.sql");
   });
 
   for (const file of files) {
@@ -43,5 +44,15 @@ describe("supabase migrations", () => {
     expect(content).toContain("organizations");
     expect(content).toContain("api_keys");
     expect(content).toContain("plan_versions_published_read");
+  });
+
+  it("organization settings migration enables RLS", () => {
+    const content = readFileSync(
+      join(MIGRATIONS_DIR, "20250103000000_organization_settings.sql"),
+      "utf-8",
+    );
+    expect(content).toContain("organization_settings");
+    expect(content).toContain("ENABLE ROW LEVEL SECURITY");
+    expect(content).toContain("org_settings_admin_update");
   });
 });
