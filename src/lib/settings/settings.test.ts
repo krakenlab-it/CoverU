@@ -11,6 +11,7 @@ import {
   revokeOrgApiKey,
 } from "@/lib/settings/api-keys";
 import { getOrgUsageSummary } from "@/lib/settings/usage";
+import { getOrgRequestLogs } from "@/lib/settings/request-logs";
 import {
   getOrgRateLimitPolicy,
   updateOrgRateLimitPolicy,
@@ -75,6 +76,25 @@ describe("usage summary", () => {
       expect(usage.totalRequests).toBe(0);
     } else {
       expect(usage.totalRequests).toBeGreaterThanOrEqual(0);
+    }
+  });
+});
+
+describe("request logs", () => {
+  it("returns honest empty state in demo mode", async () => {
+    const logs = await getOrgRequestLogs(ORG_ID, true);
+    expect(logs.isEmpty).toBe(true);
+    expect(logs.demoMode).toBe(true);
+    expect(logs.logs).toHaveLength(0);
+  });
+
+  it("surfaces error state without inventing request rows", async () => {
+    const logs = await getOrgRequestLogs(ORG_ID, false);
+    if (logs.error) {
+      expect(logs.isEmpty).toBe(true);
+      expect(logs.logs).toHaveLength(0);
+    } else {
+      expect(logs.logs.length).toBeGreaterThanOrEqual(0);
     }
   });
 });

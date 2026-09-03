@@ -21,16 +21,9 @@ describe("AppSidebarNav", () => {
       "href",
       "/app/marketplace",
     );
-    expect(screen.getByRole("link", { name: "Comparar" })).toHaveAttribute(
-      "href",
-      "/app/marketplace/compare",
-    );
-    expect(
-      screen.getByRole("link", { name: "Desarrolladores" }),
-    ).toHaveAttribute("href", "/developers");
     expect(
       screen.getByRole("link", { name: "Configuración" }),
-    ).toHaveAttribute("href", "/app/configuracion/perfil");
+    ).toHaveAttribute("href", "/app/configuracion/api-keys");
   });
 
   it("marks the active route with aria-current", () => {
@@ -61,6 +54,10 @@ describe("SettingsTabs", () => {
     expect(screen.getByRole("tab", { name: /api keys/i })).toHaveAttribute(
       "href",
       "/app/configuracion/api-keys",
+    );
+    expect(screen.getByRole("tab", { name: /registros/i })).toHaveAttribute(
+      "href",
+      "/app/configuracion/registros",
     );
   });
 });

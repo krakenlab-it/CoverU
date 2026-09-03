@@ -2,10 +2,8 @@ import type { AppNavItem } from "@/components/layout/AppSidebarNav";
 
 export const APP_NAV_ITEMS: readonly AppNavItem[] = [
   { href: "/app/marketplace", label: "Marketplace", icon: "marketplace" },
-  { href: "/app/marketplace/compare", label: "Comparar", icon: "compare" },
-  { href: "/developers", label: "Desarrolladores", icon: "developers" },
   {
-    href: "/app/configuracion/perfil",
+    href: "/app/configuracion/api-keys",
     label: "Configuración",
     icon: "settings",
   },
@@ -31,6 +29,11 @@ export const SETTINGS_NAV_ITEMS = [
     href: "/app/configuracion/limites",
     label: "Límites de tasa",
     segment: "limites",
+  },
+  {
+    href: "/app/configuracion/registros",
+    label: "Registros",
+    segment: "registros",
   },
 ] as const;
 
