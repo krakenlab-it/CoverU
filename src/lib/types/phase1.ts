@@ -132,6 +132,14 @@ export interface Quote {
   created_at: string;
 }
 
+export interface OrganizationSettings {
+  organization_id: string;
+  rate_limit_requests: number;
+  rate_limit_window_ms: number;
+  updated_at: string;
+  updated_by: string | null;
+}
+
 export interface ApiAuthContext {
   apiKeyId: string;
   apiClientId: string;

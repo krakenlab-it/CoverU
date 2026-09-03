@@ -1,16 +1,10 @@
-import { AppShellNav, type AppNavItem } from "@/components/layout/AppShellNav";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 import { DemoAlert } from "@/components/platform/DemoAlert";
-
-const APP_NAV_ITEMS: readonly AppNavItem[] = [
-  { href: "/app/marketplace", label: "Marketplace" },
-  { href: "/app/marketplace/compare", label: "Comparar" },
-  { href: "/app/perfil", label: "Perfil" },
-  { href: "/developers", label: "API" },
-] as const;
 
 type AppShellProps = {
   children: React.ReactNode;
   organizationName?: string;
+  userEmail?: string | null;
   isDemo?: boolean;
   showDemoBanner?: boolean;
 };
@@ -18,20 +12,28 @@ type AppShellProps = {
 export function AppShell({
   children,
   organizationName,
+  userEmail,
   isDemo,
   showDemoBanner,
 }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-muted/30">
-      <AppShellNav
-        items={APP_NAV_ITEMS}
+    <div className="flex min-h-screen flex-col bg-muted/30 md:flex-row">
+      <AppSidebar
         organizationName={organizationName}
+        userEmail={userEmail}
         isDemo={isDemo}
       />
-      <div className="mx-auto max-w-7xl space-y-4 px-4 py-6">
-        {showDemoBanner ? <DemoAlert /> : null}
-        <div id="main-content" tabIndex={-1} className="outline-none">
-          {children}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="mx-auto w-full max-w-7xl flex-1 space-y-4 px-4 py-6">
+          {showDemoBanner ? <DemoAlert /> : null}
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="outline-none"
+            role="main"
+          >
+            {children}
+          </main>
         </div>
       </div>
     </div>

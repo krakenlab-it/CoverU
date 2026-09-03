@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function PerfilRedirectPage() {
+export default function ConfiguracionIndexPage() {
   redirect("/app/configuracion/perfil");
 }
