@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { CompareMatrix } from "@/components/marketplace/CompareMatrix";
-import { DemoBanner } from "@/components/marketplace/DemoBanner";
+import { DemoAlert } from "@/components/platform/DemoAlert";
+import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { Button } from "@/components/ui/button";
+import { buildAppMetadata } from "@/lib/seo/metadata";
 import {
   getCompareEntries,
   getPlanVersionDetailForMarketplace,
@@ -17,9 +21,10 @@ import type {
   WaitingPeriod,
 } from "@/lib/types/phase1";
 
-export const metadata = {
-  title: "Comparar planes",
-};
+export const metadata = buildAppMetadata(
+  "Comparar planes",
+  "Comparación lado a lado de planes seleccionados en CoverÜ.",
+);
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -60,23 +65,26 @@ export default async function ComparePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Comparar planes</h1>
-          <p className="mt-1 text-sm text-coveru-gray">
-            Comparación lado a lado de hasta {MAX_COMPARE_PLANS} planes
-            seleccionados.
-          </p>
-        </div>
-        <Link
-          href={`/app/marketplace${filtersQuery}`}
-          className="text-sm font-semibold text-coveru-red hover:text-coveru-red-dark"
-        >
-          ← Volver al marketplace
-        </Link>
-      </header>
+      <PageHeader
+        breadcrumbs={
+          <Breadcrumbs
+            items={[
+              { label: "Panel", href: "/app/marketplace" },
+              { label: "Marketplace", href: `/app/marketplace${filtersQuery}` },
+              { label: "Comparar" },
+            ]}
+          />
+        }
+        title="Comparar planes"
+        description={`Comparación lado a lado de hasta ${MAX_COMPARE_PLANS} planes seleccionados.`}
+        actions={
+          <Button variant="outline" asChild>
+            <Link href={`/app/marketplace${filtersQuery}`}>← Volver al marketplace</Link>
+          </Button>
+        }
+      />
 
-      <DemoBanner compact />
+      <DemoAlert compact />
 
       <CompareMatrix
         entries={entries}

@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { MAX_COMPARE_PLANS, MIN_COMPARE_PLANS } from "@/lib/marketplace/compare";
 import { filtersToQueryString } from "@/lib/marketplace/filters";
 import type { MarketplaceFilters } from "@/lib/marketplace/types";
+import { motion } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 interface CompareBarProps {
   compareIds: string[];
@@ -29,7 +32,11 @@ export function CompareBar({
     <div
       role="region"
       aria-label="Barra de comparación"
-      className="sticky bottom-0 z-20 border-t border-coveru-border bg-white p-4 shadow-lg"
+      aria-live="polite"
+      className={cn(
+        "sticky bottom-0 z-20 -mx-4 border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:-mx-0 sm:rounded-t-xl",
+        motion.slideUp,
+      )}
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -39,36 +46,31 @@ export function CompareBar({
           <ul className="mt-1 flex flex-wrap gap-2">
             {compareIds.map((id) => (
               <li key={id}>
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="rounded-full"
                   onClick={() => onRemove(id)}
-                  className="inline-flex items-center gap-1 rounded-full bg-coveru-light px-3 py-1 text-xs font-medium hover:bg-coveru-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coveru-red"
                   aria-label={`Quitar ${planNames[id] ?? "plan"} de la comparación`}
                 >
                   {planNames[id] ?? id.slice(0, 8)}
                   <span aria-hidden="true">×</span>
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
         </div>
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onClear}
-            className="rounded-full border border-coveru-border px-4 py-2 text-sm font-medium hover:bg-coveru-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coveru-red"
-          >
+          <Button type="button" variant="outline" className="rounded-full" onClick={onClear}>
             Limpiar
-          </button>
+          </Button>
           {canCompare ? (
-            <Link
-              href={compareHref}
-              className="rounded-full bg-coveru-red px-4 py-2 text-sm font-semibold text-white hover:bg-coveru-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coveru-red"
-            >
-              Ver comparación
-            </Link>
+            <Button variant="brand" className="rounded-full" asChild>
+              <Link href={compareHref}>Ver comparación</Link>
+            </Button>
           ) : (
-            <span className="self-center text-xs text-coveru-gray">
+            <span className="self-center text-xs text-muted-foreground">
               Selecciona al menos {MIN_COMPARE_PLANS} planes
             </span>
           )}

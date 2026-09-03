@@ -2,23 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CoverageAssistant } from "@/components/marketplace/CoverageAssistant";
 import { PlanDetailViewer } from "@/components/marketplace/PlanDetailViewer";
+import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
+import { Button } from "@/components/ui/button";
+import { buildAppMetadata } from "@/lib/seo/metadata";
 import { getPlanVersionDetailForMarketplace } from "@/lib/marketplace/catalog";
 import {
   filtersToQueryString,
   parseMarketplaceFilters,
 } from "@/lib/marketplace/filters";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ planVersionId: string }>;
-}) {
-  const { planVersionId } = await params;
-  const detail = getPlanVersionDetailForMarketplace(planVersionId);
-  return {
-    title: detail?.plan?.name ?? "Detalle del plan",
-  };
-}
 
 interface PageProps {
   params: Promise<{ planVersionId: string }>;
@@ -34,6 +25,15 @@ function toSearchParams(
     else if (Array.isArray(value) && value[0]) params.set(key, value[0]);
   }
   return params;
+}
+
+export async function generateMetadata({ params }: PageProps) {
+  const { planVersionId } = await params;
+  const detail = getPlanVersionDetailForMarketplace(planVersionId);
+  return buildAppMetadata(
+    detail?.plan?.name ?? "Detalle del plan",
+    "Detalle de póliza y coberturas en el marketplace CoverÜ.",
+  );
 }
 
 export default async function PlanDetailPage({
@@ -62,12 +62,16 @@ export default async function PlanDetailPage({
 
   return (
     <div className="space-y-6">
-      <Link
-        href={`/app/marketplace${backQuery}`}
-        className="inline-block text-sm font-semibold text-coveru-red hover:text-coveru-red-dark"
-      >
-        ← Volver al marketplace
-      </Link>
+      <Breadcrumbs
+        items={[
+          { label: "Panel", href: "/app/marketplace" },
+          { label: "Marketplace", href: `/app/marketplace${backQuery}` },
+          { label: detail.plan.name },
+        ]}
+      />
+      <Button variant="outline" size="sm" asChild>
+        <Link href={`/app/marketplace${backQuery}`}>← Volver al marketplace</Link>
+      </Button>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         <PlanDetailViewer
@@ -80,7 +84,7 @@ export default async function PlanDetailPage({
           policyDocuments={detail.policy_documents}
           citations={detail.citations}
         />
-        <aside className="xl:sticky xl:top-6 xl:self-start">
+        <aside className="xl:sticky xl:top-24 xl:self-start">
           <CoverageAssistant
             planVersionId={planVersionId}
             planName={detail.plan.name}

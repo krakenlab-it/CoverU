@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CompareBar } from "@/components/marketplace/CompareBar";
 import { MarketplacePlanCard } from "@/components/marketplace/MarketplacePlanCard";
+import { EmptyState } from "@/components/platform/EmptyState";
 import {
   canAddToCompare,
   parseCompareIds,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/marketplace/compare";
 import { filtersToQueryString } from "@/lib/marketplace/filters";
 import type { MarketplaceFilters, MarketplacePlanResult } from "@/lib/marketplace/types";
+import { motion } from "@/lib/motion";
 
 interface MarketplaceResultsGridProps {
   results: MarketplacePlanResult[];
@@ -57,25 +59,20 @@ export function MarketplaceResultsGrid({
 
   if (results.length === 0) {
     return (
-      <div
-        role="status"
-        className="rounded-2xl border border-dashed border-coveru-border bg-white p-10 text-center"
-      >
-        <p className="text-lg font-semibold">No hay planes que coincidan</p>
-        <p className="mt-2 text-sm text-coveru-gray">
-          Prueba ajustar los filtros de edad, región, categoría o palabras clave.
-        </p>
-      </div>
+      <EmptyState
+        title="No hay planes que coincidan"
+        description="Prueba ajustar los filtros de edad, provincia, categoría o palabras clave."
+      />
     );
   }
 
   return (
     <>
-      <p className="mb-4 text-sm text-coveru-gray" aria-live="polite">
+      <p className="mb-4 text-sm text-muted-foreground" aria-live="polite">
         {results.length} plan{results.length !== 1 ? "es" : ""} encontrado
         {results.length !== 1 ? "s" : ""}
       </p>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className={cnGrid()}>
         {results.map((result) => {
           const { planVersion, plan, insurer } = result;
           const isSelected = compareIds.includes(planVersion.id);
@@ -116,6 +113,10 @@ export function MarketplaceResultsGrid({
       />
     </>
   );
+}
+
+function cnGrid() {
+  return `grid gap-4 md:grid-cols-2 xl:grid-cols-3 ${motion.fadeIn}`;
 }
 
 export { serializeCompareIds, parseCompareIds };

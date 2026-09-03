@@ -1,18 +1,25 @@
-import type { Metadata } from "next";
+import { PageContainer } from "@/components/platform/PageContainer";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPublicMetadata({
   title: "Nosotros",
-  description: "Conoce CoverÜ y nuestra misión de transparencia en seguros de salud.",
-};
+  description:
+    "Conoce CoverÜ y nuestra misión de transparencia en seguros de salud en Ecuador.",
+  path: "/nosotros",
+});
 
 export default function NosotrosPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-bold text-foreground">Nosotros</h1>
+    <PageContainer size="narrow">
+      <PageHeader
+        title="Nosotros"
+        description="Transparencia y claridad en la comparación de seguros de salud."
+      />
       <div className="mt-6 space-y-4 text-foreground/80">
         <p>
           CoverÜ nace con la misión de hacer más transparente la comparación de
-          seguros de salud en Chile. Creemos que cada persona debe entender qué
+          seguros de salud en Ecuador. Creemos que cada persona debe entender qué
           paga, qué cubre su plan y qué limitaciones tiene antes de contratar.
         </p>
         <p>
@@ -26,6 +33,6 @@ export default function NosotrosPage() {
           promesas de cobertura que no podamos respaldar.
         </p>
       </div>
-    </div>
+    </PageContainer>
   );
 }

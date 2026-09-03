@@ -1,67 +1,74 @@
 import Link from "next/link";
-import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { BrandLogo } from "@/components/layout/BrandLogo";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { NAV_LINKS } from "@/lib/constants";
+import { motion } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+import { Menu } from "lucide-react";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-coveru-border bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link
-          href="/"
-          className="text-2xl font-bold tracking-tight text-coveru-red"
-          aria-label={`${SITE_NAME} — inicio`}
-        >
-          Cover<span className="underline decoration-2 underline-offset-4">Ü</span>
-        </Link>
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <BrandLogo href="/" size="lg" />
 
         <nav
-          className="hidden items-center gap-6 md:flex"
+          className="hidden items-center gap-1 md:flex"
           aria-label="Navegación principal"
         >
           {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-foreground/80 transition-colors hover:text-coveru-red"
-            >
-              {link.label}
-            </Link>
+            <Button key={link.href} variant="ghost" size="sm" asChild>
+              <Link href={link.href} className={motion.navLink}>
+                {link.label}
+              </Link>
+            </Button>
           ))}
-          <Link
-            href="/developers"
-            className="text-sm font-medium text-foreground/80 transition-colors hover:text-coveru-red"
-          >
-            Desarrolladores
-          </Link>
-          <Link
-            href="/app"
-            className="text-sm font-medium text-foreground/80 transition-colors hover:text-coveru-red"
-          >
-            Panel
-          </Link>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/developers">Desarrolladores</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/app">Panel</Link>
+          </Button>
+          <Button variant="brand" size="sm" asChild className="rounded-full">
+            <Link href="/comparar">Comparar</Link>
+          </Button>
         </nav>
 
-        <Link
-          href="/comparar"
-          className="rounded-full bg-coveru-red px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-coveru-red-dark md:hidden"
-        >
-          Comparar
-        </Link>
+        <div className="flex items-center gap-2 md:hidden">
+          <Button variant="brand" size="sm" asChild className="rounded-full">
+            <Link href="/comparar">Comparar</Link>
+          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" aria-label="Abrir menú">
+                <Menu className="size-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>Menú</SheetTitle>
+              </SheetHeader>
+              <nav className="mt-6 flex flex-col gap-1" aria-label="Navegación móvil">
+                {[...NAV_LINKS, { href: "/developers", label: "Desarrolladores" }, { href: "/app", label: "Panel" }].map(
+                  (link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={cn(
+                        "rounded-md px-3 py-2 text-sm font-medium hover:bg-muted",
+                        motion.navLink,
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  ),
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
-
-      <nav
-        className="flex gap-1 overflow-x-auto border-t border-coveru-border px-4 py-2 md:hidden"
-        aria-label="Navegación móvil"
-      >
-        {NAV_LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/70 hover:bg-coveru-light hover:text-coveru-red"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
     </header>
   );
 }
