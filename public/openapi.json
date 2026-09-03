@@ -77,6 +77,7 @@
           "name": { "type": "string" },
           "description": { "type": "string", "nullable": true },
           "coverage_summary": { "type": "string", "nullable": true },
+          "natural_key_plan_id": { "type": "string", "nullable": true },
           "status": { "type": "string", "enum": ["active", "inactive", "archived"] },
           "is_demo": { "type": "boolean" }
         }
@@ -89,6 +90,9 @@
           "version_number": { "type": "integer" },
           "label": { "type": "string", "nullable": true },
           "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+          "effective_from": { "type": "string", "format": "date", "nullable": true },
+          "effective_to": { "type": "string", "format": "date", "nullable": true },
+          "published_at": { "type": "string", "format": "date-time", "nullable": true },
           "is_demo": { "type": "boolean" }
         }
       },
@@ -97,17 +101,35 @@
         "properties": {
           "id": { "type": "string", "format": "uuid" },
           "plan_id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid", "nullable": true },
           "age_min": { "type": "integer" },
           "age_max": { "type": "integer" },
-          "gender": { "type": "string" },
-          "region": { "type": "string" },
+          "gender": {
+            "type": "string",
+            "enum": ["any", "femenino", "masculino"]
+          },
+          "region": {
+            "type": "string",
+            "enum": ["Nacional", "Austro", "Costa", "Sierra"]
+          },
+          "grupo_asegurado": {
+            "type": "string",
+            "enum": ["titular", "nino_solo"],
+            "nullable": true
+          },
           "monthly_price": {
             "type": "number",
-            "description": "USD monthly premium (prima_mensual_con_imp). Dollars, not cents."
+            "description": "USD monthly premium tax-included (prima_mensual_con_imp). Dollars, not cents."
           },
           "deductible": { "type": "integer", "nullable": true },
           "copay_pct": { "type": "integer", "nullable": true },
           "annual_limit": { "type": "integer", "nullable": true },
+          "maternidad": {
+            "type": "string",
+            "enum": ["Si", "No"],
+            "nullable": true
+          },
+          "tax_included": { "type": "boolean", "nullable": true },
           "is_demo": { "type": "boolean" }
         }
       },
