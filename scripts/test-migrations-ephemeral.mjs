@@ -51,6 +51,26 @@ console.log(
   JSON.stringify({ status: "running", migration_count: files.length }),
 );
 
+const bootstrapSql = `
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+DO $$ BEGIN
+  CREATE ROLE anon NOLOGIN NOINHERIT;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+  CREATE ROLE authenticated NOLOGIN NOINHERIT;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN
+  CREATE ROLE service_role NOLOGIN NOINHERIT BYPASSRLS;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+`;
+
+runPsql(bootstrapSql);
+console.log(JSON.stringify({ status: "bootstrapped", roles: ["anon", "authenticated", "service_role"] }));
+
 for (const file of files) {
   const sql = readFileSync(join(migrationsDir, file), "utf-8");
   const wrapped = `BEGIN;\n${sql}\nCOMMIT;`;
