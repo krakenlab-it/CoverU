@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { buildAuthCallbackUrl } from "@/lib/auth/site-url";
 import { createClient } from "@/lib/supabase/client";
 import { type CoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
 import { useLogCoveruEnv } from "@/lib/supabase/use-log-coveru-env";
@@ -20,7 +19,21 @@ type RegistroFormProps = {
   envDiagnostics: CoveruEnvDiagnostics;
 };
 
-type FormState = "idle" | "confirm-email" | "success";
+async function provisionOrganization(
+  supabase: NonNullable<ReturnType<typeof createClient>>,
+  organizationName: string,
+): Promise<string | null> {
+  const { error: provisionError } = await supabase.rpc(
+    "provision_my_organization",
+    { p_organization_name: organizationName },
+  );
+
+  if (provisionError) {
+    return "Tu cuenta se creó, pero no pudimos preparar tu organización. Contacta soporte.";
+  }
+
+  return null;
+}
 
 export default function RegistroForm({
   supabaseUrl,
@@ -34,7 +47,6 @@ export default function RegistroForm({
   const [organizationName, setOrganizationName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [formState, setFormState] = useState<FormState>("idle");
 
   const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
   const supabase = supabaseConfigured
@@ -42,6 +54,41 @@ export default function RegistroForm({
     : null;
 
   useLogCoveruEnv(envDiagnostics, "warn", !supabaseConfigured);
+
+  async function completeSignupSession(
+    trimmedOrganizationName: string,
+  ): Promise<boolean> {
+    if (!supabase) {
+      setError("Supabase no está configurado en este entorno.");
+      return false;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError(
+        "Ya existe una cuenta con este email. Inicia sesión en /login o usa otra dirección.",
+      );
+      return false;
+    }
+
+    const provisionError = await provisionOrganization(
+      supabase,
+      trimmedOrganizationName,
+    );
+
+    if (provisionError) {
+      setError(provisionError);
+      return false;
+    }
+
+    router.push("/app");
+    router.refresh();
+    return true;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +104,9 @@ export default function RegistroForm({
       return;
     }
 
-    if (!organizationName.trim()) {
+    const trimmedOrganizationName = organizationName.trim();
+
+    if (!trimmedOrganizationName) {
       setError("Ingresa el nombre de tu organización.");
       return;
     }
@@ -70,20 +119,26 @@ export default function RegistroForm({
       return;
     }
 
-    const emailRedirectTo = buildAuthCallbackUrl("/app");
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          organization_name: organizationName.trim(),
-        },
-        emailRedirectTo,
-      },
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        organizationName: trimmedOrganizationName,
+      }),
     });
 
-    if (signUpError) {
+    if (response.status === 409) {
+      const completed = await completeSignupSession(trimmedOrganizationName);
+      setLoading(false);
+      if (!completed) {
+        return;
+      }
+      return;
+    }
+
+    if (!response.ok) {
       setLoading(false);
       setError(
         "No pudimos crear tu cuenta. Verifica tus datos e inténtalo de nuevo.",
@@ -91,29 +146,12 @@ export default function RegistroForm({
       return;
     }
 
-    if (data.session) {
-      const { error: provisionError } = await supabase.rpc(
-        "provision_my_organization",
-        { p_organization_name: organizationName.trim() },
-      );
+    const completed = await completeSignupSession(trimmedOrganizationName);
+    setLoading(false);
 
-      if (provisionError) {
-        setLoading(false);
-        setError(
-          "Tu cuenta se creó, pero no pudimos preparar tu organización. Contacta soporte.",
-        );
-        return;
-      }
-
-      setFormState("success");
-      setLoading(false);
-      router.push("/app");
-      router.refresh();
+    if (!completed) {
       return;
     }
-
-    setLoading(false);
-    setFormState("confirm-email");
   }
 
   if (!supabaseConfigured) {
@@ -121,32 +159,6 @@ export default function RegistroForm({
       <AuthPageShell>
         <SetupError diagnostics={envDiagnostics} />
         <AuthPageFooter />
-      </AuthPageShell>
-    );
-  }
-
-  if (formState === "confirm-email") {
-    return (
-      <AuthPageShell>
-        <Card>
-          <CardHeader>
-            <CardTitle>Revisa tu correo</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Te enviamos un enlace de confirmación a{" "}
-              <span className="font-medium text-foreground">{email}</span>.
-              Confírmalo para acceder al panel de CoverÜ.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              ¿Ya confirmaste?{" "}
-              <Link href="/login" className="text-primary hover:underline">
-                Inicia sesión
-              </Link>
-            </p>
-            <AuthPageFooter />
-          </CardContent>
-        </Card>
       </AuthPageShell>
     );
   }
@@ -210,7 +222,12 @@ export default function RegistroForm({
 
             {error ? (
               <p className="text-sm text-destructive" role="alert">
-                {error}
+                {error}{" "}
+                {error.includes("/login") ? (
+                  <Link href="/login" className="text-primary hover:underline">
+                    Ir a iniciar sesión
+                  </Link>
+                ) : null}
               </p>
             ) : null}
 

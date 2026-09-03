@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { leadSchema, compareQuerySchema } from "@/lib/validation";
+import { leadSchema, compareQuerySchema, signupSchema } from "@/lib/validation";
 
 describe("leadSchema", () => {
   it("accepts valid lead", () => {
@@ -47,6 +47,35 @@ describe("compareQuerySchema", () => {
       age: 30,
       gender: "other",
       region: "metropolitana",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("signupSchema", () => {
+  it("accepts valid signup payload", () => {
+    const result = signupSchema.safeParse({
+      email: "user@example.com",
+      password: "password123",
+      organizationName: "Mi Org",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects short passwords", () => {
+    const result = signupSchema.safeParse({
+      email: "user@example.com",
+      password: "short",
+      organizationName: "Mi Org",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty organization name", () => {
+    const result = signupSchema.safeParse({
+      email: "user@example.com",
+      password: "password123",
+      organizationName: "",
     });
     expect(result.success).toBe(false);
   });
