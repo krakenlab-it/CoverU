@@ -1,9 +1,10 @@
+import type { TariffRegion } from "@/lib/catalog-enums";
 import type { Tariff } from "@/lib/types/database";
 
 export interface TariffMatchFilters {
   age?: number;
   gender?: string;
-  region?: string;
+  region?: TariffRegion | "any";
 }
 
 export function findMatchingTariff(

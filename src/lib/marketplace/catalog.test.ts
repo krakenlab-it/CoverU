@@ -9,7 +9,7 @@ const SAMPLE_TARIFFS: Tariff[] = [
     age_min: 18,
     age_max: 65,
     gender: "femenino",
-    region: "pichincha",
+    region: "Sierra",
     monthly_price: 100,
     deductible: 500,
     copay_pct: 20,
@@ -40,7 +40,7 @@ describe("tariff matching", () => {
     const result = findMatchingTariff(SAMPLE_TARIFFS, {
       age: 10,
       gender: "masculino",
-      region: "guayas",
+      region: "Austro",
     });
     expect(result).toBeNull();
   });
@@ -49,7 +49,7 @@ describe("tariff matching", () => {
     const result = findMatchingTariff(SAMPLE_TARIFFS, {
       age: 30,
       gender: "femenino",
-      region: "pichincha",
+      region: "Sierra",
     });
     expect(result?.id).toBe("t1");
   });
@@ -58,7 +58,7 @@ describe("tariff matching", () => {
     const result = findMatchingTariff(SAMPLE_TARIFFS, {
       age: 30,
       gender: "masculino",
-      region: "guayas",
+      region: "Costa",
     });
     expect(result?.id).toBe("t2");
   });

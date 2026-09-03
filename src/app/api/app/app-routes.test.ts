@@ -6,7 +6,7 @@ import { POST as coveragePOST } from "@/app/api/app/coverage/qa/route";
 describe("app internal API routes", () => {
   it("GET /api/app/catalog requires session", async () => {
     const req = new Request(
-      "http://localhost/api/app/catalog?age=30&gender=femenino&region=pichincha",
+      "http://localhost/api/app/catalog?age=30&gender=femenino&region=Sierra",
     );
     const res = await catalogGET(req);
     expect(res.status).toBe(401);

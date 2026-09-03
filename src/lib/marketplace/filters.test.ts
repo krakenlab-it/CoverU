@@ -9,7 +9,7 @@ describe("marketplace filters", () => {
     const params = new URLSearchParams({
       age: "30",
       gender: "femenino",
-      region: "metropolitana",
+      region: "Sierra",
       insurer_id: "a0000000-0000-4000-8000-000000000001",
       category: "hospitalizacion",
       deductible_max: "50000",
@@ -21,7 +21,7 @@ describe("marketplace filters", () => {
     const filters = parseMarketplaceFilters(params);
     expect(filters.age).toBe(30);
     expect(filters.gender).toBe("femenino");
-    expect(filters.region).toBe("metropolitana");
+    expect(filters.region).toBe("Sierra");
     expect(filters.insurerId).toBe("a0000000-0000-4000-8000-000000000001");
     expect(filters.category).toBe("hospitalizacion");
     expect(filters.deductibleMax).toBe(50000);
