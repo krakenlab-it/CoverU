@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SetupError } from "@/components/platform/SetupError";
@@ -9,15 +9,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
+import {
+  type CoveruEnvDiagnostics,
+  buildCoveruEnvDiagnostics,
+  logCoveruEnv,
+} from "@/lib/supabase/env-diagnostics";
 
 type LoginFormProps = {
   supabaseUrl: string;
   supabaseAnonKey: string;
+  envDiagnostics: CoveruEnvDiagnostics;
 };
 
 export default function LoginForm({
   supabaseUrl,
   supabaseAnonKey,
+  envDiagnostics,
 }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,6 +38,28 @@ export default function LoginForm({
   const supabase = supabaseConfigured
     ? createClient({ url: supabaseUrl, anonKey: supabaseAnonKey })
     : null;
+
+  useEffect(() => {
+    if (!supabaseConfigured) {
+      logCoveruEnv(
+        {
+          ...buildCoveruEnvDiagnostics({
+            route: "/login",
+            url: supabaseUrl,
+            anonKey: supabaseAnonKey,
+            includeServiceRole: false,
+          }),
+          hasServiceRole: envDiagnostics.hasServiceRole,
+        },
+        "warn",
+      );
+    }
+  }, [
+    supabaseConfigured,
+    supabaseUrl,
+    supabaseAnonKey,
+    envDiagnostics.hasServiceRole,
+  ]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -62,7 +91,7 @@ export default function LoginForm({
   if (!supabaseConfigured) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-4 py-12">
-        <SetupError />
+        <SetupError diagnostics={envDiagnostics} />
         <p className="mt-6 text-center text-sm text-muted-foreground">
           <Link href="/" className="hover:text-primary">
             ← Volver al inicio
