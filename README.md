@@ -11,6 +11,7 @@ Comparador de seguros de salud en Chile — Next.js App Router + Supabase.
 - `/api/leads` — lead capture API
 - Supabase migrations for `insurers`, `plans`, `tariffs`, and `leads`
 - **Phase 1 (stacked PR):** organizations, B2B API keys, plan versions, coverage catalog, quotes, usage logs, `/api/v1` REST API, grounded coverage Q&A, `/developers` docs, auth panel at `/app`
+- **Phase 2 (stacked PR #3):** logged-in marketplace at `/app/marketplace` — search/filter/sort, plan cards, 2–4 plan compare workspace, policy detail viewer, embedded grounded coverage assistant
 - Demo data unmistakably labeled as `[DEMO]` / "DEMO — datos de ejemplo"
 
 ## Quick start
@@ -21,7 +22,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). Logged-in marketplace: [http://localhost:3000/app/marketplace](http://localhost:3000/app/marketplace) (demo mode without Supabase).
 
 Without Supabase env vars, the app runs in demo mode using in-memory example data.
 

@@ -4,10 +4,15 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (!pathname.startsWith("/app")) {
-    return NextResponse.next();
-  }
+  const response = pathname.startsWith("/app")
+    ? await handleAppAuth(request, pathname)
+    : NextResponse.next();
 
+  response.headers.set("x-pathname", pathname);
+  return response;
+}
+
+async function handleAppAuth(request: NextRequest, pathname: string) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -52,5 +57,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
