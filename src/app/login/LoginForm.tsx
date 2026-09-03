@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SetupError } from "@/components/platform/SetupError";
@@ -9,11 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
-import {
-  type CoveruEnvDiagnostics,
-  buildCoveruEnvDiagnostics,
-  logCoveruEnv,
-} from "@/lib/supabase/env-diagnostics";
+import { type CoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
+import { useLogCoveruEnv } from "@/lib/supabase/use-log-coveru-env";
 
 type LoginFormProps = {
   supabaseUrl: string;
@@ -39,27 +36,7 @@ export default function LoginForm({
     ? createClient({ url: supabaseUrl, anonKey: supabaseAnonKey })
     : null;
 
-  useEffect(() => {
-    if (!supabaseConfigured) {
-      logCoveruEnv(
-        {
-          ...buildCoveruEnvDiagnostics({
-            route: "/login",
-            url: supabaseUrl,
-            anonKey: supabaseAnonKey,
-            includeServiceRole: false,
-          }),
-          hasServiceRole: envDiagnostics.hasServiceRole,
-        },
-        "warn",
-      );
-    }
-  }, [
-    supabaseConfigured,
-    supabaseUrl,
-    supabaseAnonKey,
-    envDiagnostics.hasServiceRole,
-  ]);
+  useLogCoveruEnv(envDiagnostics, "warn", !supabaseConfigured);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
