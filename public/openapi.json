@@ -1,0 +1,320 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CoverÜ API",
+    "version": "1.0.0",
+    "description": "API B2B de CoverÜ para catálogo de seguros de salud, cotizaciones y consultas de cobertura fundamentadas. Todos los datos de demostración están claramente marcados como [DEMO].",
+    "contact": {
+      "name": "CoverÜ",
+      "url": "https://coveru.cl"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "API v1 (relativa al dominio de despliegue)"
+    }
+  ],
+  "security": [
+    { "ApiKeyAuth": [] },
+    { "BearerAuth": [] }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Clave API B2B. También acepta Authorization: Bearer <key>."
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Clave API como token Bearer."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error", "request_id"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "details": {}
+            }
+          },
+          "request_id": { "type": "string", "format": "uuid" }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "per_page": { "type": "integer" },
+          "total": { "type": "integer" },
+          "total_pages": { "type": "integer" }
+        }
+      },
+      "Insurer": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "logo_url": { "type": "string", "nullable": true },
+          "is_demo": { "type": "boolean" }
+        }
+      },
+      "Plan": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "insurer_id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "coverage_summary": { "type": "string", "nullable": true },
+          "status": { "type": "string", "enum": ["active", "inactive", "archived"] },
+          "is_demo": { "type": "boolean" }
+        }
+      },
+      "PlanVersion": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_id": { "type": "string", "format": "uuid" },
+          "version_number": { "type": "integer" },
+          "label": { "type": "string", "nullable": true },
+          "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+          "is_demo": { "type": "boolean" }
+        }
+      },
+      "Tariff": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_id": { "type": "string", "format": "uuid" },
+          "age_min": { "type": "integer" },
+          "age_max": { "type": "integer" },
+          "gender": { "type": "string" },
+          "region": { "type": "string" },
+          "monthly_price": { "type": "integer" },
+          "deductible": { "type": "integer", "nullable": true },
+          "copay_pct": { "type": "integer", "nullable": true },
+          "annual_limit": { "type": "integer", "nullable": true },
+          "is_demo": { "type": "boolean" }
+        }
+      },
+      "Quote": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "organization_id": { "type": "string", "format": "uuid", "nullable": true },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "external_ref": { "type": "string", "nullable": true },
+          "status": { "type": "string" },
+          "monthly_price": { "type": "integer", "nullable": true },
+          "is_demo": { "type": "boolean" }
+        }
+      },
+      "CoverageQaRequest": {
+        "type": "object",
+        "required": ["plan_version_id", "question"],
+        "properties": {
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "question": { "type": "string", "minLength": 3, "maxLength": 1000 }
+        }
+      },
+      "CoverageQaResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["covered", "not_covered", "conditional", "unknown"]
+          },
+          "answer": { "type": "string" },
+          "citations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "clause_ref": { "type": "string" },
+                "excerpt": { "type": "string" },
+                "page_number": { "type": "integer", "nullable": true },
+                "policy_document_title": { "type": "string" }
+              }
+            }
+          },
+          "abstained": { "type": "boolean" },
+          "policy_wording_controls": { "type": "boolean" },
+          "provider": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "API key ausente o inválida",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Límite de solicitudes excedido",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/insurers": {
+      "get": {
+        "summary": "Listar aseguradoras",
+        "operationId": "listInsurers",
+        "tags": ["Catálogo"],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "per_page", "in": "query", "schema": { "type": "integer", "default": 20, "maximum": 100 } },
+          { "name": "is_demo", "in": "query", "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de aseguradoras",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "insurers": { "type": "array", "items": { "$ref": "#/components/schemas/Insurer" } },
+                        "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                      }
+                    },
+                    "request_id": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/plans": {
+      "get": {
+        "summary": "Listar planes",
+        "operationId": "listPlans",
+        "tags": ["Catálogo"],
+        "parameters": [
+          { "name": "insurer_id", "in": "query", "schema": { "type": "string", "format": "uuid" } },
+          { "name": "status", "in": "query", "schema": { "type": "string", "default": "active" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "per_page", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": { "description": "Lista paginada de planes" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/plan-versions": {
+      "get": {
+        "summary": "Detalle de versión de plan",
+        "operationId": "getPlanVersion",
+        "tags": ["Catálogo"],
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Detalle con cláusulas, exclusiones y citas" },
+          "404": { "description": "Versión no encontrada" }
+        }
+      }
+    },
+    "/tariffs": {
+      "get": {
+        "summary": "Listar tarifas",
+        "operationId": "listTariffs",
+        "tags": ["Catálogo"],
+        "parameters": [
+          { "name": "plan_id", "in": "query", "schema": { "type": "string", "format": "uuid" } },
+          { "name": "region", "in": "query", "schema": { "type": "string" } },
+          { "name": "gender", "in": "query", "schema": { "type": "string" } },
+          { "name": "age", "in": "query", "schema": { "type": "integer" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        ],
+        "responses": {
+          "200": { "description": "Lista paginada de tarifas" }
+        }
+      }
+    },
+    "/quotes": {
+      "get": {
+        "summary": "Consultar cotización",
+        "operationId": "getQuote",
+        "tags": ["Cotizaciones"],
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Cotización encontrada" },
+          "403": { "description": "Sin acceso a la cotización" },
+          "404": { "description": "Cotización no encontrada" }
+        }
+      }
+    },
+    "/coverage/qa": {
+      "post": {
+        "summary": "Pregunta de cobertura fundamentada",
+        "operationId": "coverageQa",
+        "tags": ["Cobertura"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CoverageQaRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Respuesta fundamentada con citas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/CoverageQaResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Versión de plan no encontrada" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Catálogo", "description": "Aseguradoras, planes, versiones y tarifas" },
+    { "name": "Cotizaciones", "description": "Consulta de cotizaciones B2B" },
+    { "name": "Cobertura", "description": "Preguntas de cobertura con citas de póliza" }
+  ],
+  "x-rate-limits": {
+    "default": {
+      "limit": 100,
+      "window_seconds": 60,
+      "headers": ["X-RateLimit-Limit", "X-RateLimit-Remaining"]
+    }
+  }
+}
