@@ -67,6 +67,7 @@ export interface CoverageClause {
   title: string;
   description: string | null;
   coverage_status: CoverageStatus;
+  coverage_status_text?: string | null;
   conditions: string | null;
   sort_order: number;
   is_demo: boolean;
@@ -123,6 +124,7 @@ export interface Quote {
   age: number | null;
   gender: string | null;
   region: string | null;
+  /** USD monthly — dollars, not cents (NUMERIC(12,2) in DB) */
   monthly_price: number | null;
   metadata: Record<string, unknown>;
   expires_at: string | null;

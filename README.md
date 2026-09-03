@@ -55,8 +55,19 @@ Or run the SQL files in `supabase/migrations/` via the Supabase SQL editor in or
 - `20250101000001_seed_demo_data.sql`
 - `20250102000000_phase1_schema.sql`
 - `20250102000001_phase1_seed_demo.sql`
+- `20260903180000_tariff_schema_v1_1.sql`
 
 Migrations enable RLS: public read on published catalog; tenant isolation for orgs/quotes; API keys verified server-side only.
+
+## Tariff schema v1.1 (loader readiness)
+
+Migration `20260903180000_tariff_schema_v1_1.sql` applies locked clean/v1.1 schema decisions **without importing data**:
+
+- `tariffs.monthly_price` is `NUMERIC(12,2)` USD monthly from matrix `prima_mensual_con_imp` (dollars, not cents; never divide BMI annual values by 12).
+- Additive loader columns: `plan_version_id`, `grupo_asegurado`, `tax_included`, `tax_basis_raw`; plans provenance fields; `coverage_status` extended with `unknown` plus nullable `coverage_status_text`.
+- **Preview and production Excel load remains gated** until clean/v1.1 SHA approval from Mike's package.
+- **RED1/RED2 region mapping and tax policy remain open** — not resolved in this PR.
+- **No production data** is imported or modified by this migration.
 
 ## API B2B (v1)
 
