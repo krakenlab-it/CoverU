@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { DemoAlert } from "@/components/platform/DemoAlert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginForm() {
@@ -45,77 +50,71 @@ export default function LoginForm() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-4 py-12">
-      <h1 className="text-2xl font-bold text-foreground">Iniciar sesión</h1>
-      <p className="mt-2 text-sm text-coveru-gray">
-        Accede al panel de CoverÜ para tu organización.
-      </p>
-
-      {isDemoMode && (
-        <div
-          className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
-          role="status"
-        >
-          <strong>Modo demo:</strong> Supabase no está configurado. Puedes
-          entrar al panel sin credenciales.
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        {!isDemoMode && (
-          <>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-1 w-full rounded-lg border border-coveru-border px-3 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-1 focus:ring-coveru-red"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium">
-                Contraseña
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1 w-full rounded-lg border border-coveru-border px-3 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-1 focus:ring-coveru-red"
-              />
-            </div>
-          </>
-        )}
-
-        {error && (
-          <p className="text-sm text-coveru-red" role="alert">
-            {error}
+      <Card>
+        <CardHeader>
+          <CardTitle>Iniciar sesión</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Accede al panel de CoverÜ para tu organización.
           </p>
-        )}
+        </CardHeader>
+        <CardContent>
+          {isDemoMode ? <DemoAlert compact className="mb-4" /> : null}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-full bg-coveru-red px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-coveru-red-dark disabled:opacity-60"
-        >
-          {loading
-            ? "Ingresando…"
-            : isDemoMode
-              ? "Entrar al panel demo"
-              : "Iniciar sesión"}
-        </button>
-      </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {!isDemoMode ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+              </>
+            ) : null}
 
-      <p className="mt-6 text-center text-sm text-coveru-gray">
-        <Link href="/" className="hover:text-coveru-red">
-          ← Volver al inicio
-        </Link>
-      </p>
+            {error ? (
+              <p className="text-sm text-destructive" role="alert">
+                {error}
+              </p>
+            ) : null}
+
+            <Button
+              type="submit"
+              variant="brand"
+              className="w-full rounded-full"
+              disabled={loading}
+            >
+              {loading
+                ? "Ingresando…"
+                : isDemoMode
+                  ? "Entrar al panel demo"
+                  : "Iniciar sesión"}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            <Link href="/" className="hover:text-primary">
+              ← Volver al inicio
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

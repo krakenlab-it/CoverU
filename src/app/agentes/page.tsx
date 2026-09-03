@@ -1,15 +1,20 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { PageContainer } from "@/components/platform/PageContainer";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { Button } from "@/components/ui/button";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPublicMetadata({
   title: "Agentes",
-  description: "Información para agentes y corredores de seguros interesados en CoverÜ.",
-};
+  description:
+    "Información para agentes y corredores de seguros interesados en CoverÜ en Ecuador.",
+  path: "/agentes",
+});
 
 export default function AgentesPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-bold text-foreground">Agentes</h1>
+    <PageContainer size="narrow">
+      <PageHeader title="Agentes" />
       <div className="mt-6 space-y-4 text-foreground/80">
         <p>
           CoverÜ está diseñado para que agentes y corredores de seguros puedan
@@ -20,13 +25,10 @@ export default function AgentesPage() {
           Si eres agente o corredor y quieres conocer cómo participar cuando
           abramos la plataforma a productos reales, contáctanos.
         </p>
-        <Link
-          href="/contacto"
-          className="inline-block rounded-full bg-coveru-red px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-coveru-red-dark"
-        >
-          Contactar a CoverÜ
-        </Link>
+        <Button variant="brand" className="rounded-full" asChild>
+          <Link href="/contacto">Contactar a CoverÜ</Link>
+        </Button>
       </div>
-    </div>
+    </PageContainer>
   );
 }

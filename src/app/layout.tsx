@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { SiteChrome } from "@/components/layout/SiteChrome";
+import { SkipLink } from "@/components/platform/SkipLink";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -10,12 +14,15 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "CoverÜ — Comparador de seguros de salud",
-    template: "%s | CoverÜ",
+  ...buildPublicMetadata({ path: "/" }),
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  description:
-    "Compara planes de seguro de salud en Chile. Datos de demostración hasta integrar aseguradoras reales.",
+  other: {
+    "theme-color": "#df0926",
+  },
 };
 
 export default function RootLayout({
@@ -24,9 +31,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${poppins.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-white text-foreground">
-        <SiteChrome>{children}</SiteChrome>
+    <html lang="es-EC" className={cn("h-full antialiased", poppins.variable)}>
+      <body className="flex min-h-full flex-col bg-background text-foreground">
+        <TooltipProvider delayDuration={300}>
+          <SkipLink />
+          <SiteChrome>{children}</SiteChrome>
+        </TooltipProvider>
       </body>
     </html>
   );

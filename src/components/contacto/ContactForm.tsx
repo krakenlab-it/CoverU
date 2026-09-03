@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ContactFormProps {
   source?: string;
@@ -56,70 +60,77 @@ export function ContactForm({ source = "contacto" }: ContactFormProps) {
 
   if (status === "success") {
     return (
-      <div
-        className="rounded-xl border border-green-200 bg-green-50 p-6 text-sm text-green-800"
-        role="status"
-      >
-        ¡Gracias! Recibimos tu mensaje y te contactaremos pronto.
-      </div>
+      <Card role="status">
+        <CardContent className="p-6 text-sm text-emerald-800">
+          ¡Gracias! Recibimos tu mensaje y te contactaremos pronto.
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <label className="block">
-        <span className="text-sm font-medium">Nombre</span>
-        <input
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <div className="space-y-2">
+        <Label htmlFor="contact-name">Nombre</Label>
+        <Input
+          id="contact-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="mt-1 w-full rounded-lg border border-coveru-border px-3 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-1 focus:ring-coveru-red"
+          autoComplete="name"
         />
-      </label>
+      </div>
 
-      <label className="block">
-        <span className="text-sm font-medium">Email</span>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="contact-email">Email</Label>
+        <Input
+          id="contact-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="mt-1 w-full rounded-lg border border-coveru-border px-3 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-1 focus:ring-coveru-red"
+          autoComplete="email"
+          aria-invalid={status === "error"}
         />
-      </label>
+      </div>
 
-      <label className="block">
-        <span className="text-sm font-medium">Teléfono (opcional)</span>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="contact-phone">Teléfono (opcional)</Label>
+        <Input
+          id="contact-phone"
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-coveru-border px-3 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-1 focus:ring-coveru-red"
+          autoComplete="tel"
         />
-      </label>
+      </div>
 
-      <label className="block">
-        <span className="text-sm font-medium">Mensaje</span>
+      <div className="space-y-2">
+        <Label htmlFor="contact-message">Mensaje</Label>
         <textarea
+          id="contact-message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
-          className="mt-1 w-full rounded-lg border border-coveru-border px-3 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-1 focus:ring-coveru-red"
+          className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
-      </label>
+      </div>
 
-      {status === "error" && errorMessage && (
-        <p className="text-sm text-coveru-red" role="alert">{errorMessage}</p>
-      )}
+      {status === "error" && errorMessage ? (
+        <p className="text-sm text-destructive" role="alert">
+          {errorMessage}
+        </p>
+      ) : null}
 
-      <button
+      <Button
         type="submit"
+        variant="brand"
+        className="rounded-full"
         disabled={status === "loading"}
-        className="rounded-full bg-coveru-red px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-coveru-red-dark disabled:opacity-60"
       >
         {status === "loading" ? "Enviando…" : "Enviar mensaje"}
-      </button>
+      </Button>
     </form>
   );
 }

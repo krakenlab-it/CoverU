@@ -1,0 +1,180 @@
+{
+  "name": "CoverÜ Visual System",
+  "version": "1.0.0",
+  "brand": "CoverÜ",
+  "market": "Ecuador",
+  "primaryColor": "#DF0926",
+  "files": [
+    {
+      "filename": "USAGE.md",
+      "dimensions": null,
+      "purpose": "Design system documentation or token source"
+    },
+    {
+      "filename": "icons/app-icon-master.svg",
+      "dimensions": "512x512",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/apple-touch-icon.png",
+      "dimensions": "180x180",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/favicon.ico",
+      "dimensions": "48x48",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/icon-16.png",
+      "dimensions": "16x16",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/icon-180.png",
+      "dimensions": "180x180",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/icon-192.png",
+      "dimensions": "192x192",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/icon-32.png",
+      "dimensions": "32x32",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/icon-48.png",
+      "dimensions": "48x48",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "icons/icon-512.png",
+      "dimensions": "512x512",
+      "purpose": "Application icon or favicon"
+    },
+    {
+      "filename": "illustrations/illustration-compare.png",
+      "dimensions": "800x560",
+      "purpose": "Product UI illustration"
+    },
+    {
+      "filename": "illustrations/illustration-compare.svg",
+      "dimensions": "800x560",
+      "purpose": "Product UI illustration"
+    },
+    {
+      "filename": "illustrations/illustration-coverage-assistant.png",
+      "dimensions": "800x560",
+      "purpose": "Product UI illustration"
+    },
+    {
+      "filename": "illustrations/illustration-coverage-assistant.svg",
+      "dimensions": "800x560",
+      "purpose": "Product UI illustration"
+    },
+    {
+      "filename": "illustrations/illustration-plan-card.png",
+      "dimensions": "800x560",
+      "purpose": "Product UI illustration"
+    },
+    {
+      "filename": "illustrations/illustration-plan-card.svg",
+      "dimensions": "800x560",
+      "purpose": "Product UI illustration"
+    },
+    {
+      "filename": "logos/compact-1color-black.svg",
+      "dimensions": "128x128",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "logos/compact-red-on-white.svg",
+      "dimensions": "128x128",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "logos/compact-white-on-dark.svg",
+      "dimensions": "128x128",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "logos/wordmark-1color-black.svg",
+      "dimensions": "420x104",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "logos/wordmark-red-on-white.svg",
+      "dimensions": "420x104",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "logos/wordmark-red-white-on-dark.svg",
+      "dimensions": "420x104",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "logos/wordmark-white-on-dark.svg",
+      "dimensions": "420x104",
+      "purpose": "Brand lockup master"
+    },
+    {
+      "filename": "social/og-coveru.png",
+      "dimensions": "1200x630",
+      "purpose": "Open Graph/Twitter preview"
+    },
+    {
+      "filename": "social/og-coveru.svg",
+      "dimensions": "1200x630",
+      "purpose": "Open Graph/Twitter preview"
+    },
+    {
+      "filename": "social/twitter-coveru.png",
+      "dimensions": "1200x630",
+      "purpose": "Open Graph/Twitter preview"
+    },
+    {
+      "filename": "social-copy.md",
+      "dimensions": null,
+      "purpose": "Design system documentation or token source"
+    },
+    {
+      "filename": "states/state-empty.png",
+      "dimensions": "960x640",
+      "purpose": "Marketplace system state"
+    },
+    {
+      "filename": "states/state-empty.svg",
+      "dimensions": "960x640",
+      "purpose": "Marketplace system state"
+    },
+    {
+      "filename": "states/state-error.png",
+      "dimensions": "960x640",
+      "purpose": "Marketplace system state"
+    },
+    {
+      "filename": "states/state-error.svg",
+      "dimensions": "960x640",
+      "purpose": "Marketplace system state"
+    },
+    {
+      "filename": "states/state-loading.png",
+      "dimensions": "960x640",
+      "purpose": "Marketplace system state"
+    },
+    {
+      "filename": "states/state-loading.svg",
+      "dimensions": "960x640",
+      "purpose": "Marketplace system state"
+    },
+    {
+      "filename": "tokens.css",
+      "dimensions": null,
+      "purpose": "Design system documentation or token source"
+    }
+  ],
+  "publicDirectory": "public/ contains flattened ready-to-commit copies."
+}

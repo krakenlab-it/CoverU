@@ -1,17 +1,21 @@
-export const CHILE_REGIONS = [
-  { value: "metropolitana", label: "Región Metropolitana" },
-  { value: "valparaiso", label: "Valparaíso" },
-  { value: "biobio", label: "Biobío" },
-  { value: "araucania", label: "Araucanía" },
-  { value: "los-rios", label: "Los Ríos" },
-  { value: "los-lagos", label: "Los Lagos" },
-  { value: "antofagasta", label: "Antofagasta" },
-  { value: "coquimbo", label: "Coquimbo" },
-  { value: "ohiggins", label: "O'Higgins" },
-  { value: "maule", label: "Maule" },
+/** Demo region slugs preserved for API/demo data compatibility. */
+export const DEMO_REGIONS = [
+  { value: "metropolitana", label: "Pichincha (demo)" },
+  { value: "valparaiso", label: "Guayas (demo)" },
+  { value: "biobio", label: "Azuay (demo)" },
+  { value: "araucania", label: "Manabí (demo)" },
+  { value: "los-rios", label: "Los Ríos (demo)" },
+  { value: "los-lagos", label: "El Oro (demo)" },
+  { value: "antofagasta", label: "Esmeraldas (demo)" },
+  { value: "coquimbo", label: "Tungurahua (demo)" },
+  { value: "ohiggins", label: "Loja (demo)" },
+  { value: "maule", label: "Imbabura (demo)" },
 ] as const;
 
-export type RegionValue = (typeof CHILE_REGIONS)[number]["value"];
+/** @deprecated Use DEMO_REGIONS — kept for backward compatibility in imports/tests */
+export const CHILE_REGIONS = DEMO_REGIONS;
+
+export type RegionValue = (typeof DEMO_REGIONS)[number]["value"];
 
 export const GENDER_OPTIONS = [
   { value: "femenino", label: "Femenino" },
@@ -19,3 +23,7 @@ export const GENDER_OPTIONS = [
 ] as const;
 
 export type GenderValue = (typeof GENDER_OPTIONS)[number]["value"];
+
+export function getRegionLabel(value: string): string {
+  return DEMO_REGIONS.find((r) => r.value === value)?.label ?? value;
+}

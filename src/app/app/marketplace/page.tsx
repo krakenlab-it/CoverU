@@ -1,14 +1,21 @@
 import { Suspense } from "react";
 import { MarketplaceFiltersPanel } from "@/components/marketplace/MarketplaceFiltersPanel";
 import { MarketplaceResultsGrid } from "@/components/marketplace/MarketplaceResultsGrid";
+import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
+import { ErrorState } from "@/components/platform/ErrorState";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { LoadingState } from "@/components/platform/LoadingState";
+import { Skeleton } from "@/components/ui/skeleton";
+import { buildAppMetadata } from "@/lib/seo/metadata";
 import { getDemoInsurers, searchMarketplace } from "@/lib/marketplace/catalog";
 import { parseCompareIds } from "@/lib/marketplace/compare";
 import { parseMarketplaceFilters } from "@/lib/marketplace/filters";
 import type { MarketplacePlanResult } from "@/lib/marketplace/types";
 
-export const metadata = {
-  title: "Marketplace",
-};
+export const metadata = buildAppMetadata(
+  "Marketplace",
+  "Busca, filtra y compara planes de salud en el panel CoverÜ.",
+);
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -23,6 +30,10 @@ function toSearchParams(
     else if (Array.isArray(value) && value[0]) params.set(key, value[0]);
   }
   return params;
+}
+
+function MarketplaceSkeleton() {
+  return <LoadingState label="Cargando marketplace" />;
 }
 
 async function MarketplaceContent({
@@ -45,27 +56,29 @@ async function MarketplaceContent({
   }
 
   if (error) {
-    return (
-      <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-800">
-        {error}
-      </div>
-    );
+    return <ErrorState message={error} />;
   }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-white" />}>
+      <Suspense fallback={<Skeleton className="h-96" />}>
         <MarketplaceFiltersPanel insurers={insurers} compareIds={compareIds} />
       </Suspense>
       <div>
-        <header className="mb-4">
-          <h1 className="text-2xl font-bold">Marketplace de seguros</h1>
-          <p className="mt-1 text-sm text-coveru-gray">
-            Busca, filtra y compara planes de salud. Todos los datos mostrados
-            son de demostración.
-          </p>
-        </header>
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-white" />}>
+        <PageHeader
+          breadcrumbs={
+            <Breadcrumbs
+              items={[
+                { label: "Panel", href: "/app/marketplace" },
+                { label: "Marketplace" },
+              ]}
+            />
+          }
+          title="Marketplace de seguros"
+          description="Busca, filtra y compara planes de salud. Todos los datos mostrados son de demostración."
+          className="mb-4"
+        />
+        <Suspense fallback={<Skeleton className="h-64" />}>
           <MarketplaceResultsGrid results={results} filters={filters} />
         </Suspense>
       </div>
@@ -78,14 +91,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
   const params = toSearchParams(raw);
 
   return (
-    <Suspense
-      fallback={
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-64 rounded bg-white" />
-          <div className="h-96 rounded-2xl bg-white" />
-        </div>
-      }
-    >
+    <Suspense fallback={<MarketplaceSkeleton />}>
       <MarketplaceContent searchParams={params} />
     </Suspense>
   );

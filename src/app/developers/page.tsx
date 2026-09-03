@@ -1,10 +1,14 @@
 import Link from "next/link";
 import openapi from "../../../public/openapi.json";
+import { PageContainer } from "@/components/platform/PageContainer";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 
-export const metadata = {
+export const metadata = buildPublicMetadata({
   title: "Desarrolladores",
-  description: "Documentación de la API B2B de CoverÜ",
-};
+  description: "Documentación de la API B2B de CoverÜ para integradores en Ecuador.",
+  path: "/developers",
+});
 
 function CodeBlock({ children }: { children: string }) {
   return (
@@ -18,16 +22,12 @@ export default function DevelopersPage() {
   const paths = Object.keys(openapi.paths);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
-      <p className="text-sm font-semibold uppercase tracking-wide text-coveru-red">
-        API B2B v1
-      </p>
-      <h1 className="mt-2 text-3xl font-bold">Documentación para desarrolladores</h1>
-      <p className="mt-4 text-coveru-gray">
-        Integra el catálogo de seguros de salud, cotizaciones y consultas de
-        cobertura fundamentadas. Todos los datos de demostración están marcados
-        como <strong>[DEMO]</strong>.
-      </p>
+    <PageContainer size="wide">
+      <PageHeader
+        eyebrow="API B2B v1"
+        title="Documentación para desarrolladores"
+        description="Integra el catálogo de seguros de salud, cotizaciones y consultas de cobertura fundamentadas. Todos los datos de demostración están marcados como [DEMO]."
+      />
 
       <section className="mt-10">
         <h2 className="text-xl font-semibold">Autenticación</h2>
@@ -134,6 +134,6 @@ export default function DevelopersPage() {
         incluyen <code>policy_wording_controls: true</code>. El texto oficial de
         la póliza prevalece sobre cualquier resumen generado.
       </section>
-    </div>
+    </PageContainer>
   );
 }

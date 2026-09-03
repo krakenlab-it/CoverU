@@ -1,23 +1,24 @@
-import type { Metadata } from "next";
 import { ComparisonGate } from "@/components/comparar/ComparisonGate";
+import { PageContainer } from "@/components/platform/PageContainer";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPublicMetadata({
   title: "Comparar planes",
   description:
-    "Compara planes de seguro de salud por edad, género y región. Datos de demostración.",
-};
+    "Compara planes de seguro de salud por edad, género y provincia en Ecuador. Datos de demostración.",
+  path: "/comparar",
+});
 
 export default function CompararPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Comparar planes</h1>
-        <p className="mt-2 text-coveru-gray">
-          Ingresa tu edad, género y región para ver planes de ejemplo con
-          precios y coberturas transparentes.
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Comparar planes"
+        description="Ingresa tu edad, género y provincia para ver planes de ejemplo con precios y coberturas transparentes."
+        className="mb-8"
+      />
       <ComparisonGate />
-    </div>
+    </PageContainer>
   );
 }
