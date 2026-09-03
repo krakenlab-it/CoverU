@@ -66,6 +66,21 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+CREATE SCHEMA IF NOT EXISTS auth;
+
+CREATE TABLE IF NOT EXISTS auth.users (
+  id UUID PRIMARY KEY,
+  email TEXT
+);
+
+CREATE OR REPLACE FUNCTION auth.uid()
+RETURNS UUID
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT NULL::UUID;
+$$;
 `;
 
 runPsql(bootstrapSql);
