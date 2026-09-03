@@ -7,6 +7,7 @@ const UUID_REGEX =
   /['"]([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})['"]/gi;
 
 const TARIFF_V1_1_FILE = "20260903180000_tariff_schema_v1_1.sql";
+const TARIFF_V1_3_FILE = "20260903190000_tariff_schema_v1_3.sql";
 
 describe("supabase migrations", () => {
   const files = readdirSync(MIGRATIONS_DIR)
@@ -21,6 +22,10 @@ describe("supabase migrations", () => {
 
   it("includes tariff schema v1.1 migration", () => {
     expect(files).toContain(TARIFF_V1_1_FILE);
+  });
+
+  it("includes tariff schema v1.3 migration", () => {
+    expect(files).toContain(TARIFF_V1_3_FILE);
   });
 
   for (const file of files) {
@@ -114,6 +119,77 @@ describe("supabase migrations", () => {
 
     it("does not import or seed Excel/matrix data", () => {
       expect(content).not.toMatch(/INSERT INTO/i);
+      expect(content).not.toMatch(/COPY /i);
+    });
+  });
+
+  describe("tariff schema v1.3 migration", () => {
+    const content = readFileSync(
+      join(MIGRATIONS_DIR, TARIFF_V1_3_FILE),
+      "utf-8",
+    );
+
+    it("documents plan_id vs plan_version_id FK decision for v1.3 loader", () => {
+      expect(content).toMatch(/v1\.3 source files key tariffs by plan_id/i);
+      expect(content).toContain("plan_version_id");
+      expect(content).toMatch(/not reject rows that only provide plan_id/i);
+    });
+
+    it("adds plans.natural_key_plan_id and tariff v1.3 columns", () => {
+      expect(content).toContain("natural_key_plan_id");
+      expect(content).toContain("maternidad");
+      expect(content).toContain("raw_monthly_price_con_imp");
+      expect(content).toContain("raw_monthly_price_sin_imp");
+      expect(content).toContain("periodicidad_origen");
+      expect(content).toContain("vigencia_tarifario");
+      expect(content).toContain("archivo_fuente");
+      expect(content).toContain("source_file");
+      expect(content).toContain("excel_row");
+      expect(content).toContain("load_blocked");
+    });
+
+    it("aligns CHECK constraints to v1.3 observed enum values", () => {
+      expect(content).toMatch(
+        /gender IN \('any', 'femenino', 'masculino'\)/,
+      );
+      expect(content).toMatch(
+        /region IN \('Nacional', 'Austro', 'Costa', 'Sierra'\)/,
+      );
+      expect(content).toMatch(
+        /grupo_asegurado IS NULL OR grupo_asegurado IN \('titular', 'nino_solo'\)/,
+      );
+      expect(content).toMatch(
+        /maternidad IS NULL OR maternidad IN \('Si', 'No'\)/,
+      );
+    });
+
+    it("keeps sparse and empty v1.3 fields nullable with comments", () => {
+      expect(content).toMatch(/tariffs\.deductible[\s\S]*Nullable/i);
+      expect(content).toMatch(/tariffs\.annual_limit[\s\S]*Nullable/i);
+      expect(content).toMatch(/tariffs\.copay_pct[\s\S]*100% null/i);
+      expect(content).toMatch(/insurers\.logo_url[\s\S]*100% null/i);
+      expect(content).toMatch(/plans\.coverage_summary[\s\S]*100% null/i);
+      expect(content).toMatch(/plan_versions\.effective_from[\s\S]*100% null/i);
+      expect(content).toMatch(/plan_versions\.published_at[\s\S]*100% null/i);
+    });
+
+    it("defines conservative unique grain on plan_id with lineage tiebreaker", () => {
+      expect(content).toContain("tariffs_v1_3_load_grain_unique_idx");
+      expect(content).toContain("plan_id");
+      expect(content).toContain("COALESCE(source_file, '')");
+      expect(content).toContain("COALESCE(excel_row, -1)");
+      expect(content).toContain("COALESCE(deductible, -1)");
+      expect(content).toContain("COALESCE(annual_limit, -1)");
+      expect(content).toContain("COALESCE(maternidad, '')");
+    });
+
+    it("does not require coverage catalog tables for tariff load", () => {
+      expect(content).not.toMatch(/coverage_clauses.*NOT NULL/i);
+      expect(content).not.toMatch(/INSERT INTO.*coverage_clauses/i);
+    });
+
+    it("does not import or seed Excel/matrix data", () => {
+      expect(content).not.toMatch(/INSERT INTO public\.(insurers|plans|tariffs)/i);
       expect(content).not.toMatch(/COPY /i);
     });
   });
