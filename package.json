@@ -2,14 +2,26 @@
   "name": "coveru",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.12.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:e2e": "next start -p 3000",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
+    "test:data-pipeline": "vitest run src/lib/data-pipeline",
+    "validate:migrations": "vitest run src/lib/migrations",
+    "test:migrations:ephemeral": "node scripts/test-migrations-ephemeral.mjs",
+    "test:e2e": "playwright test e2e/smoke/public.spec.ts e2e/smoke/marketplace.spec.ts e2e/smoke/coverage-assistant.spec.ts",
+    "test:e2e:preview": "playwright test e2e/smoke/preview.spec.ts",
+    "test:a11y": "playwright test e2e/a11y",
+    "ci": "npm run lint && npm run typecheck && npm run test:unit && npm run validate:migrations && npm run test:data-pipeline && npm run build && npm run test:e2e && npm run test:a11y",
     "integrate:visual-pack": "bash scripts/integrate-sam-visual-pack.sh",
     "catalog:load": "tsx scripts/catalog-v1_3/load-cli.ts",
     "catalog:load:dry-run": "tsx scripts/catalog-v1_3/load-cli.ts --dry-run"
@@ -30,6 +42,8 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
