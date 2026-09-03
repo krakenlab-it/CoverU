@@ -66,7 +66,7 @@ No new repository secrets are required for local CI or fork PRs.
 
 ### Ephemeral apply (`npm run test:migrations:ephemeral`)
 
-Applies all migrations to a disposable Postgres database and re-applies seed files to verify idempotency. **Never** point `DATABASE_URL` at production or hosted Supabase.
+Applies all migrations to a disposable Postgres database and re-applies seed files to verify idempotency when compatible with the final schema. When `tariff_schema_v1_3` is present, seed re-apply is skipped because that migration backfills demo regions and tightens CHECK constraints — original `metropolitana` seed values are superseded. **Never** point `DATABASE_URL` at production or hosted Supabase.
 
 ## Data pipeline scaffolding (Excel loader)
 
