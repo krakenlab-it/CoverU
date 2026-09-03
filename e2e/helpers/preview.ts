@@ -24,24 +24,22 @@ export async function gotoPreviewPath(page: Page, path: string) {
 }
 
 /**
- * Resilient landing assertions for current and upcoming restyled hero copy.
- * Prefers role-based selectors over brittle full heading strings.
+ * Resilient landing assertions for Astro Cover U marketing chrome.
+ * Prefers role-based selectors over brittle hero carousel copy.
  */
 export async function expectCoverULanding(page: Page) {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-  const primaryCta = page
-    .getByRole("link", { name: /Comparar planes|Quiero Asegurarme/i })
-    .first();
-  await expect(primaryCta).toBeVisible();
-
-  await expect(page.getByText(/Cover\s*Ü|Cover\s*U/i).first()).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /Quiero Asegurarme/i }).first(),
+  ).toBeVisible();
 
   await expect(
-    page
-      .getByRole("status")
-      .or(page.getByText(/DEMO|demostración/i))
-      .first(),
+    page.getByRole("link", { name: "Iniciar sesión" }).first(),
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("link", { name: /Cover U — inicio/i }).first(),
   ).toBeVisible();
 }
 

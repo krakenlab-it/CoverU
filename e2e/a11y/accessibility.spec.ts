@@ -1,5 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
+import { hasE2eAuth, loginAsTestUser } from "../helpers/auth";
+import { DEMO_PLAN_VERSION_ID } from "../fixtures/demo";
 
 interface A11yTarget {
   name: string;
@@ -24,13 +26,13 @@ const PUBLIC_TARGETS: A11yTarget[] = [
 const APP_TARGETS: A11yTarget[] = [
   {
     name: "marketplace",
-    path: "/app/marketplace?age=30&gender=femenino&region=metropolitana",
+    path: "/app/marketplace?age=30&gender=femenino&region=Nacional",
     // Documented exception: persistent sidebar nav (PR #8) active link contrast — UI PR scope.
     disableRules: ["color-contrast"],
   },
   {
     name: "plan-detail",
-    path: "/app/marketplace/plans/d1000000-0000-4000-8000-000000000001",
+    path: `/app/marketplace/plans/${DEMO_PLAN_VERSION_ID}`,
     disableRules: ["color-contrast"],
   },
 ];
@@ -63,11 +65,13 @@ test.describe("accessibility — public pages", () => {
   }
 });
 
-test.describe("accessibility — app pages (demo mode)", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/login");
-    await page.getByRole("button", { name: "Entrar al panel demo" }).click();
-    await expect(page).toHaveURL(/\/app/);
+test.describe("accessibility — app pages (authenticated)", () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    if (!hasE2eAuth()) {
+      testInfo.skip(true, "Requires E2E_TEST_USER_* and Supabase env");
+      return;
+    }
+    await loginAsTestUser(page);
   });
 
   for (const target of APP_TARGETS) {

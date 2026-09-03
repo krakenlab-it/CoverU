@@ -1,9 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { DEMO_PLAN_VERSION_ID } from "../fixtures/demo";
+import { hasE2eAuth, loginAsTestUser } from "../helpers/auth";
 
 test.describe("coverage assistant smoke", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto(`/app/marketplace/plans/${DEMO_PLAN_VERSION_ID}`);
+  test.beforeEach(async ({ page }, testInfo) => {
+    if (!hasE2eAuth()) {
+      testInfo.skip(true, "Requires E2E_TEST_USER_* and Supabase env");
+      return;
+    }
+    await loginAsTestUser(page, `/app/marketplace/plans/${DEMO_PLAN_VERSION_ID}`);
   });
 
   test("known question returns citation-backed answer", async ({ page }) => {

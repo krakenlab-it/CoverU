@@ -1,14 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { expectCoverULanding } from "../helpers/preview";
 
 test.describe("public site smoke", () => {
-  test("landing page renders hero and primary CTA", async ({ page }) => {
+  test("landing page renders hero and Cover U chrome", async ({ page }) => {
     await page.goto("/");
-    await expect(
-      page.getByRole("heading", { name: /Encuentra el plan que/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "Comparar planes" }).first(),
-    ).toBeVisible();
+    await expectCoverULanding(page);
   });
 
   test("comparator flow returns demo plans", async ({ page }) => {

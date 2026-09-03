@@ -23,7 +23,7 @@ npm run test:e2e           # Playwright smoke (starts local server)
 npm run test:a11y          # axe accessibility checks
 ```
 
-Local CI does **not** require Vercel, Supabase production, or OpenAI secrets. Demo mode is the default (`COVERAGE_QA_PROVIDER=demo`).
+Local CI does **not** require Vercel, Supabase production, or OpenAI secrets. Public routes (`/`, `/comparar`, `/developers`) run without Supabase. Authenticated `/app` Playwright tests skip unless `E2E_TEST_USER_EMAIL`, `E2E_TEST_USER_PASSWORD`, and Supabase public env vars are set (staging only — never production).
 
 ## CI workflow design
 
@@ -83,7 +83,7 @@ These modules validate contracts only — they do not implement Mike's cleaning 
 
 | Environment | Vercel project env | Supabase project | Notes |
 | --- | --- | --- | --- |
-| `local` | n/a | local / none | Demo mode without Supabase |
+| `local` | n/a | local / none | Public comparator demo fallback; `/app` needs Supabase auth |
 | `preview` | Preview | staging (optional) | PR deployments |
 | `production` | Production | production | Customer-facing |
 
@@ -96,6 +96,8 @@ These modules validate contracts only — they do not implement Mike's cleaning 
 - `API_RATE_LIMIT`
 - `API_RATE_WINDOW_MS`
 - `COVERAGE_QA_PROVIDER`
+- `E2E_TEST_USER_EMAIL` (staging E2E only — optional)
+- `E2E_TEST_USER_PASSWORD` (staging E2E only — optional)
 - `OPENAI_API_KEY`
 - `COVERAGE_QA_MODEL`
 
