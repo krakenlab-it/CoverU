@@ -1,19 +1,20 @@
 import Link from "next/link";
-import { BrandLogo } from "@/components/layout/BrandLogo";
-import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { FOOTER_EXTRA_LINKS, MARKETING_SITE_NAME, NAV_LINKS } from "@/lib/constants";
+import { CoverULogoLink } from "@/components/marketing/CoverULogo";
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const allLinks = [...NAV_LINKS, ...FOOTER_EXTRA_LINKS];
 
   return (
-    <footer className="border-t border-border bg-muted/40">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <footer className="border-t border-coveru-border bg-coveru-light">
+      <div className="marketing-layout py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <BrandLogo href="/" size="md" />
-            <p className="mt-2 text-sm text-muted-foreground">
-              Comparador de seguros de salud en Ecuador. Datos de demostración
-              hasta integrar aseguradoras reales.
+            <CoverULogoLink />
+            <p className="mt-3 text-sm text-coveru-gray">
+              Compara seguros de salud en Ecuador de forma clara y 100% en línea.
+              Sin letra chica, fácil y seguro.
             </p>
           </div>
 
@@ -22,11 +23,11 @@ export function Footer() {
               Enlaces
             </p>
             <ul className="mt-3 space-y-2">
-              {NAV_LINKS.map((link) => (
+              {allLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary"
+                    className="text-sm text-coveru-gray hover:text-coveru-red"
                   >
                     {link.label}
                   </Link>
@@ -37,17 +38,17 @@ export function Footer() {
 
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Aviso
+              Legal
             </p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Los precios y planes mostrados en modo demo son ejemplos
-              ilustrativos. No constituyen oferta ni cotización real.
+            <p className="mt-3 text-sm text-coveru-gray">
+              La información publicada es referencial. Para contratar un plan,
+              contacta a la aseguradora o a un agente autorizado.
             </p>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          © {year} {SITE_NAME}. Todos los derechos reservados.
+        <div className="mt-8 border-t border-coveru-border pt-6 text-center text-xs text-coveru-gray">
+          © {year} {MARKETING_SITE_NAME}. Todos los derechos reservados.
         </div>
       </div>
     </footer>

@@ -1,4 +1,4 @@
-import { SITE_NAME } from "@/lib/constants";
+import { MARKETING_SITE_NAME } from "@/lib/constants";
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://coveru.ec";
@@ -36,6 +36,6 @@ export function absoluteUrl(path: string): string {
 }
 
 export function pageTitle(title?: string): string {
-  if (!title) return `${SITE_NAME} — Comparador de seguros de salud`;
-  return `${title} | ${SITE_NAME}`;
+  if (!title) return `${MARKETING_SITE_NAME} — Comparador de seguros de salud`;
+  return `${title} | ${MARKETING_SITE_NAME}`;
 }

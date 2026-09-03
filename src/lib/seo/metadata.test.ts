@@ -28,7 +28,7 @@ describe("SEO metadata helpers", () => {
   });
 
   it("formats page titles consistently", () => {
-    expect(pageTitle("Comparar")).toBe("Comparar | CoverÜ");
-    expect(pageTitle()).toContain("CoverÜ");
+    expect(pageTitle("Comparar")).toBe("Comparar | Cover U");
+    expect(pageTitle()).toContain("Cover U");
   });
 });

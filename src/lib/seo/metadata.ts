@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MARKETING_SITE_NAME } from "@/lib/constants";
 import {
   DEFAULT_OG_IMAGE,
   DEFAULT_TWITTER_IMAGE,
@@ -41,7 +42,7 @@ export function buildPublicMetadata({
       type: "website",
       locale: SITE_LOCALE,
       url: canonical,
-      siteName: "CoverÜ",
+      siteName: MARKETING_SITE_NAME,
       title: resolvedTitle,
       description,
       images: [
@@ -49,7 +50,7 @@ export function buildPublicMetadata({
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: "CoverÜ — comparador de seguros de salud en Ecuador",
+          alt: `${MARKETING_SITE_NAME} — comparador de seguros de salud en Ecuador`,
         },
       ],
     },

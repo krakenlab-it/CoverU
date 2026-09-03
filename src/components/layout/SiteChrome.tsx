@@ -1,3 +1,4 @@
+import { WhatsAppFab } from "@/components/marketing/WhatsAppFab";
 import { headers } from "next/headers";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -23,6 +24,7 @@ export async function SiteChrome({
         {children}
       </main>
       {!isLogin ? <Footer /> : null}
+      <WhatsAppFab />
     </>
   );
 }
