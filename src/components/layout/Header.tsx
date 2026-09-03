@@ -26,6 +26,18 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/developers"
+            className="text-sm font-medium text-foreground/80 transition-colors hover:text-coveru-red"
+          >
+            Desarrolladores
+          </Link>
+          <Link
+            href="/app"
+            className="text-sm font-medium text-foreground/80 transition-colors hover:text-coveru-red"
+          >
+            Panel
+          </Link>
         </nav>
 
         <Link
