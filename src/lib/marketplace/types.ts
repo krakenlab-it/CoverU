@@ -1,3 +1,4 @@
+import type { TariffRegion } from "@/lib/catalog-enums";
 import type { Insurer, Plan, Tariff } from "@/lib/types/database";
 import type { PlanVersion } from "@/lib/types/phase1";
 
@@ -13,7 +14,7 @@ export interface MarketplaceFilters {
   insurerId?: string;
   age?: number;
   gender?: string;
-  region?: string;
+  region?: TariffRegion;
   category?: string;
   deductibleMax?: number;
   waitingMaxDays?: number;

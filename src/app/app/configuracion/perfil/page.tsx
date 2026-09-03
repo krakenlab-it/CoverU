@@ -1,5 +1,3 @@
-import { DemoAlert } from "@/components/platform/DemoAlert";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireSettingsSession } from "@/lib/settings/session";
 import { buildAppMetadata } from "@/lib/seo/metadata";
@@ -26,14 +24,6 @@ export default async function PerfilSettingsPage() {
               <dt className="text-muted-foreground">Correo</dt>
               <dd className="font-medium">{session.email ?? "—"}</dd>
             </div>
-            <div>
-              <dt className="text-muted-foreground">Modo</dt>
-              <dd className="font-medium">
-                {session.isDemoMode
-                  ? "Demo (sin Supabase configurado)"
-                  : "Autenticado"}
-              </dd>
-            </div>
           </dl>
         </CardContent>
       </Card>
@@ -49,18 +39,11 @@ export default async function PerfilSettingsPage() {
               >
                 <p className="font-semibold">{membership.organizationName}</p>
                 <p className="text-muted-foreground">Rol: {membership.role}</p>
-                {membership.isDemo ? (
-                  <span className="mt-2 inline-flex">
-                    <DemoBadge />
-                  </span>
-                ) : null}
               </li>
             ))}
           </ul>
         </CardContent>
       </Card>
-
-      {session.isDemoMode ? <DemoAlert compact /> : null}
     </div>
   );
 }

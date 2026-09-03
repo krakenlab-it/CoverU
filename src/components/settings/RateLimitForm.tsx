@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import type { RateLimitPolicy } from "@/lib/settings/rate-limits";
 
 type RateLimitFormProps = {
@@ -59,12 +58,10 @@ export function RateLimitForm({ policy, canEdit }: RateLimitFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {policy.demoMode ? (
-        <p className="text-sm text-muted-foreground">
-          Modo demo: los cambios se guardan en memoria local del servidor.
-          <span className="ms-2 inline-flex align-middle">
-            <DemoBadge />
-          </span>
+      {!policy.serviceConfigured ? (
+        <p className="text-sm text-muted-foreground" role="status">
+          Supabase no está configurado: no se pueden guardar overrides de
+          organización en este entorno.
         </p>
       ) : null}
 
@@ -78,7 +75,7 @@ export function RateLimitForm({ policy, canEdit }: RateLimitFormProps) {
             max={10000}
             value={requests}
             onChange={(event) => setRequests(event.target.value)}
-            disabled={!canEdit}
+            disabled={!canEdit || !policy.serviceConfigured}
             required
           />
         </div>
@@ -91,7 +88,7 @@ export function RateLimitForm({ policy, canEdit }: RateLimitFormProps) {
             max={1440}
             value={windowMinutes}
             onChange={(event) => setWindowMinutes(event.target.value)}
-            disabled={!canEdit}
+            disabled={!canEdit || !policy.serviceConfigured}
             required
           />
         </div>
@@ -114,7 +111,7 @@ export function RateLimitForm({ policy, canEdit }: RateLimitFormProps) {
         </p>
       ) : null}
 
-      {canEdit ? (
+      {canEdit && policy.serviceConfigured ? (
         <Button type="submit" disabled={loading}>
           {loading ? "Guardando…" : "Guardar límites"}
         </Button>

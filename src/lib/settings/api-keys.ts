@@ -1,10 +1,5 @@
 import { generateApiKey } from "@/lib/api/api-key";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  createDemoApiKey,
-  listDemoApiKeys,
-  revokeDemoApiKey,
-} from "@/lib/settings/demo-store";
 import { hasServiceRole } from "@/lib/settings/session";
 import type { ApiKeyRecord } from "@/lib/types/phase1";
 
@@ -20,17 +15,13 @@ export interface ApiKeyListItem {
 
 export interface ApiKeyListResult {
   keys: ApiKeyListItem[];
-  isDemo: boolean;
-  demoMode: boolean;
+  serviceConfigured: boolean;
 }
 
 export interface CreateApiKeyResult {
   key: ApiKeyListItem;
   rawKey: string;
-  isDemo: boolean;
 }
-
-const DEMO_CLIENT_ID = "e0000000-0000-4000-8000-000000000001";
 
 function toListItem(
   key: Pick<
@@ -53,25 +44,22 @@ function toListItem(
 export async function listOrgApiKeys(
   organizationId: string,
 ): Promise<ApiKeyListResult> {
-  const admin = createAdminClient();
+  if (!hasServiceRole()) {
+    return { keys: [], serviceConfigured: false };
+  }
 
+  const admin = createAdminClient();
   if (!admin) {
-    return {
-      keys: listDemoApiKeys().map((key) =>
-        toListItem(key, key.client_name),
-      ),
-      isDemo: true,
-      demoMode: true,
-    };
+    return { keys: [], serviceConfigured: false };
   }
 
   const { data: clients, error: clientsError } = await admin
     .from("api_clients")
-    .select("id, name, is_demo")
+    .select("id, name")
     .eq("organization_id", organizationId);
 
   if (clientsError || !clients?.length) {
-    return { keys: [], isDemo: false, demoMode: false };
+    return { keys: [], serviceConfigured: true };
   }
 
   const clientIds = clients.map((client) => client.id);
@@ -88,10 +76,8 @@ export async function listOrgApiKeys(
     .order("created_at", { ascending: false });
 
   if (keysError || !keys) {
-    return { keys: [], isDemo: false, demoMode: false };
+    return { keys: [], serviceConfigured: true };
   }
-
-  const isDemo = clients.some((client) => client.is_demo);
 
   return {
     keys: keys.map((key) =>
@@ -100,17 +86,13 @@ export async function listOrgApiKeys(
         clientNameById.get(key.api_client_id) ?? "Cliente API",
       ),
     ),
-    isDemo,
-    demoMode: false,
+    serviceConfigured: true,
   };
 }
 
-async function ensureApiClient(
-  organizationId: string,
-  isDemo: boolean,
-): Promise<string | null> {
+async function ensureApiClient(organizationId: string): Promise<string | null> {
   const admin = createAdminClient();
-  if (!admin) return DEMO_CLIENT_ID;
+  if (!admin) return null;
 
   const { data: existing } = await admin
     .from("api_clients")
@@ -126,10 +108,10 @@ async function ensureApiClient(
     .from("api_clients")
     .insert({
       organization_id: organizationId,
-      name: isDemo ? "[DEMO] Cliente API" : "Cliente API",
+      name: "Cliente API",
       description: "Cliente API creado desde el panel de configuración.",
       status: "active",
-      is_demo: isDemo,
+      is_demo: false,
     })
     .select("id")
     .single();
@@ -141,7 +123,6 @@ async function ensureApiClient(
 export async function createOrgApiKey(
   organizationId: string,
   name: string,
-  isDemo: boolean,
 ): Promise<CreateApiKeyResult | { error: string }> {
   const trimmedName = name.trim();
   if (!trimmedName) {
@@ -149,15 +130,13 @@ export async function createOrgApiKey(
   }
 
   if (!hasServiceRole()) {
-    const { record, rawKey } = createDemoApiKey(trimmedName);
     return {
-      key: toListItem(record, record.client_name),
-      rawKey,
-      isDemo: true,
+      error:
+        "No se pueden crear claves API: Supabase no está configurado en este entorno.",
     };
   }
 
-  const clientId = await ensureApiClient(organizationId, isDemo);
+  const clientId = await ensureApiClient(organizationId);
   if (!clientId) {
     return { error: "No se pudo crear el cliente API." };
   }
@@ -190,7 +169,6 @@ export async function createOrgApiKey(
   return {
     key: toListItem(data, "Cliente API"),
     rawKey,
-    isDemo,
   };
 }
 
@@ -199,8 +177,10 @@ export async function revokeOrgApiKey(
   keyId: string,
 ): Promise<{ ok: true } | { error: string }> {
   if (!hasServiceRole()) {
-    const revoked = revokeDemoApiKey(keyId);
-    return revoked ? { ok: true } : { error: "Clave no encontrada." };
+    return {
+      error:
+        "No se pueden revocar claves API: Supabase no está configurado en este entorno.",
+    };
   }
 
   const admin = createAdminClient();

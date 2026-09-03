@@ -1,9 +1,18 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
-import { getDemoQuote } from "@/lib/demo-api-data";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export const GET = withApiV1(
   async ({ requestId, auth, searchParams }) => {
+    if (!isSupabaseAdminConfigured()) {
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
+    }
+
     const quoteId = searchParams.get("id");
 
     if (!quoteId) {
@@ -16,13 +25,13 @@ export const GET = withApiV1(
     }
 
     const supabase = createAdminClient();
-
     if (!supabase) {
-      const quote = getDemoQuote(quoteId, auth.organizationId);
-      if (!quote) {
-        return apiError(requestId, 404, "not_found", "Cotización no encontrada");
-      }
-      return apiSuccess(requestId, { quote });
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
     }
 
     const { data: quote, error } = await supabase

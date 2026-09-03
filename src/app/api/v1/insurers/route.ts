@@ -1,21 +1,30 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
-import { paginate, parsePaginationParams } from "@/lib/api/response";
-import { DEMO_INSURERS } from "@/lib/demo-api-data";
+import { parsePaginationParams } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export const GET = withApiV1(
   async ({ requestId, searchParams }) => {
+    if (!isSupabaseAdminConfigured()) {
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
+    }
+
     const { page, perPage } = parsePaginationParams(searchParams);
     const isDemo = searchParams.get("is_demo");
 
     const supabase = createAdminClient();
-
     if (!supabase) {
-      let items = [...DEMO_INSURERS];
-      if (isDemo === "true") items = items.filter((i) => i.is_demo);
-      if (isDemo === "false") items = items.filter((i) => !i.is_demo);
-      const { items: paged, meta } = paginate(items, page, perPage);
-      return apiSuccess(requestId, { insurers: paged, meta });
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
     }
 
     let query = supabase.from("insurers").select("*", { count: "exact" });

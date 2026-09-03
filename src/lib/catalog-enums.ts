@@ -21,3 +21,7 @@ export type GrupoAsegurado = (typeof GRUPO_ASEGURADO_OPTIONS)[number]["value"];
 /** Sparse maternidad dimension on tariffs (Confiamed ConfiPlus) */
 export const TARIFF_MATERNIDAD_VALUES = ["Si", "No"] as const;
 export type TariffMaternidad = (typeof TARIFF_MATERNIDAD_VALUES)[number];
+
+export function getTariffRegionLabel(value: string): string {
+  return TARIFF_REGIONS.find((r) => r.value === value)?.label ?? value;
+}

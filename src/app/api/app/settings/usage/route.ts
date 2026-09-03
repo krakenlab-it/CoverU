@@ -8,9 +8,6 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  const usage = await getOrgUsageSummary(
-    session.organizationId,
-    session.isDemo,
-  );
+  const usage = await getOrgUsageSummary(session.organizationId);
   return NextResponse.json(usage);
 }

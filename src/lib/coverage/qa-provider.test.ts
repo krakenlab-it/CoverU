@@ -1,41 +1,60 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildDemoGroundingContext,
-  matchDemoQuestionForTest,
+  matchPolicyQuestionForTest,
+  type GroundingContext,
 } from "@/lib/coverage/qa-provider";
 
-describe("coverage Q&A demo provider", () => {
-  const context = buildDemoGroundingContext();
+const EMPTY_CONTEXT: GroundingContext = {
+  clauses: [],
+  citations: [],
+};
 
-  it("answers hospitalization as covered with citation", () => {
-    const result = matchDemoQuestionForTest(
+const GROUNDED_CONTEXT: GroundingContext = {
+  clauses: [
+    {
+      title: "Hospitalización",
+      coverage_status: "covered",
+      description: "Cobertura en red",
+      conditions: null,
+    },
+  ],
+  citations: [
+    {
+      clause_ref: "Art. 4.1",
+      excerpt: "Hospitalización cubierta en red preferente.",
+      page_number: 1,
+      policy_document_title: "Condiciones generales",
+    },
+  ],
+};
+
+describe("coverage Q&A provider", () => {
+  it("abstains when there is no policy text", () => {
+    const result = matchPolicyQuestionForTest(
       "¿Está cubierta la hospitalización?",
-      context,
+      EMPTY_CONTEXT,
     );
-    expect(result.status).toBe("covered");
-    expect(result.abstained).toBe(false);
-    expect(result.policy_wording_controls).toBe(true);
-    expect(result.citations.some((c) => c.clause_ref === "Art. 4.1")).toBe(
-      true,
-    );
-    expect(result.answer).toMatch(/hospitalización/i);
-  });
-
-  it("answers maternity as not covered", () => {
-    const result = matchDemoQuestionForTest("¿Cubre maternidad?", context);
-    expect(result.status).toBe("not_covered");
-    expect(result.citations.some((c) => c.clause_ref === "Art. 5.1")).toBe(
-      true,
-    );
-  });
-
-  it("abstains on unknown topics", () => {
-    const result = matchDemoQuestionForTest(
-      "¿Cubre tratamiento en la luna?",
-      context,
-    );
-    expect(result.status).toBe("unknown");
     expect(result.abstained).toBe(true);
+    expect(result.status).toBe("unknown");
     expect(result.citations).toHaveLength(0);
+  });
+
+  it("answers when grounded citations exist", () => {
+    const result = matchPolicyQuestionForTest(
+      "¿Está cubierta la hospitalización?",
+      GROUNDED_CONTEXT,
+    );
+    expect(result.abstained).toBe(false);
+    expect(result.status).toBe("covered");
+    expect(result.citations.length).toBeGreaterThan(0);
+  });
+
+  it("abstains for unknown topics even with grounding", () => {
+    const result = matchPolicyQuestionForTest(
+      "¿Cubren vacaciones en la luna?",
+      GROUNDED_CONTEXT,
+    );
+    expect(result.abstained).toBe(true);
+    expect(result.status).toBe("unknown");
   });
 });

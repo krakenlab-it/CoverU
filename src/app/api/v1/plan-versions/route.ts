@@ -1,9 +1,18 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
-import { getDemoPlanVersionDetail } from "@/lib/demo-api-data";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export const GET = withApiV1(
   async ({ requestId, searchParams }) => {
+    if (!isSupabaseAdminConfigured()) {
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
+    }
+
     const versionId = searchParams.get("id");
 
     if (!versionId) {
@@ -16,18 +25,13 @@ export const GET = withApiV1(
     }
 
     const supabase = createAdminClient();
-
     if (!supabase) {
-      const detail = getDemoPlanVersionDetail(versionId);
-      if (!detail) {
-        return apiError(
-          requestId,
-          404,
-          "not_found",
-          "Versión de plan no encontrada",
-        );
-      }
-      return apiSuccess(requestId, detail);
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
     }
 
     const { data: version, error } = await supabase
@@ -57,7 +61,7 @@ export const GET = withApiV1(
       );
     }
 
-    if (version.status !== "published" && !version.is_demo) {
+    if (version.status !== "published") {
       return apiError(
         requestId,
         404,

@@ -93,7 +93,7 @@ export function CompareMatrix({
                     </span>
                     <p className="text-xs text-coveru-gray">
                       {e.quoteState === "indicative"
-                        ? "Indicativo (demo)"
+                        ? "Indicativo"
                         : e.quoteState === "quoted"
                           ? "Cotización"
                           : "Sin tarifa"}

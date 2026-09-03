@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isSupabaseAuthConfigured } from "@/lib/supabase/config";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,15 +14,16 @@ export async function middleware(request: NextRequest) {
 }
 
 async function handleAppAuth(request: NextRequest, pathname: string) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  // Demo/local mode: allow /app without auth when Supabase is not configured
-  if (!url || !key) {
-    const response = NextResponse.next();
-    response.headers.set("x-coveru-demo-mode", "true");
-    return response;
+  if (!isSupabaseAuthConfigured()) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("error", "setup");
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
   }
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
   let supabaseResponse = NextResponse.next({ request });
 

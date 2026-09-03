@@ -2,12 +2,13 @@ import { Suspense } from "react";
 import { MarketplaceFiltersPanel } from "@/components/marketplace/MarketplaceFiltersPanel";
 import { MarketplaceResultsGrid } from "@/components/marketplace/MarketplaceResultsGrid";
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
+import { EmptyState } from "@/components/platform/EmptyState";
 import { ErrorState } from "@/components/platform/ErrorState";
 import { PageHeader } from "@/components/platform/PageHeader";
 import { LoadingState } from "@/components/platform/LoadingState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buildAppMetadata } from "@/lib/seo/metadata";
-import { getDemoInsurers, searchMarketplace } from "@/lib/marketplace/catalog";
+import { listInsurers, searchMarketplace } from "@/lib/marketplace/catalog";
 import { parseCompareIds } from "@/lib/marketplace/compare";
 import { parseMarketplaceFilters } from "@/lib/marketplace/filters";
 import type { MarketplacePlanResult } from "@/lib/marketplace/types";
@@ -43,7 +44,7 @@ async function MarketplaceContent({
 }) {
   const filters = parseMarketplaceFilters(searchParams);
   const compareIds = parseCompareIds(searchParams.get("compare"));
-  const insurers = getDemoInsurers();
+  const insurers = await listInsurers();
 
   let results: MarketplacePlanResult[];
   let error: string | null = null;
@@ -75,12 +76,19 @@ async function MarketplaceContent({
             />
           }
           title="Marketplace de seguros"
-          description="Busca, filtra y compara planes de salud. Todos los datos mostrados son de demostración."
+          description="Busca, filtra y compara planes de salud publicados en el catálogo."
           className="mb-4"
         />
-        <Suspense fallback={<Skeleton className="h-64" />}>
-          <MarketplaceResultsGrid results={results} filters={filters} />
-        </Suspense>
+        {results.length === 0 ? (
+          <EmptyState
+            title="Catálogo vacío"
+            description="Aún no hay planes publicados con tarifas cargadas. Cuando se importen los datos de aseguradoras, aparecerán aquí."
+          />
+        ) : (
+          <Suspense fallback={<Skeleton className="h-64" />}>
+            <MarketplaceResultsGrid results={results} filters={filters} />
+          </Suspense>
+        )}
       </div>
     </div>
   );

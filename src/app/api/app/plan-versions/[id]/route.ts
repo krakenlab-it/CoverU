@@ -15,7 +15,7 @@ export async function GET(
   }
 
   const { id } = await context.params;
-  const detail = getPlanVersionDetailForMarketplace(id);
+  const detail = await getPlanVersionDetailForMarketplace(id);
 
   if (!detail?.version || detail.version.status !== "published") {
     return NextResponse.json(
@@ -30,9 +30,6 @@ export async function GET(
   }
 
   return NextResponse.json({
-    data: {
-      ...detail,
-      isDemo: detail.version.is_demo,
-    },
+    data: detail,
   });
 }

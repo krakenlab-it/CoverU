@@ -1,3 +1,4 @@
+import { TARIFF_REGIONS, type TariffRegion } from "@/lib/catalog-enums";
 import type { SortOption, MarketplaceFilters } from "@/lib/marketplace/types";
 
 const SORT_OPTIONS: SortOption[] = [
@@ -6,6 +7,15 @@ const SORT_OPTIONS: SortOption[] = [
   "deductible_asc",
   "name_asc",
 ];
+
+const TARIFF_REGION_VALUES = TARIFF_REGIONS.map((r) => r.value);
+
+export function parseTariffRegion(value: string | null): TariffRegion | undefined {
+  if (!value) return undefined;
+  return TARIFF_REGION_VALUES.includes(value as TariffRegion)
+    ? (value as TariffRegion)
+    : undefined;
+}
 
 export function parseMarketplaceFilters(
   searchParams: URLSearchParams,
@@ -23,7 +33,7 @@ export function parseMarketplaceFilters(
     insurerId: searchParams.get("insurer_id") ?? undefined,
     age: ageRaw ? Number(ageRaw) : undefined,
     gender: searchParams.get("gender") ?? undefined,
-    region: searchParams.get("region") ?? undefined,
+    region: parseTariffRegion(searchParams.get("region")),
     category: searchParams.get("category") ?? undefined,
     deductibleMax: deductibleRaw ? Number(deductibleRaw) : undefined,
     waitingMaxDays: waitingRaw ? Number(waitingRaw) : undefined,

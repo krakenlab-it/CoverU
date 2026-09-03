@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { Button } from "@/components/ui/button";
 import type { PublicAuthNav } from "@/lib/auth/public-nav";
 import { cn } from "@/lib/utils";
@@ -34,18 +33,12 @@ export function HeaderAuthControl({
         >
           {authNav.label}
         </Link>
-        {authNav.isDemoMode && !authNav.isLoggedIn ? (
-          <div className="px-3">
-            <DemoBadge />
-          </div>
-        ) : null}
       </div>
     );
   }
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      {authNav.isDemoMode && !authNav.isLoggedIn ? <DemoBadge /> : null}
       <Button
         variant={authNav.isLoggedIn ? "ghost" : "outline"}
         size="sm"

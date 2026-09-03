@@ -11,9 +11,11 @@ import {
   filtersToQueryString,
   marketplaceFiltersToSearchParams,
   parseMarketplaceFilters,
+  parseTariffRegion,
 } from "@/lib/marketplace/filters";
 import type { MarketplaceFilters } from "@/lib/marketplace/types";
-import { DEMO_REGIONS, GENDER_OPTIONS } from "@/lib/regions";
+import { TARIFF_REGIONS } from "@/lib/catalog-enums";
+import { GENDER_OPTIONS } from "@/lib/regions";
 import type { Insurer } from "@/lib/types/database";
 import { motion } from "@/lib/motion";
 
@@ -75,7 +77,7 @@ export function MarketplaceFiltersPanel({
                   ? Number(formData.get("age"))
                   : undefined,
                 gender: String(formData.get("gender") || "") || undefined,
-                region: String(formData.get("region") || "") || undefined,
+                region: parseTariffRegion(String(formData.get("region") || "")),
                 insurerId: String(formData.get("insurer_id") || "") || undefined,
                 category: String(formData.get("category") || "") || undefined,
                 deductibleMax: formData.get("deductible_max")
@@ -132,7 +134,7 @@ export function MarketplaceFiltersPanel({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="filter-region">Provincia</Label>
+              <Label htmlFor="filter-region">Región</Label>
               <select
                 id="filter-region"
                 name="region"
@@ -140,7 +142,7 @@ export function MarketplaceFiltersPanel({
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <option value="">Todas</option>
-                {DEMO_REGIONS.map((r) => (
+                {TARIFF_REGIONS.map((r) => (
                   <option key={r.value} value={r.value}>
                     {r.label}
                   </option>

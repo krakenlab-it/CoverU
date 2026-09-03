@@ -1,10 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { BrandLogo } from "@/components/layout/BrandLogo";
-import { AppSidebarNav } from "@/components/layout/AppSidebarNav";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -17,6 +12,10 @@ import { APP_NAV_ITEMS } from "@/lib/settings/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "@/lib/motion";
 import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { BrandLogo } from "@/components/layout/BrandLogo";
+import { AppSidebarNav } from "@/components/layout/AppSidebarNav";
 
 const SIDEBAR_COLLAPSED_KEY = "coveru-app-sidebar-collapsed";
 
@@ -28,13 +27,11 @@ function readCollapsedPreference(): boolean {
 type AppSidebarProps = {
   organizationName?: string;
   userEmail?: string | null;
-  isDemo?: boolean;
 };
 
 function SidebarContent({
   organizationName,
   userEmail,
-  isDemo,
   collapsed,
   onNavigate,
 }: AppSidebarProps & {
@@ -52,9 +49,9 @@ function SidebarContent({
         />
       </div>
 
-        <AppSidebarNav
-          id="app-sidebar-nav"
-          items={APP_NAV_ITEMS}
+      <AppSidebarNav
+        id="app-sidebar-nav"
+        items={APP_NAV_ITEMS}
         collapsed={collapsed}
         onNavigate={onNavigate}
         className="flex-1 px-2"
@@ -85,16 +82,6 @@ function SidebarContent({
               {userEmail}
             </p>
           ) : null}
-          {isDemo ? (
-            <span
-              className={cn(
-                "mt-2 inline-flex",
-                collapsed && "mt-0 justify-center",
-              )}
-            >
-              <DemoBadge />
-            </span>
-          ) : null}
         </div>
         <Button
           variant="ghost"
@@ -103,7 +90,11 @@ function SidebarContent({
           className={cn("mt-2 w-full justify-start", collapsed && "px-2")}
         >
           <Link href="/" onClick={onNavigate}>
-            {collapsed ? <span className="sr-only">Sitio público</span> : "Sitio público"}
+            {collapsed ? (
+              <span className="sr-only">Sitio público</span>
+            ) : (
+              "Sitio público"
+            )}
           </Link>
         </Button>
       </div>
@@ -114,10 +105,8 @@ function SidebarContent({
 export function AppSidebar({
   organizationName,
   userEmail,
-  isDemo,
 }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(readCollapsedPreference);
-
   const [mobileOpen, setMobileOpen] = useState(false);
 
   function toggleCollapsed() {
@@ -148,7 +137,6 @@ export function AppSidebar({
             <SidebarContent
               organizationName={organizationName}
               userEmail={userEmail}
-              isDemo={isDemo}
               onNavigate={() => setMobileOpen(false)}
             />
           </SheetContent>
@@ -167,7 +155,6 @@ export function AppSidebar({
         <SidebarContent
           organizationName={organizationName}
           userEmail={userEmail}
-          isDemo={isDemo}
           collapsed={collapsed}
         />
         <div className="border-t border-border p-2">

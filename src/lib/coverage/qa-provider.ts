@@ -3,12 +3,6 @@ import type {
   CoverageQaResult,
   CoverageStatus,
 } from "@/lib/types/phase1";
-import {
-  DEMO_CITATIONS,
-  DEMO_COVERAGE_CLAUSES,
-  DEMO_POLICY_DOCUMENTS,
-  getDemoPlanVersionDetail,
-} from "@/lib/demo-api-data";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface CoverageQaInput {
@@ -31,14 +25,30 @@ interface GroundingContext {
   }>;
 }
 
-type CoverageQaProvider = "demo" | "openai";
+type CoverageQaProvider = "rules" | "openai";
 
 function getProvider(): CoverageQaProvider {
   const configured = process.env.COVERAGE_QA_PROVIDER;
   if (configured === "openai" && process.env.OPENAI_API_KEY) {
     return "openai";
   }
-  return "demo";
+  return "rules";
+}
+
+function hasPolicyGrounding(context: GroundingContext): boolean {
+  return context.clauses.length > 0 || context.citations.length > 0;
+}
+
+function abstainResult(provider: string): CoverageQaResult {
+  return {
+    status: "unknown",
+    answer:
+      "No hay texto de póliza disponible para responder esta pregunta. Consulta el documento de póliza vigente.",
+    citations: [],
+    abstained: true,
+    policy_wording_controls: true,
+    provider,
+  };
 }
 
 const KEYWORD_RULES: Array<{
@@ -58,21 +68,19 @@ const KEYWORD_RULES: Array<{
     patterns: [/urgenc/i, /emergenc/i],
     status: "conditional",
     answer:
-      "Las urgencias están cubiertas en red. Fuera de red, el reembolso es parcial (hasta 70%) con tope mensual.",
+      "Las urgencias están cubiertas en red. Fuera de red, el reembolso es parcial con tope mensual.",
     citationRefs: ["Art. 4.2"],
   },
   {
     patterns: [/maternidad/i, /parto/i, /embarazo/i],
     status: "not_covered",
-    answer:
-      "Este plan de demostración no incluye cobertura de maternidad.",
+    answer: "Este plan no incluye cobertura de maternidad.",
     citationRefs: ["Art. 5.1"],
   },
   {
     patterns: [/cosm[eé]tic/i, /est[eé]tic/i],
     status: "not_covered",
-    answer:
-      "Los tratamientos cosméticos no están cubiertos por este plan.",
+    answer: "Los tratamientos cosméticos no están cubiertos por este plan.",
     citationRefs: ["Art. 6.1"],
   },
   {
@@ -86,7 +94,7 @@ const KEYWORD_RULES: Array<{
     patterns: [/carencia/i, /espera/i, /cirug[ií]a/i],
     status: "conditional",
     answer:
-      "Las cirugías programadas tienen un período de carencia de 180 días desde la vigencia del plan.",
+      "Las cirugías programadas pueden tener un período de carencia según la póliza.",
     citationRefs: ["Art. 7.1"],
   },
 ];
@@ -105,74 +113,49 @@ function buildCitations(
     }));
 }
 
-function matchDemoQuestion(
+function matchPolicyQuestion(
   question: string,
   context: GroundingContext,
 ): CoverageQaResult {
+  if (!hasPolicyGrounding(context)) {
+    return abstainResult("rules");
+  }
+
   const normalized = question.toLowerCase().trim();
 
   for (const rule of KEYWORD_RULES) {
     if (rule.patterns.some((p) => p.test(normalized))) {
       const citations = buildCitations(rule.citationRefs, context);
+      if (citations.length === 0) {
+        return abstainResult("rules");
+      }
       return {
         status: rule.status,
         answer: rule.answer,
         citations,
         abstained: false,
         policy_wording_controls: true,
-        provider: "demo",
+        provider: "rules",
       };
     }
   }
 
-  return {
-    status: "unknown",
-    answer:
-      "No encontramos información suficiente en la póliza de demostración para responder esta pregunta. El texto de la póliza prevalece.",
-    citations: [],
-    abstained: true,
-    policy_wording_controls: true,
-    provider: "demo",
-  };
+  return abstainResult("rules");
 }
 
 async function loadGroundingContext(
   planVersionId: string,
 ): Promise<GroundingContext | null> {
   const supabase = createAdminClient();
-
-  if (!supabase) {
-    const detail = getDemoPlanVersionDetail(planVersionId);
-    if (!detail) return null;
-
-    const docMap = new Map(
-      detail.policy_documents.map((d) => [d.id, d.title]),
-    );
-
-    return {
-      clauses: detail.coverage_clauses.map((c) => ({
-        title: c.title,
-        coverage_status: c.coverage_status,
-        description: c.description,
-        conditions: c.conditions,
-      })),
-      citations: detail.citations.map((c) => ({
-        clause_ref: c.clause_ref,
-        excerpt: c.excerpt,
-        page_number: c.page_number,
-        policy_document_title:
-          docMap.get(c.policy_document_id) ?? "Documento de póliza",
-      })),
-    };
-  }
+  if (!supabase) return null;
 
   const { data: version } = await supabase
     .from("plan_versions")
-    .select("id, status, is_demo")
+    .select("id, status")
     .eq("id", planVersionId)
     .maybeSingle();
 
-  if (!version || (version.status !== "published" && !version.is_demo)) {
+  if (!version || version.status !== "published") {
     return null;
   }
 
@@ -220,12 +203,16 @@ async function answerWithOpenAI(
   input: CoverageQaInput,
   context: GroundingContext,
 ): Promise<CoverageQaResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return matchDemoQuestion(input.question, context);
+  if (!hasPolicyGrounding(context)) {
+    return abstainResult("openai");
   }
 
-  const systemPrompt = `Eres un asistente de cobertura de seguros de salud en Chile.
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return matchPolicyQuestion(input.question, context);
+  }
+
+  const systemPrompt = `Eres un asistente de cobertura de seguros de salud en Ecuador.
 Responde SOLO con base en el contexto de póliza proporcionado.
 Si no hay información suficiente, indica status "unknown" y abstente.
 Responde en español. El texto de la póliza prevalece (policy_wording_controls: true).
@@ -255,7 +242,7 @@ Formato JSON: { "status": "covered|not_covered|conditional|unknown", "answer": "
   });
 
   if (!response.ok) {
-    return matchDemoQuestion(input.question, context);
+    return matchPolicyQuestion(input.question, context);
   }
 
   const payload = (await response.json()) as {
@@ -275,21 +262,20 @@ Formato JSON: { "status": "covered|not_covered|conditional|unknown", "answer": "
     const citations = buildCitations(parsed.citation_refs ?? [], context);
 
     if (status === "unknown" || citations.length === 0) {
-      return matchDemoQuestion(input.question, context);
+      return abstainResult("openai");
     }
 
     return {
       status,
       answer:
-        parsed.answer ??
-        "Consulta la póliza para detalles específicos.",
+        parsed.answer ?? "Consulta la póliza para detalles específicos.",
       citations,
       abstained: false,
       policy_wording_controls: true,
       provider: "openai",
     };
   } catch {
-    return matchDemoQuestion(input.question, context);
+    return matchPolicyQuestion(input.question, context);
   }
 }
 
@@ -305,31 +291,15 @@ export async function answerCoverageQuestion(
     return answerWithOpenAI(input, context);
   }
 
-  return matchDemoQuestion(input.question, context);
+  return matchPolicyQuestion(input.question, context);
 }
 
 /** Exported for tests */
-export function matchDemoQuestionForTest(
+export function matchPolicyQuestionForTest(
   question: string,
   context: GroundingContext,
 ): CoverageQaResult {
-  return matchDemoQuestion(question, context);
+  return matchPolicyQuestion(question, context);
 }
 
-export function buildDemoGroundingContext(): GroundingContext {
-  const doc = DEMO_POLICY_DOCUMENTS[0];
-  return {
-    clauses: DEMO_COVERAGE_CLAUSES.map((c) => ({
-      title: c.title,
-      coverage_status: c.coverage_status,
-      description: c.description,
-      conditions: c.conditions,
-    })),
-    citations: DEMO_CITATIONS.map((c) => ({
-      clause_ref: c.clause_ref,
-      excerpt: c.excerpt,
-      page_number: c.page_number,
-      policy_document_title: doc?.title ?? "Documento de póliza",
-    })),
-  };
-}
+export type { GroundingContext };

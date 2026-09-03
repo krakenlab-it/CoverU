@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { DEMO_ORG_ID } from "@/lib/demo-api-data";
 
 export interface AuthUser {
   id: string;
@@ -10,7 +9,6 @@ export interface OrgMembership {
   organizationId: string;
   role: string;
   organizationName: string;
-  isDemo: boolean;
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
@@ -30,16 +28,7 @@ export async function getUserOrgMemberships(
   userId: string,
 ): Promise<OrgMembership[]> {
   const supabase = await createClient();
-  if (!supabase) {
-    return [
-      {
-        organizationId: DEMO_ORG_ID,
-        role: "admin",
-        organizationName: "[DEMO] CoverÜ Partner Org",
-        isDemo: true,
-      },
-    ];
-  }
+  if (!supabase) return [];
 
   const { data, error } = await supabase
     .from("organization_members")
@@ -48,8 +37,7 @@ export async function getUserOrgMemberships(
       role,
       organization:organizations (
         id,
-        name,
-        is_demo
+        name
       )
     `,
     )
@@ -63,14 +51,12 @@ export async function getUserOrgMemberships(
       const org = row.organization as unknown as {
         id: string;
         name: string;
-        is_demo: boolean;
       } | null;
       if (!org) return null;
       return {
         organizationId: org.id,
         role: row.role,
         organizationName: org.name,
-        isDemo: org.is_demo,
       };
     })
     .filter((m): m is OrgMembership => m !== null);
@@ -80,30 +66,14 @@ export async function requireAuthWithOrg(): Promise<{
   user: AuthUser;
   memberships: OrgMembership[];
 } | null> {
-  const user = await getCurrentUser();
+  const supabase = await createClient();
+  if (!supabase) return null;
 
-  if (!user) {
-    const supabase = await createClient();
-    if (!supabase) {
-      return {
-        user: { id: "demo-user", email: "demo@coveru.local" },
-        memberships: [
-          {
-            organizationId: DEMO_ORG_ID,
-            role: "admin",
-            organizationName: "[DEMO] CoverÜ Partner Org",
-            isDemo: true,
-          },
-        ],
-      };
-    }
-    return null;
-  }
+  const user = await getCurrentUser();
+  if (!user) return null;
 
   const memberships = await getUserOrgMemberships(user.id);
-  if (memberships.length === 0 && (await createClient())) {
-    return null;
-  }
+  if (memberships.length === 0) return null;
 
   return { user, memberships };
 }

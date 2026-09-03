@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { hasServiceRole } from "@/lib/settings/session";
 
 export interface UsageLogEntry {
   id: string;
@@ -16,8 +16,7 @@ export interface UsageSummary {
   byEndpoint: { path: string; count: number }[];
   byStatus: { status: number; count: number }[];
   recentLogs: UsageLogEntry[];
-  isDemo: boolean;
-  demoMode: boolean;
+  serviceConfigured: boolean;
   isEmpty: boolean;
   error?: string;
 }
@@ -26,8 +25,7 @@ const USAGE_WINDOW_HOURS = 24;
 
 function aggregateLogs(
   logs: UsageLogEntry[],
-  isDemo: boolean,
-  demoMode: boolean,
+  serviceConfigured: boolean,
   error?: string,
 ): UsageSummary {
   const byEndpointMap = new Map<string, number>();
@@ -58,8 +56,7 @@ function aggregateLogs(
     byEndpoint,
     byStatus,
     recentLogs: logs.slice(0, 20),
-    isDemo,
-    demoMode,
+    serviceConfigured,
     isEmpty: logs.length === 0,
     error,
   };
@@ -67,24 +64,21 @@ function aggregateLogs(
 
 export async function getOrgUsageSummary(
   organizationId: string,
-  isDemo: boolean,
 ): Promise<UsageSummary> {
-  const supabase = await createClient();
+  if (!hasServiceRole()) {
+    return aggregateLogs([], false);
+  }
+
   const admin = createAdminClient();
+  if (!admin) {
+    return aggregateLogs([], false);
+  }
+
   const since = new Date(
     Date.now() - USAGE_WINDOW_HOURS * 60 * 60 * 1000,
   ).toISOString();
 
-  if (!supabase && !admin) {
-    return aggregateLogs([], true, true);
-  }
-
-  const client = admin ?? supabase;
-  if (!client) {
-    return aggregateLogs([], isDemo, true);
-  }
-
-  const { data, error } = await client
+  const { data, error } = await admin
     .from("api_usage_logs")
     .select("id, method, path, status_code, duration_ms, created_at")
     .eq("organization_id", organizationId)
@@ -93,7 +87,11 @@ export async function getOrgUsageSummary(
     .limit(200);
 
   if (error) {
-    return aggregateLogs([], isDemo, !admin, "No se pudo cargar el uso de la API.");
+    return aggregateLogs(
+      [],
+      true,
+      "No se pudo cargar el uso de la API.",
+    );
   }
 
   const logs: UsageLogEntry[] = (data ?? []).map((row) => ({
@@ -105,5 +103,5 @@ export async function getOrgUsageSummary(
     createdAt: row.created_at,
   }));
 
-  return aggregateLogs(logs, isDemo, !admin);
+  return aggregateLogs(logs, true);
 }

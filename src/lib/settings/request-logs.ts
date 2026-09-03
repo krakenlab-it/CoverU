@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { hasServiceRole } from "@/lib/settings/session";
 
 export interface RequestLogRow {
   id: string;
@@ -15,8 +15,7 @@ export interface RequestLogRow {
 export interface RequestLogsResult {
   logs: RequestLogRow[];
   windowHours: number;
-  isDemo: boolean;
-  demoMode: boolean;
+  serviceConfigured: boolean;
   isEmpty: boolean;
   error?: string;
 }
@@ -55,36 +54,31 @@ function mapRow(row: UsageLogDbRow): RequestLogRow {
 
 export async function getOrgRequestLogs(
   organizationId: string,
-  isDemo: boolean,
 ): Promise<RequestLogsResult> {
-  const supabase = await createClient();
+  if (!hasServiceRole()) {
+    return {
+      logs: [],
+      windowHours: LOG_WINDOW_HOURS,
+      serviceConfigured: false,
+      isEmpty: true,
+    };
+  }
+
   const admin = createAdminClient();
+  if (!admin) {
+    return {
+      logs: [],
+      windowHours: LOG_WINDOW_HOURS,
+      serviceConfigured: false,
+      isEmpty: true,
+    };
+  }
+
   const since = new Date(
     Date.now() - LOG_WINDOW_HOURS * 60 * 60 * 1000,
   ).toISOString();
 
-  if (!supabase && !admin) {
-    return {
-      logs: [],
-      windowHours: LOG_WINDOW_HOURS,
-      isDemo: true,
-      demoMode: true,
-      isEmpty: true,
-    };
-  }
-
-  const client = admin ?? supabase;
-  if (!client) {
-    return {
-      logs: [],
-      windowHours: LOG_WINDOW_HOURS,
-      isDemo,
-      demoMode: true,
-      isEmpty: true,
-    };
-  }
-
-  const { data, error } = await client
+  const { data, error } = await admin
     .from("api_usage_logs")
     .select(
       "id, request_id, method, path, status_code, duration_ms, created_at, api_keys ( key_prefix )",
@@ -98,8 +92,7 @@ export async function getOrgRequestLogs(
     return {
       logs: [],
       windowHours: LOG_WINDOW_HOURS,
-      isDemo,
-      demoMode: !admin,
+      serviceConfigured: true,
       isEmpty: true,
       error: "No se pudieron cargar los registros de solicitudes.",
     };
@@ -110,8 +103,7 @@ export async function getOrgRequestLogs(
   return {
     logs,
     windowHours: LOG_WINDOW_HOURS,
-    isDemo,
-    demoMode: !admin,
+    serviceConfigured: true,
     isEmpty: logs.length === 0,
   };
 }

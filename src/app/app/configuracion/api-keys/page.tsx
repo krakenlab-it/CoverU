@@ -1,8 +1,7 @@
 import { CreateApiKeyDialog } from "@/components/settings/CreateApiKeyDialog";
 import { RevokeApiKeyButton } from "@/components/settings/RevokeApiKeyButton";
-import { DemoAlert } from "@/components/platform/DemoAlert";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { EmptyState } from "@/components/platform/EmptyState";
+import { SetupError } from "@/components/platform/SetupError";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { listOrgApiKeys } from "@/lib/settings/api-keys";
@@ -34,34 +33,30 @@ export default async function ApiKeysSettingsPage() {
     redirect("/login?redirect=/app/configuracion/api-keys");
   }
 
-  const { keys, isDemo, demoMode } = await listOrgApiKeys(
+  const { keys, serviceConfigured } = await listOrgApiKeys(
     session.organizationId,
   );
 
   return (
     <div className="space-y-6">
+      {!serviceConfigured ? <SetupError compact /> : null}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">
-            Prefijo, nombre y estado. Nunca almacenamos ni mostramos la clave
-            completa después de la creación.
-          </p>
-          {isDemo || demoMode ? (
-            <span className="inline-flex">
-              <DemoBadge />
-            </span>
-          ) : null}
-        </div>
-        <CreateApiKeyDialog
-          isDemo={isDemo || demoMode}
-          disabled={!session.canAdminister}
-        />
+        <p className="text-sm text-muted-foreground">
+          Prefijo, nombre y estado. Nunca almacenamos ni mostramos la clave
+          completa después de la creación.
+        </p>
+        <CreateApiKeyDialog disabled={!session.canAdminister || !serviceConfigured} />
       </div>
 
       {keys.length === 0 ? (
         <EmptyState
           title="Sin claves API"
-          description="Crea una clave para integrar tu sistema con la API B2B."
+          description={
+            serviceConfigured
+              ? "Crea una clave para integrar tu sistema con la API B2B."
+              : "Configura Supabase para crear y administrar claves API."
+          }
         />
       ) : (
         <Card>
@@ -121,8 +116,6 @@ export default async function ApiKeysSettingsPage() {
           </CardContent>
         </Card>
       )}
-
-      {demoMode ? <DemoAlert compact /> : null}
     </div>
   );
 }

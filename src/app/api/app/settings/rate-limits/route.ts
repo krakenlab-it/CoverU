@@ -20,10 +20,7 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  const policy = await getOrgRateLimitPolicy(
-    session.organizationId,
-    session.isDemo,
-  );
+  const policy = await getOrgRateLimitPolicy(session.organizationId);
   return NextResponse.json(policy);
 }
 
@@ -62,9 +59,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
-  const policy = await getOrgRateLimitPolicy(
-    session.organizationId,
-    session.isDemo,
-  );
+  const policy = await getOrgRateLimitPolicy(session.organizationId);
   return NextResponse.json({ success: true, policy });
 }
