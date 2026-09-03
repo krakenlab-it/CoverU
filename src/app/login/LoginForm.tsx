@@ -9,20 +9,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
-import { isSupabaseAuthConfigured } from "@/lib/supabase/config";
 
-export default function LoginForm() {
+type LoginFormProps = {
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+};
+
+export default function LoginForm({
+  supabaseUrl,
+  supabaseAnonKey,
+}: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/app";
-  const setupError = searchParams.get("error") === "setup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const supabaseConfigured = isSupabaseAuthConfigured();
-  const supabase = createClient();
+  const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+  const supabase = supabaseConfigured
+    ? createClient({ url: supabaseUrl, anonKey: supabaseAnonKey })
+    : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +59,7 @@ export default function LoginForm() {
     router.refresh();
   }
 
-  if (!supabaseConfigured || setupError) {
+  if (!supabaseConfigured) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-4 py-12">
         <SetupError />

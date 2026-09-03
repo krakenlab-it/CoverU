@@ -1,7 +1,10 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { SetupError } from "@/components/platform/SetupError";
 import { requireAuthWithOrg } from "@/lib/auth/org";
-import { isSupabaseAuthConfigured } from "@/lib/supabase/config";
+import {
+  getSupabasePublicConfig,
+  isSupabasePublicConfigComplete,
+} from "@/lib/supabase/public-config";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({
@@ -9,7 +12,9 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (!isSupabaseAuthConfigured()) {
+  const supabaseConfig = getSupabasePublicConfig();
+
+  if (!isSupabasePublicConfigComplete(supabaseConfig)) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
         <SetupError />
