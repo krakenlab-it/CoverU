@@ -1,5 +1,6 @@
 name: CI
 
+# Validates lint, types, unit/integration tests, migrations, build, and Playwright.
 on:
   push:
     branches: [main]

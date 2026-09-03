@@ -27,7 +27,7 @@ Local CI does **not** require Vercel, Supabase production, or OpenAI secrets. De
 
 ## CI workflow design
 
-- **Node version**: pinned in `.nvmrc` (`20.18.0`) and used via `node-version-file`.
+- **Node version**: pinned in `.nvmrc` (`22.12.0`) and used via `node-version-file`.
 - **Dependency install**: `npm ci` with npm cache keyed on `package-lock.json`.
 - **Duplicate run avoidance**: `push` triggers only on `main`; feature branches run via `pull_request`. Concurrency cancels superseded runs.
 - **Failure artifacts**: Playwright HTML report and test results uploaded on E2E failure.
