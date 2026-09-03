@@ -1,93 +1,68 @@
 import Link from "next/link";
-import { BrandLogo } from "@/components/layout/BrandLogo";
-import { HeaderAuthControl } from "@/components/layout/HeaderAuthControl";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { getPublicAuthNav } from "@/lib/auth/public-nav";
 import { NAV_LINKS } from "@/lib/constants";
-import { motion } from "@/lib/motion";
-import { cn } from "@/lib/utils";
-import { Menu } from "lucide-react";
+import { CoverULogoLink } from "@/components/marketing/CoverULogo";
+import { WhatsAppContactLink } from "@/components/marketing/WhatsAppContactLink";
 
-export async function Header() {
-  const authNav = await getPublicAuthNav();
-
+export function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <BrandLogo href="/" size="lg" />
-
-        <nav
-          className="hidden items-center gap-1 md:flex"
-          aria-label="Navegación principal"
-        >
-          {NAV_LINKS.map((link) => (
-            <Button key={link.href} variant="ghost" size="sm" asChild>
-              <Link href={link.href} className={motion.navLink}>
+    <header className="sticky top-0 z-50 border-b border-coveru-border bg-white/95 backdrop-blur">
+      <div className="marketing-layout">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-4">
+          <nav
+            className="hidden items-center gap-5 lg:flex"
+            aria-label="Navegación principal"
+          >
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-foreground/80 transition-colors hover:text-coveru-red"
+              >
                 {link.label}
               </Link>
-            </Button>
-          ))}
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/developers">Desarrolladores</Link>
-          </Button>
-          <HeaderAuthControl authNav={authNav} />
-          <Button variant="brand" size="sm" asChild className="rounded-full">
-            <Link href="/comparar">Comparar</Link>
-          </Button>
-        </nav>
+            ))}
+          </nav>
 
-        <div className="flex items-center gap-2 md:hidden">
-          <HeaderAuthControl authNav={authNav} />
-          <Button variant="brand" size="sm" asChild className="rounded-full">
-            <Link href="/comparar">Comparar</Link>
-          </Button>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="Abrir menú">
-                <Menu className="size-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>Menú</SheetTitle>
-              </SheetHeader>
-              <nav
-                className="mt-6 flex flex-col gap-1"
-                aria-label="Navegación móvil"
-              >
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "rounded-md px-3 py-2 text-sm font-medium hover:bg-muted",
-                      motion.navLink,
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <Link
-                  href="/developers"
-                  className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium hover:bg-muted",
-                    motion.navLink,
-                  )}
-                >
-                  Desarrolladores
-                </Link>
-                <HeaderAuthControl authNav={authNav} variant="mobile" />
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <div className="justify-self-center">
+            <CoverULogoLink priority />
+          </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <Link
+              href="/login"
+              className="hidden text-sm font-medium text-foreground/70 transition-colors hover:text-coveru-red sm:inline-flex"
+            >
+              Iniciar sesión
+            </Link>
+            <WhatsAppContactLink
+              className="marketing-pill bg-coveru-red px-4 py-2 text-sm text-white hover:bg-coveru-red-dark sm:px-5 sm:py-2.5"
+              ariaLabel="Quiero Asegurarme por WhatsApp"
+            >
+              Quiero Asegurarme
+            </WhatsAppContactLink>
+          </div>
         </div>
+
+        <nav
+          className="flex gap-1 overflow-x-auto border-t border-coveru-border py-2 lg:hidden"
+          aria-label="Navegación móvil"
+        >
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/70 hover:bg-coveru-light hover:text-coveru-red"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link
+            href="/login"
+            className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/70 hover:bg-coveru-light hover:text-coveru-red"
+          >
+            Iniciar sesión
+          </Link>
+        </nav>
       </div>
     </header>
   );
