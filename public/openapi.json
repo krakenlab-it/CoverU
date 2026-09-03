@@ -101,7 +101,10 @@
           "age_max": { "type": "integer" },
           "gender": { "type": "string" },
           "region": { "type": "string" },
-          "monthly_price": { "type": "integer" },
+          "monthly_price": {
+            "type": "number",
+            "description": "USD monthly premium (prima_mensual_con_imp). Dollars, not cents."
+          },
           "deductible": { "type": "integer", "nullable": true },
           "copay_pct": { "type": "integer", "nullable": true },
           "annual_limit": { "type": "integer", "nullable": true },
@@ -116,7 +119,11 @@
           "plan_version_id": { "type": "string", "format": "uuid" },
           "external_ref": { "type": "string", "nullable": true },
           "status": { "type": "string" },
-          "monthly_price": { "type": "integer", "nullable": true },
+          "monthly_price": {
+            "type": "number",
+            "nullable": true,
+            "description": "USD monthly premium snapshot. Dollars, not cents."
+          },
           "is_demo": { "type": "boolean" }
         }
       },

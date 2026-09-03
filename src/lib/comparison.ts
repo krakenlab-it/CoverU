@@ -1,4 +1,4 @@
-import type { ComparisonResult } from "@/lib/types/database";
+import type { ComparisonResult, Insurer, Plan, Tariff } from "@/lib/types/database";
 import { filterDemoResults } from "@/lib/demo-data";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,38 +48,9 @@ export async function getComparisonResults(
     if (!insurer) continue;
 
     results.push({
-      tariff: {
-        id: tariff.id,
-        plan_id: tariff.plan_id,
-        age_min: tariff.age_min,
-        age_max: tariff.age_max,
-        gender: tariff.gender,
-        region: tariff.region,
-        monthly_price: tariff.monthly_price,
-        deductible: tariff.deductible,
-        copay_pct: tariff.copay_pct,
-        annual_limit: tariff.annual_limit,
-        exclusions: tariff.exclusions,
-        is_demo: tariff.is_demo,
-        created_at: tariff.created_at,
-      },
-      plan: {
-        id: plan.id,
-        insurer_id: plan.insurer_id,
-        name: plan.name,
-        description: plan.description,
-        coverage_summary: plan.coverage_summary,
-        is_demo: plan.is_demo,
-        created_at: plan.created_at,
-      },
-      insurer: {
-        id: insurer.id,
-        name: insurer.name,
-        slug: insurer.slug,
-        logo_url: insurer.logo_url,
-        is_demo: insurer.is_demo,
-        created_at: insurer.created_at,
-      },
+      tariff: tariff as Tariff,
+      plan: plan as Plan,
+      insurer: insurer as Insurer,
     });
   }
 
