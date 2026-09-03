@@ -14,6 +14,7 @@ import { motion } from "@/lib/motion";
 import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { AppSidebarNav } from "@/components/layout/AppSidebarNav";
 
@@ -27,11 +28,15 @@ function readCollapsedPreference(): boolean {
 type AppSidebarProps = {
   organizationName?: string;
   userEmail?: string | null;
+  supabaseUrl: string;
+  supabaseAnonKey: string;
 };
 
 function SidebarContent({
   organizationName,
   userEmail,
+  supabaseUrl,
+  supabaseAnonKey,
   collapsed,
   onNavigate,
 }: AppSidebarProps & {
@@ -97,6 +102,12 @@ function SidebarContent({
             )}
           </Link>
         </Button>
+        <LogoutButton
+          supabaseUrl={supabaseUrl}
+          supabaseAnonKey={supabaseAnonKey}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
       </div>
     </div>
   );
@@ -105,6 +116,8 @@ function SidebarContent({
 export function AppSidebar({
   organizationName,
   userEmail,
+  supabaseUrl,
+  supabaseAnonKey,
 }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(readCollapsedPreference);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -137,6 +150,8 @@ export function AppSidebar({
             <SidebarContent
               organizationName={organizationName}
               userEmail={userEmail}
+              supabaseUrl={supabaseUrl}
+              supabaseAnonKey={supabaseAnonKey}
               onNavigate={() => setMobileOpen(false)}
             />
           </SheetContent>
@@ -155,6 +170,8 @@ export function AppSidebar({
         <SidebarContent
           organizationName={organizationName}
           userEmail={userEmail}
+          supabaseUrl={supabaseUrl}
+          supabaseAnonKey={supabaseAnonKey}
           collapsed={collapsed}
         />
         <div className="border-t border-border p-2">

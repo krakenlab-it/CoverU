@@ -1,34 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { AuthPageFooter, AuthPageShell } from "@/components/auth/AuthPageShell";
 import { SetupError } from "@/components/platform/SetupError";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthPageFooter, AuthPageShell } from "@/components/auth/AuthPageShell";
 import { createClient } from "@/lib/supabase/client";
 import { type CoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
 import { useLogCoveruEnv } from "@/lib/supabase/use-log-coveru-env";
 
-type LoginFormProps = {
+type ActualizarContrasenaFormProps = {
   supabaseUrl: string;
   supabaseAnonKey: string;
   envDiagnostics: CoveruEnvDiagnostics;
 };
 
-export default function LoginForm({
+export default function ActualizarContrasenaForm({
   supabaseUrl,
   supabaseAnonKey,
   envDiagnostics,
-}: LoginFormProps) {
+}: ActualizarContrasenaFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/app";
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +40,17 @@ export default function LoginForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
     setLoading(true);
 
     if (!supabase) {
@@ -50,19 +59,29 @@ export default function LoginForm({
       return;
     }
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    setLoading(false);
-
-    if (authError) {
-      setError("Credenciales inválidas. Verifica tu email y contraseña.");
+    if (!session) {
+      setLoading(false);
+      setError(
+        "Tu enlace de recuperación expiró o no es válido. Solicita uno nuevo.",
+      );
       return;
     }
 
-    router.push(redirect);
+    const { error: updateError } = await supabase.auth.updateUser({ password });
+
+    setLoading(false);
+
+    if (updateError) {
+      setError("No pudimos actualizar tu contraseña. Inténtalo de nuevo.");
+      return;
+    }
+
+    await supabase.auth.signOut();
+    router.push("/login");
     router.refresh();
   }
 
@@ -79,33 +98,35 @@ export default function LoginForm({
     <AuthPageShell>
       <Card>
         <CardHeader>
-          <CardTitle>Iniciar sesión</CardTitle>
+          <CardTitle>Nueva contraseña</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Accede al panel de CoverÜ para tu organización.
+            Elige una contraseña segura para tu cuenta de CoverÜ.
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Nueva contraseña</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
+                minLength={8}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                minLength={8}
               />
             </div>
 
@@ -115,29 +136,19 @@ export default function LoginForm({
               </p>
             ) : null}
 
-            <div className="text-right">
-              <Link
-                href="/recuperar"
-                className="text-sm text-primary hover:underline"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-
             <Button
               type="submit"
               variant="brand"
               className="w-full rounded-full"
               disabled={loading}
             >
-              {loading ? "Ingresando…" : "Iniciar sesión"}
+              {loading ? "Guardando…" : "Actualizar contraseña"}
             </Button>
           </form>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            ¿No tienes cuenta?{" "}
-            <Link href="/registro" className="text-primary hover:underline">
-              Registrarse
+            <Link href="/recuperar" className="text-primary hover:underline">
+              Solicitar un nuevo enlace
             </Link>
           </p>
 
