@@ -2,12 +2,7 @@ export const HERO_SLIDES = [
   {
     id: "salud",
     image: "/marketing/hero-family.webp",
-<<<<<<< HEAD
     imageAlt: "Encuentra el Seguro de Salud ideal y contrátalo 100% Online",
-=======
-    imageAlt:
-      "Encuentra el Seguro de Salud ideal y contrátalo 100% Online",
->>>>>>> 325aa84 (Wire Astro asset paths, WhatsApp CTAs, and web manifest)
     headline: "Encuentra el Seguro de Salud ideal y contrátalo",
     highlight: "100% Online",
     subheadline:
