@@ -22,6 +22,7 @@ export default async function AppLayout({
   return (
     <AppShell
       organizationName={membership?.organizationName}
+      userEmail={session.user.email}
       isDemo={isDemo}
       showDemoBanner={isDemo}
     >

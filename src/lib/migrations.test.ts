@@ -16,6 +16,7 @@ describe("supabase migrations", () => {
   it("includes phase 1 migration files", () => {
     expect(files).toContain("20250102000000_phase1_schema.sql");
     expect(files).toContain("20250102000001_phase1_seed_demo.sql");
+    expect(files).toContain("20250103000000_organization_settings.sql");
   });
 
   it("includes tariff schema v1.1 migration", () => {
@@ -115,5 +116,15 @@ describe("supabase migrations", () => {
       expect(content).not.toMatch(/INSERT INTO/i);
       expect(content).not.toMatch(/COPY /i);
     });
+  });
+
+  it("organization settings migration enables RLS", () => {
+    const content = readFileSync(
+      join(MIGRATIONS_DIR, "20250103000000_organization_settings.sql"),
+      "utf-8",
+    );
+    expect(content).toContain("organization_settings");
+    expect(content).toContain("ENABLE ROW LEVEL SECURITY");
+    expect(content).toContain("org_settings_admin_update");
   });
 });
