@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --coveru-red: #df0926;
+  --coveru-red-dark: #b8071f;
+  --coveru-gray: #6b7280;
+  --coveru-light: #f9fafb;
+  --coveru-border: #e5e7eb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-coveru-red: var(--coveru-red);
+  --color-coveru-red-dark: var(--coveru-red-dark);
+  --color-coveru-gray: var(--coveru-gray);
+  --color-coveru-light: var(--coveru-light);
+  --color-coveru-border: var(--coveru-border);
+  --font-sans: var(--font-poppins);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
