@@ -4,7 +4,22 @@ Copy files from `coveru-visual-system/` into `public/` using the paths below. **
 
 ## Status
 
-Sam's pack was not readable on the shared filesystem during integration (`/workspace/coveru-visual-system` missing). Drop assets locally using this manifest, then rebuild.
+**Cloud agent check (Sep 3, 2026):** `/workspace/coveru-visual-system` and `/workspace/coveru-visual-system.zip` were not present on the agent VM after exhaustive search. Generated OG/icon fallbacks remain active until assets are copied.
+
+### Integrate on the agent VM or locally
+
+```bash
+# From repo root — expects pack at ./coveru-visual-system or ./coveru-visual-system.zip
+./scripts/integrate-sam-visual-pack.sh
+npm run build
+git add public && git commit -m "chore(brand): add Sam visual pack assets"
+```
+
+Or copy manually:
+
+```bash
+cp -r coveru-visual-system/public/* public/
+```
 
 ## Brand lockups (`public/brand/`)
 
