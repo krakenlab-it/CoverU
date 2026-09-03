@@ -4,6 +4,7 @@ import { MarketplaceResultsGrid } from "@/components/marketplace/MarketplaceResu
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
 import { ErrorState } from "@/components/platform/ErrorState";
 import { PageHeader } from "@/components/platform/PageHeader";
+import { LoadingState } from "@/components/platform/LoadingState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buildAppMetadata } from "@/lib/seo/metadata";
 import { getDemoInsurers, searchMarketplace } from "@/lib/marketplace/catalog";
@@ -32,18 +33,7 @@ function toSearchParams(
 }
 
 function MarketplaceSkeleton() {
-  return (
-    <div className="space-y-4" aria-busy="true" aria-label="Cargando marketplace">
-      <Skeleton className="h-8 w-64" />
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-        <Skeleton className="h-96" />
-        <div className="grid gap-4 md:grid-cols-2">
-          <Skeleton className="h-72" />
-          <Skeleton className="h-72" />
-        </div>
-      </div>
-    </div>
-  );
+  return <LoadingState label="Cargando marketplace" />;
 }
 
 async function MarketplaceContent({

@@ -6,6 +6,7 @@ export const SITE_URL =
 export const SITE_LOCALE = "es_EC";
 
 export const DEFAULT_OG_IMAGE = "/og-coveru.png";
+export const DEFAULT_TWITTER_IMAGE = "/twitter-coveru.png";
 
 export const PUBLIC_ROUTES = [
   "/",

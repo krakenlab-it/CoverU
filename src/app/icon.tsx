@@ -1,9 +1,32 @@
+import { loadPublicAssetBody } from "@/lib/brand/load-public-asset";
+import { FAVICON_ASSETS } from "@/lib/brand/assets";
 import { ImageResponse } from "next/og";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-export default function Icon() {
+export default async function Icon() {
+  const faviconIco = loadPublicAssetBody("favicon.ico");
+  if (faviconIco) {
+    return new Response(faviconIco, {
+      headers: { "Content-Type": "image/x-icon" },
+    });
+  }
+
+  const icon192 = loadPublicAssetBody(FAVICON_ASSETS.icon192.slice(1));
+  if (icon192) {
+    return new Response(icon192, {
+      headers: { "Content-Type": "image/png" },
+    });
+  }
+
+  const markPng = loadPublicAssetBody("brand/mark.png");
+  if (markPng) {
+    return new Response(markPng, {
+      headers: { "Content-Type": "image/png" },
+    });
+  }
+
   return new ImageResponse(
     (
       <div

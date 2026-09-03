@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildAppMetadata, buildPublicMetadata } from "@/lib/seo/metadata";
-import { absoluteUrl, pageTitle } from "@/lib/seo/site";
+import { absoluteUrl, DEFAULT_TWITTER_IMAGE, pageTitle } from "@/lib/seo/site";
 
 describe("SEO metadata helpers", () => {
   it("builds canonical public metadata with Open Graph", () => {
@@ -14,6 +14,12 @@ describe("SEO metadata helpers", () => {
     expect(metadata.robots).toEqual({ index: true, follow: true });
     expect(metadata.openGraph?.locale).toBe("es_EC");
     expect(metadata.twitter).toMatchObject({ card: "summary_large_image" });
+    expect(metadata.twitter?.images).toEqual(
+      expect.arrayContaining([
+        absoluteUrl(DEFAULT_TWITTER_IMAGE),
+        absoluteUrl("/og-coveru.png"),
+      ]),
+    );
   });
 
   it("blocks indexing for authenticated app routes", () => {

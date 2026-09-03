@@ -1,3 +1,4 @@
+import { StateIllustration } from "@/components/brand/StateIllustration";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
@@ -17,6 +18,7 @@ type EmptyStateProps = {
   actionHref?: string;
   className?: string;
   icon?: React.ReactNode;
+  showIllustration?: boolean;
 };
 
 export function EmptyState({
@@ -27,6 +29,7 @@ export function EmptyState({
   actionHref,
   className,
   icon,
+  showIllustration = true,
 }: EmptyStateProps) {
   return (
     <Card
@@ -40,6 +43,10 @@ export function EmptyState({
             aria-hidden="true"
           >
             {icon}
+          </div>
+        ) : showIllustration ? (
+          <div className="mb-2" aria-hidden="true">
+            <StateIllustration variant="empty" />
           </div>
         ) : null}
         <CardTitle className="text-lg">{title}</CardTitle>

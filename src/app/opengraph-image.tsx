@@ -1,3 +1,5 @@
+import { loadPublicAssetBody } from "@/lib/brand/load-public-asset";
+import { SOCIAL_ASSETS } from "@/lib/brand/assets";
 import { ImageResponse } from "next/og";
 import { SITE_DESCRIPTION } from "@/lib/seo/site";
 
@@ -5,7 +7,17 @@ export const alt = "CoverÜ — comparador de seguros de salud en Ecuador";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
+  const staticOg =
+    loadPublicAssetBody(SOCIAL_ASSETS.openGraph.slice(1)) ??
+    loadPublicAssetBody(SOCIAL_ASSETS.twitter.slice(1));
+
+  if (staticOg) {
+    return new Response(staticOg, {
+      headers: { "Content-Type": "image/png" },
+    });
+  }
+
   return new ImageResponse(
     (
       <div

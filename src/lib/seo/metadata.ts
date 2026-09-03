@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
   DEFAULT_OG_IMAGE,
+  DEFAULT_TWITTER_IMAGE,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
   SITE_LOCALE,
@@ -26,7 +27,8 @@ export function buildPublicMetadata({
 }: BuildMetadataOptions): Metadata {
   const canonical = absoluteUrl(path);
   const resolvedTitle = pageTitle(title);
-  const imageUrl = image.startsWith("http") ? image : absoluteUrl(image);
+  const ogImageUrl = image.startsWith("http") ? image : absoluteUrl(image);
+  const twitterImageUrl = absoluteUrl(DEFAULT_TWITTER_IMAGE);
 
   return {
     title: title ?? "Comparador de seguros de salud",
@@ -44,7 +46,7 @@ export function buildPublicMetadata({
       description,
       images: [
         {
-          url: imageUrl,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: "CoverÜ — comparador de seguros de salud en Ecuador",
@@ -55,7 +57,7 @@ export function buildPublicMetadata({
       card: "summary_large_image",
       title: resolvedTitle,
       description,
-      images: [imageUrl],
+      images: [twitterImageUrl, ogImageUrl],
     },
     robots: noIndex
       ? { index: false, follow: false }
