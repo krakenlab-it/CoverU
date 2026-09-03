@@ -1,83 +1,101 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DemoAlert } from "@/components/platform/DemoAlert";
+import { PageContainer } from "@/components/platform/PageContainer";
+import { SectionHeader } from "@/components/platform/SectionHeader";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
+import { absoluteUrl } from "@/lib/seo/site";
+import { motion } from "@/lib/motion";
+
+export const metadata = buildPublicMetadata({
+  path: "/",
+  title: "Comparador de seguros de salud",
+});
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "CoverÜ",
+  url: absoluteUrl("/"),
+  description:
+    "Comparador de seguros de salud en Ecuador con datos de demostración.",
+  inLanguage: "es-EC",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: absoluteUrl("/comparar"),
+    "query-input": "required name=search_term_string",
+  },
+};
 
 export default function HomePage() {
   return (
     <>
-      <section className="bg-gradient-to-b from-white to-coveru-light">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-coveru-red">
-              Seguros de salud en Chile
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <section className="bg-gradient-to-b from-background to-muted/40">
+        <PageContainer className="py-16 sm:py-24">
+          <div className={motion.fadeIn}>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+              Seguros de salud en Ecuador
             </p>
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="mt-4 max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
               Encuentra el plan que{" "}
-              <span className="text-coveru-red">mejor se adapta</span> a ti
+              <span className="text-primary">mejor se adapta</span> a ti
             </h1>
-            <p className="mt-6 text-lg text-coveru-gray">
+            <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
               CoverÜ te ayuda a comparar planes de salud con precios claros,
-              límites honestos y detalles expandibles. Actualmente mostramos
+              límites visibles y detalles expandibles. Actualmente mostramos
               datos de demostración hasta integrar aseguradoras reales.
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link
-                href="/comparar"
-                className="rounded-full bg-coveru-red px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-coveru-red-dark"
-              >
-                Comparar planes
-              </Link>
-              <Link
-                href="/nosotros"
-                className="rounded-full border border-coveru-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-coveru-red hover:text-coveru-red"
-              >
-                Conocer CoverÜ
-              </Link>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button variant="brand" size="lg" asChild className="rounded-full">
+                <Link href="/comparar">Comparar planes</Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild className="rounded-full">
+                <Link href="/nosotros">Conocer CoverÜ</Link>
+              </Button>
             </div>
           </div>
-        </div>
+        </PageContainer>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="text-2xl font-bold text-foreground">
-          ¿Por qué CoverÜ?
-        </h2>
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          <div className="rounded-2xl border border-coveru-border p-6">
-            <h3 className="font-semibold text-coveru-red">Precios claros</h3>
-            <p className="mt-2 text-sm text-coveru-gray">
-              Cada plan muestra &ldquo;tú pagas $X&rdquo; con deducible, copago
-              y tope anual sin letra chica oculta.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-coveru-border p-6">
-            <h3 className="font-semibold text-coveru-red">Límites honestos</h3>
-            <p className="mt-2 text-sm text-coveru-gray">
-              Exclusiones y topes visibles desde el inicio, con detalles
-              expandibles para cada plan.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-coveru-border p-6">
-            <h3 className="font-semibold text-coveru-red">Hecho para Chile</h3>
-            <p className="mt-2 text-sm text-coveru-gray">
-              Filtros por edad, género y región para comparar tarifas
-              relevantes a tu situación.
-            </p>
-          </div>
+      <PageContainer>
+        <SectionHeader
+          title="¿Por qué CoverÜ?"
+          description="Transparencia y claridad antes de contratar un seguro de salud."
+        />
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              title: "Precios claros",
+              body: 'Cada plan muestra "tú pagas $X" con deducible, copago y tope anual sin letra chica oculta.',
+            },
+            {
+              title: "Límites honestos",
+              body: "Exclusiones y topes visibles desde el inicio, con detalles expandibles para cada plan.",
+            },
+            {
+              title: "Hecho para Ecuador",
+              body: "Filtros por edad, género y provincia para comparar tarifas relevantes a tu situación.",
+            },
+          ].map((item) => (
+            <Card key={item.title} className={motion.cardHover}>
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-primary">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.body}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </section>
+      </PageContainer>
 
-      <section className="bg-coveru-light">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-            <p className="text-sm font-semibold text-amber-900">
-              Modo demostración
-            </p>
-            <p className="mt-2 text-sm text-amber-800">
-              Los planes y precios mostrados son datos de ejemplo ilustrativos.
-              No constituyen oferta comercial ni cotización real de
-              aseguradoras.
-            </p>
-          </div>
-        </div>
+      <section className="bg-muted/40">
+        <PageContainer className="py-8">
+          <DemoAlert />
+        </PageContainer>
       </section>
     </>
   );

@@ -9,6 +9,7 @@ import type {
 } from "@/lib/types/phase1";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import Link from "next/link";
+import { EmptyState } from "@/components/platform/EmptyState";
 
 interface CompareMatrixProps {
   entries: ComparePlanEntry[];
@@ -47,15 +48,12 @@ export function CompareMatrix({
 }: CompareMatrixProps) {
   if (entries.length < 2) {
     return (
-      <div className="rounded-2xl border border-dashed border-coveru-border bg-white p-8 text-center">
-        <p className="font-semibold">Selecciona al menos 2 planes para comparar</p>
-        <Link
-          href={`/app/marketplace${filtersQuery}`}
-          className="mt-4 inline-block text-sm font-semibold text-coveru-red hover:text-coveru-red-dark"
-        >
-          Volver al marketplace →
-        </Link>
-      </div>
+      <EmptyState
+        title="Selecciona al menos 2 planes para comparar"
+        description="Agrega planes desde el marketplace y vuelve aquí para ver la comparación."
+        actionLabel="Volver al marketplace"
+        actionHref={`/app/marketplace${filtersQuery}`}
+      />
     );
   }
 

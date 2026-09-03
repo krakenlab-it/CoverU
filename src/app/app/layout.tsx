@@ -1,6 +1,6 @@
-import { AppNav } from "@/components/marketplace/AppNav";
-import { DemoBanner } from "@/components/marketplace/DemoBanner";
+import { AppShell } from "@/components/layout/AppShell";
 import { requireAuthWithOrg } from "@/lib/auth/org";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({
@@ -14,15 +14,18 @@ export default async function AppLayout({
     redirect("/login?redirect=/app");
   }
 
-  const isDemo = session.memberships.every((m) => m.isDemo);
+  const supabase = await createClient();
+  const isDemoMode = !supabase;
+  const isDemo = session.memberships.every((m) => m.isDemo) || isDemoMode;
+  const membership = session.memberships[0];
 
   return (
-    <div className="min-h-screen bg-coveru-light">
-      <AppNav />
-      <div className="mx-auto max-w-7xl space-y-4 px-4 py-6">
-        {isDemo && <DemoBanner />}
-        {children}
-      </div>
-    </div>
+    <AppShell
+      organizationName={membership?.organizationName}
+      isDemo={isDemo}
+      showDemoBanner={isDemo}
+    >
+      {children}
+    </AppShell>
   );
 }

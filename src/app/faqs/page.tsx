@@ -1,9 +1,13 @@
-import type { Metadata } from "next";
+import { PageContainer } from "@/components/platform/PageContainer";
+import { PageHeader } from "@/components/platform/PageHeader";
+import { Card, CardContent } from "@/components/ui/card";
+import { buildPublicMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata = buildPublicMetadata({
   title: "FAQs",
-  description: "Preguntas frecuentes sobre CoverÜ y el comparador de seguros.",
-};
+  description: "Preguntas frecuentes sobre CoverÜ y el comparador de seguros en Ecuador.",
+  path: "/faqs",
+});
 
 const FAQS = [
   {
@@ -14,7 +18,7 @@ const FAQS = [
   {
     question: "¿Qué significa «tú pagas $X»?",
     answer:
-      "Es la prima mensual estimada que pagarías según edad, género y región seleccionados, antes de copagos y deducible. En modo demo es un valor ilustrativo.",
+      "Es la prima mensual estimada que pagarías según edad, género y provincia seleccionados, antes de copagos y deducible. En modo demo es un valor ilustrativo.",
   },
   {
     question: "¿CoverÜ vende seguros?",
@@ -24,7 +28,7 @@ const FAQS = [
   {
     question: "¿Qué datos uso para comparar?",
     answer:
-      "Edad, género y región. Estos criterios se usan comúnmente en tarifas de seguros de salud en Chile para segmentar precios.",
+      "Edad, género y provincia. Estos criterios se usan comúnmente en tarifas de seguros de salud para segmentar precios.",
   },
   {
     question: "¿Cómo se guardan mis datos de contacto?",
@@ -33,23 +37,37 @@ const FAQS = [
   },
 ];
 
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
+
 export default function FaqsPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-bold text-foreground">
-        Preguntas frecuentes
-      </h1>
-      <dl className="mt-8 space-y-6">
+    <PageContainer size="narrow">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+      />
+      <PageHeader title="Preguntas frecuentes" />
+      <dl className="mt-8 space-y-4">
         {FAQS.map((faq) => (
-          <div
-            key={faq.question}
-            className="rounded-2xl border border-coveru-border p-6"
-          >
-            <dt className="font-semibold text-foreground">{faq.question}</dt>
-            <dd className="mt-2 text-sm text-coveru-gray">{faq.answer}</dd>
-          </div>
+          <Card key={faq.question}>
+            <CardContent className="p-6">
+              <dt className="font-semibold text-foreground">{faq.question}</dt>
+              <dd className="mt-2 text-sm text-muted-foreground">{faq.answer}</dd>
+            </CardContent>
+          </Card>
         ))}
       </dl>
-    </div>
+    </PageContainer>
   );
 }

@@ -10,6 +10,7 @@ export async function SiteChrome({
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "";
   const isPanel = pathname.startsWith("/app");
+  const isLogin = pathname.startsWith("/login");
 
   if (isPanel) {
     return <>{children}</>;
@@ -18,8 +19,10 @@ export async function SiteChrome({
   return (
     <>
       <Header />
-      <main className="flex-1">{children}</main>
-      <Footer />
+      <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
+        {children}
+      </main>
+      {!isLogin ? <Footer /> : null}
     </>
   );
 }
