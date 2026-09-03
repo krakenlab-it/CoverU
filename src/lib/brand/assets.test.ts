@@ -22,9 +22,8 @@ describe("brand asset manifest", () => {
     expect(stateIllustrationSrc("error")).toBe(ILLUSTRATION_ASSETS.error);
   });
 
-  it("reports Sam pack as absent until integrated on this checkout", () => {
-    const hasPack =
-      publicAssetExists("brand/wordmark.svg") && publicAssetExists("og-coveru.png");
-    expect(hasPack).toBe(false);
+  it("reports Sam pack is present on this checkout", () => {
+    expect(publicAssetExists("brand/wordmark.svg")).toBe(true);
+    expect(publicAssetExists("og-coveru.png")).toBe(true);
   });
 });
