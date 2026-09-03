@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import LoginForm from "./LoginForm";
+import { buildCoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
 
 const mockPush = vi.fn();
 const mockRefresh = vi.fn();
@@ -22,16 +23,63 @@ vi.mock("@/lib/supabase/client", () => ({
   })),
 }));
 
+const emptyDiagnostics = buildCoveruEnvDiagnostics({
+  route: "/login",
+  url: "",
+  anonKey: "",
+  includeServiceRole: false,
+});
+
+const configuredDiagnostics = buildCoveruEnvDiagnostics({
+  route: "/login",
+  url: "https://example.supabase.co",
+  anonKey: "test-anon-key",
+  includeServiceRole: false,
+});
+
 describe("LoginForm", () => {
   it("renders SetupError when url and anon key are empty", () => {
     searchParams = new URLSearchParams();
 
-    render(<LoginForm supabaseUrl="" supabaseAnonKey="" />);
+    render(
+      <LoginForm
+        supabaseUrl=""
+        supabaseAnonKey=""
+        envDiagnostics={emptyDiagnostics}
+      />,
+    );
 
     expect(screen.getByText("Configuración requerida")).toBeInTheDocument();
+    expect(screen.getByText(/NEXT_PUBLIC_SUPABASE_URL/).closest("li")).toHaveTextContent(
+      "ausente",
+    );
     expect(
       screen.queryByRole("button", { name: /iniciar sesión/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it("logs setup diagnostics to the console when configuration is missing", () => {
+    searchParams = new URLSearchParams();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    render(
+      <LoginForm
+        supabaseUrl=""
+        supabaseAnonKey=""
+        envDiagnostics={emptyDiagnostics}
+      />,
+    );
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[coveru-env]",
+      expect.stringContaining('"route":"/login"'),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[coveru-env]",
+      expect.not.stringContaining("test-anon-key"),
+    );
+
+    warnSpy.mockRestore();
   });
 
   it("renders the login form when url and anon key props are set", () => {
@@ -41,6 +89,7 @@ describe("LoginForm", () => {
       <LoginForm
         supabaseUrl="https://example.supabase.co"
         supabaseAnonKey="test-anon-key"
+        envDiagnostics={configuredDiagnostics}
       />,
     );
 
@@ -61,6 +110,7 @@ describe("LoginForm", () => {
       <LoginForm
         supabaseUrl="https://example.supabase.co"
         supabaseAnonKey="test-anon-key"
+        envDiagnostics={configuredDiagnostics}
       />,
     );
 

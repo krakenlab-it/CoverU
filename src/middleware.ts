@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseAuthConfigured } from "@/lib/supabase/config";
+import {
+  buildCoveruEnvDiagnostics,
+  logCoveruEnv,
+} from "@/lib/supabase/env-diagnostics";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -15,6 +19,11 @@ export async function middleware(request: NextRequest) {
 
 async function handleAppAuth(request: NextRequest, pathname: string) {
   if (!isSupabaseAuthConfigured()) {
+    logCoveruEnv(
+      buildCoveruEnvDiagnostics({ route: `middleware:${pathname}` }),
+      "warn",
+    );
+
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("error", "setup");

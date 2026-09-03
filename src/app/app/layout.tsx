@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { SetupError } from "@/components/platform/SetupError";
 import { requireAuthWithOrg } from "@/lib/auth/org";
+import { buildCoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
 import {
   getSupabasePublicConfig,
   isSupabasePublicConfigComplete,
@@ -15,9 +16,15 @@ export default async function AppLayout({
   const supabaseConfig = getSupabasePublicConfig();
 
   if (!isSupabasePublicConfigComplete(supabaseConfig)) {
+    const envDiagnostics = buildCoveruEnvDiagnostics({
+      route: "/app",
+      url: supabaseConfig.url,
+      anonKey: supabaseConfig.anonKey,
+    });
+
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
-        <SetupError />
+        <SetupError diagnostics={envDiagnostics} />
       </div>
     );
   }
