@@ -58,7 +58,7 @@ BEGIN
 
   v_org_name := NULLIF(trim(coalesce(
     p_organization_name,
-    v_user.raw_user_meta_data ->> 'organization_name',
+    v_user.raw_user_meta_data ->> 'organization_name'
   )), '');
 
   IF v_org_name IS NULL THEN
