@@ -1,7 +1,6 @@
-import { DemoAlert } from "@/components/platform/DemoAlert";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { EmptyState } from "@/components/platform/EmptyState";
 import { ErrorState } from "@/components/platform/ErrorState";
+import { SetupError } from "@/components/platform/SetupError";
 import { Card, CardContent } from "@/components/ui/card";
 import { getOrgUsageSummary } from "@/lib/settings/usage";
 import { requireSettingsSession } from "@/lib/settings/session";
@@ -19,10 +18,7 @@ export default async function UsageSettingsPage() {
     redirect("/login?redirect=/app/configuracion/uso");
   }
 
-  const usage = await getOrgUsageSummary(
-    session.organizationId,
-    session.isDemo,
-  );
+  const usage = await getOrgUsageSummary(session.organizationId);
 
   if (usage.error) {
     return <ErrorState message={usage.error} />;
@@ -30,21 +26,20 @@ export default async function UsageSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm text-muted-foreground">
-          Ventana: últimas {usage.windowHours} horas. Solo solicitudes
-          registradas en <code>api_usage_logs</code>.
-        </p>
-        {usage.isDemo || usage.demoMode ? <DemoBadge /> : null}
-      </div>
+      {!usage.serviceConfigured ? <SetupError compact /> : null}
+
+      <p className="text-sm text-muted-foreground">
+        Ventana: últimas {usage.windowHours} horas. Solo solicitudes
+        registradas en <code>api_usage_logs</code>.
+      </p>
 
       {usage.isEmpty ? (
         <EmptyState
           title="Sin actividad registrada"
           description={
-            usage.demoMode
-              ? "En modo demo no hay registros de uso persistidos. Conecta Supabase para ver métricas reales."
-              : "Aún no hay solicitudes API para esta organización en la ventana seleccionada."
+            usage.serviceConfigured
+              ? "Aún no hay solicitudes API para esta organización en la ventana seleccionada."
+              : "Configura Supabase para registrar y consultar el uso de la API."
           }
         />
       ) : (
@@ -150,8 +145,6 @@ export default async function UsageSettingsPage() {
           </Card>
         </>
       )}
-
-      {usage.demoMode ? <DemoAlert compact /> : null}
     </div>
   );
 }

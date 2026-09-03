@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { CompareMatrix } from "@/components/marketplace/CompareMatrix";
-import { DemoAlert } from "@/components/platform/DemoAlert";
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
 import { PageHeader } from "@/components/platform/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -48,14 +47,14 @@ export default async function ComparePage({ searchParams }: PageProps) {
   const compareIds = parseCompareIds(params.get("compare"));
   const filtersQuery = filtersToQueryString(filters, compareIds);
 
-  const entries = getCompareEntries(compareIds, filters);
+  const entries = await getCompareEntries(compareIds, filters);
 
   const clausesByPlan: Record<string, CoverageClause[]> = {};
   const exclusionsByPlan: Record<string, Exclusion[]> = {};
   const waitingByPlan: Record<string, WaitingPeriod[]> = {};
 
   for (const id of compareIds) {
-    const detail = getPlanVersionDetailForMarketplace(id);
+    const detail = await getPlanVersionDetailForMarketplace(id);
     if (detail) {
       clausesByPlan[id] = detail.coverage_clauses;
       exclusionsByPlan[id] = detail.exclusions;
@@ -79,12 +78,12 @@ export default async function ComparePage({ searchParams }: PageProps) {
         description={`Comparación lado a lado de hasta ${MAX_COMPARE_PLANS} planes seleccionados.`}
         actions={
           <Button variant="outline" asChild>
-            <Link href={`/app/marketplace${filtersQuery}`}>← Volver al marketplace</Link>
+            <Link href={`/app/marketplace${filtersQuery}`}>
+              ← Volver al marketplace
+            </Link>
           </Button>
         }
       />
-
-      <DemoAlert compact />
 
       <CompareMatrix
         entries={entries}

@@ -1,7 +1,6 @@
-import { DemoAlert } from "@/components/platform/DemoAlert";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { EmptyState } from "@/components/platform/EmptyState";
 import { ErrorState } from "@/components/platform/ErrorState";
+import { SetupError } from "@/components/platform/SetupError";
 import { Card, CardContent } from "@/components/ui/card";
 import { getOrgRequestLogs } from "@/lib/settings/request-logs";
 import { requireSettingsSession } from "@/lib/settings/session";
@@ -24,10 +23,7 @@ export default async function RequestLogsSettingsPage() {
     redirect("/login?redirect=/app/configuracion/registros");
   }
 
-  const result = await getOrgRequestLogs(
-    session.organizationId,
-    session.isDemo,
-  );
+  const result = await getOrgRequestLogs(session.organizationId);
 
   if (result.error) {
     return <ErrorState message={result.error} />;
@@ -35,21 +31,20 @@ export default async function RequestLogsSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm text-muted-foreground">
-          Últimas {result.windowHours} horas. Cada fila corresponde a una
-          solicitud registrada en <code>api_usage_logs</code>.
-        </p>
-        {result.isDemo || result.demoMode ? <DemoBadge /> : null}
-      </div>
+      {!result.serviceConfigured ? <SetupError compact /> : null}
+
+      <p className="text-sm text-muted-foreground">
+        Últimas {result.windowHours} horas. Cada fila corresponde a una
+        solicitud registrada en <code>api_usage_logs</code>.
+      </p>
 
       {result.isEmpty ? (
         <EmptyState
           title="Sin registros de solicitudes"
           description={
-            result.demoMode
-              ? "En modo demo no hay filas persistidas. Conecta Supabase y realiza llamadas a la API con una clave activa para ver el historial aquí."
-              : "Las solicitudes aparecerán aquí cuando uses la API con una clave activa. No se muestran datos inventados."
+            result.serviceConfigured
+              ? "Las solicitudes aparecerán aquí cuando uses la API con una clave activa."
+              : "Configura Supabase para registrar y consultar el historial de solicitudes."
           }
         />
       ) : null}
@@ -103,8 +98,6 @@ export default async function RequestLogsSettingsPage() {
           </div>
         </CardContent>
       </Card>
-
-      {result.demoMode ? <DemoAlert compact /> : null}
     </div>
   );
 }

@@ -21,7 +21,6 @@ export async function GET(request: Request) {
       data: {
         results,
         filters,
-        isDemo: session.memberships.every((m) => m.isDemo),
       },
     });
   } catch {

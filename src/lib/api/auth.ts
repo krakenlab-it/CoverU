@@ -1,11 +1,11 @@
 import type { ApiAuthContext } from "@/lib/types/phase1";
 import {
-  DEMO_API_KEY,
   extractKeyPrefix,
   hashApiKey,
   verifyApiKey,
 } from "@/lib/api/api-key";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export interface ApiAuthResult {
   ok: true;
@@ -30,15 +30,6 @@ function extractBearerToken(request: Request): string | null {
   return apiKeyHeader?.trim() ?? null;
 }
 
-/** Demo auth context when Supabase is not configured */
-const DEMO_AUTH_CONTEXT: ApiAuthContext = {
-  apiKeyId: "f0000000-0000-4000-8000-000000000001",
-  apiClientId: "e0000000-0000-4000-8000-000000000001",
-  organizationId: "d0000000-0000-4000-8000-000000000001",
-  scopes: ["read:catalog", "read:quotes", "read:coverage"],
-  isDemo: true,
-};
-
 export async function authenticateApiKey(
   request: Request,
 ): Promise<AuthenticateApiKeyResult> {
@@ -53,17 +44,22 @@ export async function authenticateApiKey(
     };
   }
 
-  const supabase = createAdminClient();
-
-  if (!supabase) {
-    if (rawKey === DEMO_API_KEY) {
-      return { ok: true, context: DEMO_AUTH_CONTEXT };
-    }
+  if (!isSupabaseAdminConfigured()) {
     return {
       ok: false,
-      code: "invalid_api_key",
-      message: "API key inválida (modo demo)",
-      status: 401,
+      code: "service_unavailable",
+      message: "API no disponible: Supabase no está configurado",
+      status: 503,
+    };
+  }
+
+  const supabase = createAdminClient();
+  if (!supabase) {
+    return {
+      ok: false,
+      code: "service_unavailable",
+      message: "API no disponible: Supabase no está configurado",
+      status: 503,
     };
   }
 
@@ -192,4 +188,4 @@ export async function logApiUsage(
 }
 
 /** Exported for tests */
-export { hashApiKey, DEMO_API_KEY };
+export { hashApiKey };

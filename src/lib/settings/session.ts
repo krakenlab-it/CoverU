@@ -3,8 +3,7 @@ import {
   userBelongsToOrg,
   type OrgMembership,
 } from "@/lib/auth/org";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export interface SettingsSession {
   userId: string;
@@ -12,10 +11,9 @@ export interface SettingsSession {
   organizationId: string;
   organizationName: string;
   role: string;
-  isDemo: boolean;
-  isDemoMode: boolean;
   canAdminister: boolean;
   memberships: OrgMembership[];
+  serviceConfigured: boolean;
 }
 
 export function isOrgAdminRole(role: string): boolean {
@@ -26,14 +24,8 @@ export async function requireSettingsSession(): Promise<SettingsSession | null> 
   const session = await requireAuthWithOrg();
   if (!session) return null;
 
-  const supabase = await createClient();
-  const isDemoMode = !supabase;
   const membership = session.memberships[0];
-
   if (!membership) return null;
-
-  const isDemo =
-    membership.isDemo || isDemoMode || session.memberships.every((m) => m.isDemo);
 
   return {
     userId: session.user.id,
@@ -41,10 +33,9 @@ export async function requireSettingsSession(): Promise<SettingsSession | null> 
     organizationId: membership.organizationId,
     organizationName: membership.organizationName,
     role: membership.role,
-    isDemo,
-    isDemoMode,
     canAdminister: isOrgAdminRole(membership.role),
     memberships: session.memberships,
+    serviceConfigured: isSupabaseAdminConfigured(),
   };
 }
 
@@ -54,10 +45,7 @@ export async function requireSettingsSessionForOrg(
   const settingsSession = await requireSettingsSession();
   if (!settingsSession) return null;
 
-  if (
-    !userBelongsToOrg(settingsSession.memberships, organizationId) &&
-    !settingsSession.isDemoMode
-  ) {
+  if (!userBelongsToOrg(settingsSession.memberships, organizationId)) {
     return null;
   }
 
@@ -65,5 +53,5 @@ export async function requireSettingsSessionForOrg(
 }
 
 export function hasServiceRole(): boolean {
-  return createAdminClient() !== null;
+  return isSupabaseAdminConfigured();
 }

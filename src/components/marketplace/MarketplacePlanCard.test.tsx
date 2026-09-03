@@ -1,16 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { MarketplacePlanCard } from "@/components/marketplace/MarketplacePlanCard";
-import { DEMO_BADGE_LABEL } from "@/lib/constants";
 
 describe("MarketplacePlanCard", () => {
   const baseProps = {
-    planVersionId: "d1000000-0000-4000-8000-000000000001",
-    planName: "[DEMO] Plan Básico Alpha",
-    insurerName: "[DEMO] Aseguradora Alpha",
-    isDemo: true,
+    planVersionId: "00000000-0000-4000-8000-000000000001",
+    planName: "Plan Básico",
+    insurerName: "Aseguradora Alpha",
     monthlyPrice: 12500,
-    quoteState: "indicative" as const,
+    quoteState: "quoted" as const,
     coverageHighlights: ["Hospitalización", "Urgencias"],
     exclusionWarnings: ["Tratamientos cosméticos"],
     waitingPeriodWarnings: ["Carencia 180 días"],
@@ -19,10 +17,9 @@ describe("MarketplacePlanCard", () => {
     onToggleCompare: vi.fn(),
   };
 
-  it("shows demo labeling and indicative quote state", () => {
+  it("shows quoted price state", () => {
     render(<MarketplacePlanCard {...baseProps} />);
-    expect(screen.getByTitle(DEMO_BADGE_LABEL)).toBeInTheDocument();
-    expect(screen.getByText(/Precio indicativo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cotización/i)).toBeInTheDocument();
     expect(screen.getByText(/12\.500/)).toBeInTheDocument();
   });
 

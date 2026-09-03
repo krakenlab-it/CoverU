@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { DEMO_API_KEY } from "@/lib/api/api-key";
 import { authenticateApiKey, requireScope } from "@/lib/api/auth";
 
 describe("authenticateApiKey", () => {
@@ -13,35 +12,16 @@ describe("authenticateApiKey", () => {
     }
   });
 
-  it("accepts demo API key in demo mode", async () => {
+  it("returns service unavailable when Supabase is not configured", async () => {
     const request = new Request("http://localhost/api/v1/insurers", {
-      headers: { "X-API-Key": DEMO_API_KEY },
-    });
-    const result = await authenticateApiKey(request);
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.context.isDemo).toBe(true);
-      expect(result.context.scopes).toContain("read:catalog");
-    }
-  });
-
-  it("rejects invalid API key in demo mode", async () => {
-    const request = new Request("http://localhost/api/v1/insurers", {
-      headers: { Authorization: "Bearer invalid_key" },
+      headers: { "X-API-Key": "cov_test_key_1234567890abcdef" },
     });
     const result = await authenticateApiKey(request);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.code).toBe("invalid_api_key");
+      expect(result.code).toBe("service_unavailable");
+      expect(result.status).toBe(503);
     }
-  });
-
-  it("accepts Bearer token format", async () => {
-    const request = new Request("http://localhost/api/v1/insurers", {
-      headers: { Authorization: `Bearer ${DEMO_API_KEY}` },
-    });
-    const result = await authenticateApiKey(request);
-    expect(result.ok).toBe(true);
   });
 });
 
@@ -53,7 +33,7 @@ describe("requireScope", () => {
         apiClientId: "2",
         organizationId: "3",
         scopes: ["read:catalog"],
-        isDemo: true,
+        isDemo: false,
       },
       "read:catalog",
     );
@@ -67,7 +47,7 @@ describe("requireScope", () => {
         apiClientId: "2",
         organizationId: "3",
         scopes: ["read:catalog"],
-        isDemo: true,
+        isDemo: false,
       },
       "read:quotes",
     );

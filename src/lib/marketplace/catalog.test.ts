@@ -1,76 +1,73 @@
 import { describe, expect, it } from "vitest";
-import {
-  getCompareEntries,
-  searchDemoMarketplace,
-} from "@/lib/marketplace/catalog";
+import { findMatchingTariff } from "@/lib/marketplace/tariff-match";
+import type { Tariff } from "@/lib/types/database";
 
-describe("marketplace catalog", () => {
-  it("returns all demo plans by default", () => {
-    const results = searchDemoMarketplace({ sort: "price_asc" });
-    expect(results.length).toBe(3);
-    expect(results.every((r) => r.plan.is_demo)).toBe(true);
-  });
+const SAMPLE_TARIFFS: Tariff[] = [
+  {
+    id: "t1",
+    plan_id: "p1",
+    age_min: 18,
+    age_max: 65,
+    gender: "femenino",
+    region: "pichincha",
+    monthly_price: 100,
+    deductible: 500,
+    copay_pct: 20,
+    annual_limit: 10000,
+    exclusions: [],
+    is_demo: false,
+    created_at: "2025-01-01T00:00:00Z",
+  },
+  {
+    id: "t2",
+    plan_id: "p1",
+    age_min: 18,
+    age_max: 65,
+    gender: "any",
+    region: "any",
+    monthly_price: 120,
+    deductible: 500,
+    copay_pct: 20,
+    annual_limit: 10000,
+    exclusions: [],
+    is_demo: false,
+    created_at: "2025-01-01T00:00:00Z",
+  },
+];
 
-  it("filters by insurer", () => {
-    const results = searchDemoMarketplace({
-      insurerId: "a0000000-0000-4000-8000-000000000002",
-      sort: "price_asc",
-    });
-    expect(results).toHaveLength(1);
-    expect(results[0].plan.name).toContain("Beta");
-  });
-
-  it("filters by category", () => {
-    const withMaternity = searchDemoMarketplace({
-      category: "maternidad",
-      sort: "price_asc",
-    });
-    expect(withMaternity.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("filters by keyword", () => {
-    const results = searchDemoMarketplace({
-      keyword: "dental",
-      sort: "price_asc",
-    });
-    expect(results).toHaveLength(1);
-    expect(results[0].plan.name).toContain("Esencial");
-  });
-
-  it("filters by age gender region for tariff match", () => {
-    const results = searchDemoMarketplace({
-      age: 30,
+describe("tariff matching", () => {
+  it("returns null when no tariffs match filters", () => {
+    const result = findMatchingTariff(SAMPLE_TARIFFS, {
+      age: 10,
       gender: "masculino",
-      region: "metropolitana",
-      sort: "price_asc",
+      region: "guayas",
     });
-    const withTariff = results.filter((r) => r.tariff != null);
-    expect(withTariff.length).toBeGreaterThanOrEqual(2);
-    expect(withTariff[0].monthlyPrice).toBeLessThanOrEqual(
-      withTariff[withTariff.length - 1].monthlyPrice ?? 0,
-    );
+    expect(result).toBeNull();
   });
 
-  it("marks demo results as indicative quote state", () => {
-    const results = searchDemoMarketplace({
+  it("prefers more specific tariff rows", () => {
+    const result = findMatchingTariff(SAMPLE_TARIFFS, {
       age: 30,
       gender: "femenino",
-      region: "metropolitana",
-      sort: "price_asc",
+      region: "pichincha",
     });
-    expect(results[0].quoteState).toBe("indicative");
-    expect(results[0].monthlyPrice).toBeGreaterThan(0);
+    expect(result?.id).toBe("t1");
   });
 
-  it("builds compare entries for selected versions", () => {
-    const entries = getCompareEntries(
-      [
-        "d1000000-0000-4000-8000-000000000001",
-        "d1000000-0000-4000-8000-000000000002",
-      ],
-      { age: 30, gender: "femenino", region: "metropolitana" },
-    );
-    expect(entries).toHaveLength(2);
-    expect(entries[0].monthlyPrice).toBeGreaterThan(0);
+  it("falls back to generic gender/region rows", () => {
+    const result = findMatchingTariff(SAMPLE_TARIFFS, {
+      age: 30,
+      gender: "masculino",
+      region: "guayas",
+    });
+    expect(result?.id).toBe("t2");
+  });
+});
+
+describe("searchMarketplace without Supabase", () => {
+  it("returns empty catalog when admin client is unavailable", async () => {
+    const { searchMarketplace } = await import("@/lib/marketplace/catalog");
+    const results = await searchMarketplace({ sort: "price_asc" });
+    expect(results).toEqual([]);
   });
 });

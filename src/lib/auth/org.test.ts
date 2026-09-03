@@ -7,8 +7,7 @@ describe("tenant isolation", () => {
     {
       organizationId: "d0000000-0000-4000-8000-000000000001",
       role: "admin",
-      organizationName: "[DEMO] Org",
-      isDemo: true,
+      organizationName: "CoverÜ Partner Org",
     },
   ];
 

@@ -1,10 +1,19 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
-import { paginate, parsePaginationParams } from "@/lib/api/response";
-import { DEMO_PLANS, DEMO_TARIFFS } from "@/lib/demo-api-data";
+import { parsePaginationParams } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export const GET = withApiV1(
   async ({ requestId, searchParams }) => {
+    if (!isSupabaseAdminConfigured()) {
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
+    }
+
     const { page, perPage } = parsePaginationParams(searchParams);
     const planId = searchParams.get("plan_id");
     const region = searchParams.get("region");
@@ -12,33 +21,13 @@ export const GET = withApiV1(
     const age = searchParams.get("age");
 
     const supabase = createAdminClient();
-
     if (!supabase) {
-      let items = DEMO_TARIFFS.map((tariff) => ({
-        ...tariff,
-        plan: DEMO_PLANS.find((p) => p.id === tariff.plan_id),
-      }));
-
-      if (planId) items = items.filter((t) => t.plan_id === planId);
-      if (region) {
-        items = items.filter(
-          (t) => t.region === region || t.region === "any",
-        );
-      }
-      if (gender) {
-        items = items.filter(
-          (t) => t.gender === gender || t.gender === "any",
-        );
-      }
-      if (age) {
-        const ageNum = Number(age);
-        items = items.filter(
-          (t) => ageNum >= t.age_min && ageNum <= t.age_max,
-        );
-      }
-
-      const { items: paged, meta } = paginate(items, page, perPage);
-      return apiSuccess(requestId, { tariffs: paged, meta });
+      return apiError(
+        requestId,
+        503,
+        "service_unavailable",
+        "API no disponible: Supabase no está configurado",
+      );
     }
 
     let query = supabase

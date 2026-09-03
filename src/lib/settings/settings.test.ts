@@ -1,10 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
-import {
-  createDemoApiKey,
-  listDemoApiKeys,
-  resetDemoSettingsStore,
-  revokeDemoApiKey,
-} from "@/lib/settings/demo-store";
+import { describe, expect, it } from "vitest";
 import {
   createOrgApiKey,
   listOrgApiKeys,
@@ -16,107 +10,69 @@ import {
   getOrgRateLimitPolicy,
   updateOrgRateLimitPolicy,
 } from "@/lib/settings/rate-limits";
-import { DEMO_ORG_ID } from "@/lib/demo-api-data";
-import { hashApiKey } from "@/lib/api/api-key";
 
-const ORG_ID = DEMO_ORG_ID;
+const ORG_ID = "d0000000-0000-4000-8000-000000000001";
 
-afterEach(() => {
-  resetDemoSettingsStore();
-});
-
-describe("api key management (demo store)", () => {
-  it("lists prefix, name, and status without exposing full keys", async () => {
+describe("api key management without Supabase", () => {
+  it("returns empty list when service role is unavailable", async () => {
     const result = await listOrgApiKeys(ORG_ID);
-    expect(result.demoMode).toBe(true);
-    expect(result.keys.length).toBeGreaterThan(0);
-    expect(result.keys[0].keyPrefix).toMatch(/…$/);
-    expect(result.keys[0].name).toContain("DEMO");
+    expect(result.serviceConfigured).toBe(false);
+    expect(result.keys).toEqual([]);
   });
 
-  it("creates a key showing plaintext once and stores hash only", async () => {
-    const created = await createOrgApiKey(ORG_ID, "Test integration", true);
-    expect("rawKey" in created).toBe(true);
-    if (!("rawKey" in created)) return;
-
-    expect(created.rawKey).toMatch(/^cov_/);
-    expect(created.rawKey).not.toContain("…");
-
-    const listed = listDemoApiKeys();
-    const stored = listed.find((key) => key.id === created.key.id);
-    expect(stored).toBeDefined();
-    expect(stored?.key_hash).toBe(hashApiKey(created.rawKey));
-    expect(stored?.key_hash).not.toBe(created.rawKey);
+  it("rejects create when service role is unavailable", async () => {
+    const created = await createOrgApiKey(ORG_ID, "Test integration");
+    expect(created).toEqual({
+      error:
+        "No se pueden crear claves API: Supabase no está configurado en este entorno.",
+    });
   });
 
-  it("revokes a key in demo mode", async () => {
-    const { record } = createDemoApiKey("To revoke");
-    const result = await revokeOrgApiKey(ORG_ID, record.id);
-    expect(result).toEqual({ ok: true });
-
-    const listed = listDemoApiKeys();
-    expect(listed.find((key) => key.id === record.id)?.status).toBe("revoked");
-    expect(revokeDemoApiKey(record.id)).toBe(true);
+  it("rejects revoke when service role is unavailable", async () => {
+    const result = await revokeOrgApiKey(ORG_ID, "missing");
+    expect(result).toEqual({
+      error:
+        "No se pueden revocar claves API: Supabase no está configurado en este entorno.",
+    });
   });
 });
 
 describe("usage summary", () => {
-  it("returns honest empty state in demo mode", async () => {
-    const usage = await getOrgUsageSummary(ORG_ID, true);
+  it("returns honest empty state without Supabase", async () => {
+    const usage = await getOrgUsageSummary(ORG_ID);
     expect(usage.isEmpty).toBe(true);
-    expect(usage.demoMode).toBe(true);
+    expect(usage.serviceConfigured).toBe(false);
     expect(usage.totalRequests).toBe(0);
     expect(usage.byEndpoint).toHaveLength(0);
-  });
-
-  it("surfaces error state without inventing metrics", async () => {
-    const usage = await getOrgUsageSummary(ORG_ID, false);
-    if (usage.error) {
-      expect(usage.isEmpty).toBe(true);
-      expect(usage.totalRequests).toBe(0);
-    } else {
-      expect(usage.totalRequests).toBeGreaterThanOrEqual(0);
-    }
   });
 });
 
 describe("request logs", () => {
-  it("returns honest empty state in demo mode", async () => {
-    const logs = await getOrgRequestLogs(ORG_ID, true);
+  it("returns honest empty state without Supabase", async () => {
+    const logs = await getOrgRequestLogs(ORG_ID);
     expect(logs.isEmpty).toBe(true);
-    expect(logs.demoMode).toBe(true);
+    expect(logs.serviceConfigured).toBe(false);
     expect(logs.logs).toHaveLength(0);
-  });
-
-  it("surfaces error state without inventing request rows", async () => {
-    const logs = await getOrgRequestLogs(ORG_ID, false);
-    if (logs.error) {
-      expect(logs.isEmpty).toBe(true);
-      expect(logs.logs).toHaveLength(0);
-    } else {
-      expect(logs.logs.length).toBeGreaterThanOrEqual(0);
-    }
   });
 });
 
 describe("rate limit policy", () => {
-  it("displays env defaults in demo mode", async () => {
-    const policy = await getOrgRateLimitPolicy(ORG_ID, true);
+  it("displays env defaults without Supabase", async () => {
+    const policy = await getOrgRateLimitPolicy(ORG_ID);
     expect(policy.requestsPerWindow).toBeGreaterThan(0);
     expect(policy.windowMs).toBeGreaterThan(0);
-    expect(policy.demoMode).toBe(true);
+    expect(policy.serviceConfigured).toBe(false);
+    expect(policy.source).toBe("env");
   });
 
-  it("persists org override in demo memory store", async () => {
-    const update = await updateOrgRateLimitPolicy(ORG_ID, "demo-user", {
+  it("rejects org override without Supabase", async () => {
+    const update = await updateOrgRateLimitPolicy(ORG_ID, "user-1", {
       requestsPerWindow: 250,
       windowMs: 120000,
     });
-    expect(update).toEqual({ ok: true });
-
-    const policy = await getOrgRateLimitPolicy(ORG_ID, true);
-    expect(policy.requestsPerWindow).toBe(250);
-    expect(policy.windowMs).toBe(120000);
-    expect(policy.source).toBe("demo");
+    expect(update).toEqual({
+      error:
+        "No se pueden guardar límites: Supabase no está configurado en este entorno.",
+    });
   });
 });

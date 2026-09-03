@@ -1,6 +1,5 @@
 import { RateLimitForm } from "@/components/settings/RateLimitForm";
-import { DemoAlert } from "@/components/platform/DemoAlert";
-import { DemoBadge } from "@/components/platform/DemoBadge";
+import { SetupError } from "@/components/platform/SetupError";
 import { Card, CardContent } from "@/components/ui/card";
 import { getOrgRateLimitPolicy } from "@/lib/settings/rate-limits";
 import { requireSettingsSession } from "@/lib/settings/session";
@@ -16,8 +15,6 @@ function sourceLabel(source: string): string {
   switch (source) {
     case "organization":
       return "Configuración de organización";
-    case "demo":
-      return "Override en memoria (demo)";
     case "env":
       return "Variables de entorno";
     default:
@@ -31,21 +28,17 @@ export default async function RateLimitsSettingsPage() {
     redirect("/login?redirect=/app/configuracion/limites");
   }
 
-  const policy = await getOrgRateLimitPolicy(
-    session.organizationId,
-    session.isDemo,
-  );
+  const policy = await getOrgRateLimitPolicy(session.organizationId);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm text-muted-foreground">
-          Límite por clave API en ventana deslizante. En Vercel multi-instancia,
-          usa un backend compartido (p. ej. Redis) para límites globales
-          consistentes.
-        </p>
-        {policy.isDemo || policy.demoMode ? <DemoBadge /> : null}
-      </div>
+      {!policy.serviceConfigured ? <SetupError compact /> : null}
+
+      <p className="text-sm text-muted-foreground">
+        Límite por clave API en ventana deslizante. En Vercel multi-instancia,
+        usa un backend compartido (p. ej. Redis) para límites globales
+        consistentes.
+      </p>
 
       <Card>
         <CardContent className="space-y-4 p-6">
@@ -90,8 +83,6 @@ export default async function RateLimitsSettingsPage() {
           />
         </CardContent>
       </Card>
-
-      {policy.demoMode ? <DemoAlert compact /> : null}
     </div>
   );
 }

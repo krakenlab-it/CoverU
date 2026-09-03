@@ -3,24 +3,26 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { DemoAlert } from "@/components/platform/DemoAlert";
+import { SetupError } from "@/components/platform/SetupError";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
+import { isSupabaseAuthConfigured } from "@/lib/supabase/config";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/app";
+  const setupError = searchParams.get("error") === "setup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const supabaseConfigured = isSupabaseAuthConfigured();
   const supabase = createClient();
-  const isDemoMode = !supabase;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +30,8 @@ export default function LoginForm() {
     setLoading(true);
 
     if (!supabase) {
-      router.push(redirect);
+      setError("Supabase no está configurado en este entorno.");
+      setLoading(false);
       return;
     }
 
@@ -48,6 +51,19 @@ export default function LoginForm() {
     router.refresh();
   }
 
+  if (!supabaseConfigured || setupError) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-4 py-12">
+        <SetupError />
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-primary">
+            ← Volver al inicio
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-4 py-12">
       <Card>
@@ -58,35 +74,29 @@ export default function LoginForm() {
           </p>
         </CardHeader>
         <CardContent>
-          {isDemoMode ? <DemoAlert compact className="mb-4" /> : null}
-
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isDemoMode ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
-                </div>
-              </>
-            ) : null}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </div>
 
             {error ? (
               <p className="text-sm text-destructive" role="alert">
@@ -100,11 +110,7 @@ export default function LoginForm() {
               className="w-full rounded-full"
               disabled={loading}
             >
-              {loading
-                ? "Ingresando…"
-                : isDemoMode
-                  ? "Entrar al panel demo"
-                  : "Iniciar sesión"}
+              {loading ? "Ingresando…" : "Iniciar sesión"}
             </Button>
           </form>
 

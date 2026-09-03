@@ -14,18 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { Plus } from "lucide-react";
 
 type CreateApiKeyDialogProps = {
-  isDemo: boolean;
   disabled?: boolean;
 };
 
-export function CreateApiKeyDialog({
-  isDemo,
-  disabled,
-}: CreateApiKeyDialogProps) {
+export function CreateApiKeyDialog({ disabled }: CreateApiKeyDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -83,11 +78,6 @@ export function CreateApiKeyDialog({
           <DialogDescription>
             La clave completa solo se muestra una vez. Guárdala en un lugar
             seguro; almacenamos únicamente el prefijo y un hash.
-            {isDemo ? (
-              <span className="mt-2 flex">
-                <DemoBadge />
-              </span>
-            ) : null}
           </DialogDescription>
         </DialogHeader>
 

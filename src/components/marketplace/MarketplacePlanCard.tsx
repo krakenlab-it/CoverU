@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { QuoteState } from "@/lib/marketplace/types";
@@ -11,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const QUOTE_LABELS: Record<QuoteState, string> = {
   quoted: "Cotización",
-  indicative: "Precio indicativo (demo)",
+  indicative: "Precio indicativo",
   unavailable: "Sin tarifa para este perfil",
 };
 
@@ -19,7 +18,6 @@ interface MarketplacePlanCardProps {
   planVersionId: string;
   planName: string;
   insurerName: string;
-  isDemo: boolean;
   monthlyPrice: number | null;
   quoteState: QuoteState;
   coverageHighlights: string[];
@@ -35,7 +33,6 @@ export function MarketplacePlanCard({
   planVersionId,
   planName,
   insurerName,
-  isDemo,
   monthlyPrice,
   quoteState,
   coverageHighlights,
@@ -64,7 +61,6 @@ export function MarketplacePlanCard({
             {planName}
           </CardTitle>
         </div>
-        {isDemo ? <DemoBadge /> : null}
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -79,7 +75,7 @@ export function MarketplacePlanCard({
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Ajusta edad, género o provincia para ver un precio de ejemplo.
+              Ajusta edad, género o provincia para ver una tarifa.
             </p>
           )}
         </div>

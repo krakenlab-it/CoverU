@@ -29,7 +29,7 @@ function toSearchParams(
 
 export async function generateMetadata({ params }: PageProps) {
   const { planVersionId } = await params;
-  const detail = getPlanVersionDetailForMarketplace(planVersionId);
+  const detail = await getPlanVersionDetailForMarketplace(planVersionId);
   return buildAppMetadata(
     detail?.plan?.name ?? "Detalle del plan",
     "Detalle de póliza y coberturas en el marketplace CoverÜ.",
@@ -50,7 +50,7 @@ export default async function PlanDetailPage({
     compareParam ? compareParam.split(",") : undefined,
   );
 
-  const detail = getPlanVersionDetailForMarketplace(planVersionId);
+  const detail = await getPlanVersionDetailForMarketplace(planVersionId);
 
   if (!detail?.plan || !detail.insurer || !detail.version) {
     notFound();

@@ -40,5 +40,3 @@ function timingSafeEqual(a: string, b: string): boolean {
   return result === 0;
 }
 
-/** Demo API key for local/testing — never use in production */
-export const DEMO_API_KEY = "cov_demo_test_key_phase1_only";

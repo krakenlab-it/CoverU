@@ -87,7 +87,6 @@ export function MarketplaceResultsGrid({
               planVersionId={planVersion.id}
               planName={plan.name}
               insurerName={insurer.name}
-              isDemo={plan.is_demo}
               monthlyPrice={result.monthlyPrice}
               quoteState={result.quoteState}
               coverageHighlights={result.coverageHighlights}

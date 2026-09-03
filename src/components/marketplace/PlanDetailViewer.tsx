@@ -1,7 +1,7 @@
 import { getCategoryLabel } from "@/lib/marketplace/catalog";
 import { formatDate } from "@/lib/marketplace/format";
 import { WAITING_PERIOD_LABELS } from "@/lib/marketplace/categories";
-import { DemoBanner } from "@/components/marketplace/DemoBanner";
+import { EmptyState } from "@/components/platform/EmptyState";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import type {
   Citation,
@@ -36,8 +36,6 @@ export function PlanDetailViewer({
 }: PlanDetailViewerProps) {
   return (
     <div className="space-y-6">
-      {plan.is_demo && <DemoBanner compact />}
-
       <header className="rounded-2xl border border-coveru-border bg-white p-6">
         <p className="text-sm text-coveru-gray">{insurer.name}</p>
         <h1 className="text-2xl font-bold">{plan.name}</h1>
@@ -51,11 +49,6 @@ export function PlanDetailViewer({
           <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
             {version.status === "published" ? "Publicada" : version.status}
           </span>
-          {version.is_demo && (
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-              DEMO
-            </span>
-          )}
         </div>
         <p className="mt-3 text-sm text-coveru-gray">
           Vigente desde {formatDate(version.effective_from)}
@@ -78,39 +71,59 @@ export function PlanDetailViewer({
         </p>
       </section>
 
-      <section aria-labelledby="benefits-heading" className="rounded-2xl border border-coveru-border bg-white p-6">
-        <h2 id="benefits-heading" className="text-lg font-semibold">
-          Coberturas y beneficios
-        </h2>
-        <ul className="mt-4 space-y-4">
-          {coverageClauses.map((clause) => (
-            <li
-              key={clause.id}
-              className="rounded-xl border border-coveru-border p-4"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold">{clause.title}</h3>
-                <VerdictBadge status={clause.coverage_status} />
-                <span className="text-xs text-coveru-gray">
-                  {getCategoryLabel(clause.category)}
-                </span>
-              </div>
-              {clause.description && (
-                <p className="mt-2 text-sm text-coveru-gray">{clause.description}</p>
-              )}
-              {clause.conditions && (
-                <p className="mt-2 text-sm">
-                  <span className="font-medium">Condiciones:</span>{" "}
-                  {clause.conditions}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {coverageClauses.length === 0 &&
+      exclusions.length === 0 &&
+      waitingPeriods.length === 0 &&
+      policyDocuments.length === 0 ? (
+        <EmptyState
+          title="Detalle de cobertura no disponible"
+          description="Este plan aún no tiene cláusulas, exclusiones ni documentos de póliza cargados en el catálogo."
+        />
+      ) : null}
+
+      {coverageClauses.length > 0 ? (
+        <section
+          aria-labelledby="benefits-heading"
+          className="rounded-2xl border border-coveru-border bg-white p-6"
+        >
+          <h2 id="benefits-heading" className="text-lg font-semibold">
+            Coberturas y beneficios
+          </h2>
+          <ul className="mt-4 space-y-4">
+            {coverageClauses.map((clause) => (
+              <li
+                key={clause.id}
+                className="rounded-xl border border-coveru-border p-4"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-semibold">{clause.title}</h3>
+                  <VerdictBadge status={clause.coverage_status} />
+                  <span className="text-xs text-coveru-gray">
+                    {getCategoryLabel(clause.category)}
+                  </span>
+                </div>
+                {clause.description && (
+                  <p className="mt-2 text-sm text-coveru-gray">
+                    {clause.description}
+                  </p>
+                )}
+                {clause.conditions && (
+                  <p className="mt-2 text-sm">
+                    <span className="font-medium">Condiciones:</span>{" "}
+                    {clause.conditions}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {exclusions.length > 0 && (
-        <section aria-labelledby="exclusions-heading" className="rounded-2xl border border-coveru-border bg-white p-6">
+        <section
+          aria-labelledby="exclusions-heading"
+          className="rounded-2xl border border-coveru-border bg-white p-6"
+        >
           <h2 id="exclusions-heading" className="text-lg font-semibold">
             Exclusiones
           </h2>
@@ -128,7 +141,10 @@ export function PlanDetailViewer({
       )}
 
       {waitingPeriods.length > 0 && (
-        <section aria-labelledby="waiting-heading" className="rounded-2xl border border-coveru-border bg-white p-6">
+        <section
+          aria-labelledby="waiting-heading"
+          className="rounded-2xl border border-coveru-border bg-white p-6"
+        >
           <h2 id="waiting-heading" className="text-lg font-semibold">
             Períodos de carencia
           </h2>
@@ -149,28 +165,35 @@ export function PlanDetailViewer({
         </section>
       )}
 
-      <section aria-labelledby="documents-heading" className="rounded-2xl border border-coveru-border bg-white p-6">
-        <h2 id="documents-heading" className="text-lg font-semibold">
-          Documentos fuente
-        </h2>
-        <ul className="mt-4 space-y-4">
-          {policyDocuments.map((doc) => (
-            <li key={doc.id} className="rounded-xl bg-coveru-light p-4">
-              <p className="font-medium">{doc.title}</p>
-              <p className="text-xs text-coveru-gray">
-                Tipo: {doc.document_type.replace(/_/g, " ")}
-                {doc.is_demo && " · DEMO"}
-              </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
-                {doc.content}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {policyDocuments.length > 0 ? (
+        <section
+          aria-labelledby="documents-heading"
+          className="rounded-2xl border border-coveru-border bg-white p-6"
+        >
+          <h2 id="documents-heading" className="text-lg font-semibold">
+            Documentos fuente
+          </h2>
+          <ul className="mt-4 space-y-4">
+            {policyDocuments.map((doc) => (
+              <li key={doc.id} className="rounded-xl bg-coveru-light p-4">
+                <p className="font-medium">{doc.title}</p>
+                <p className="text-xs text-coveru-gray">
+                  Tipo: {doc.document_type.replace(/_/g, " ")}
+                </p>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+                  {doc.content}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {citations.length > 0 && (
-        <section aria-labelledby="citations-heading" className="rounded-2xl border border-coveru-border bg-white p-6">
+        <section
+          aria-labelledby="citations-heading"
+          className="rounded-2xl border border-coveru-border bg-white p-6"
+        >
           <h2 id="citations-heading" className="text-lg font-semibold">
             Citas y referencias
           </h2>
@@ -181,7 +204,9 @@ export function PlanDetailViewer({
                 className="border-l-4 border-coveru-red pl-4 text-sm"
               >
                 <p className="font-semibold">{c.clause_ref}</p>
-                <p className="mt-1 italic text-coveru-gray">&ldquo;{c.excerpt}&rdquo;</p>
+                <p className="mt-1 italic text-coveru-gray">
+                  &ldquo;{c.excerpt}&rdquo;
+                </p>
                 {c.page_number != null && (
                   <p className="mt-1 text-xs text-coveru-gray">
                     Página {c.page_number}

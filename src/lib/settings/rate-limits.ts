@@ -1,21 +1,15 @@
 import { getRateLimiter } from "@/lib/api/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import {
-  getDemoRateLimitOverride,
-  setDemoRateLimitOverride,
-} from "@/lib/settings/demo-store";
 import { hasServiceRole } from "@/lib/settings/session";
 
 export interface RateLimitPolicy {
   requestsPerWindow: number;
   windowMs: number;
   windowLabel: string;
-  source: "env" | "organization" | "demo";
+  source: "env" | "organization";
   remaining: number | null;
   resetAt: string | null;
-  isDemo: boolean;
-  demoMode: boolean;
+  serviceConfigured: boolean;
 }
 
 export interface RateLimitUpdateInput {
@@ -43,15 +37,7 @@ async function readOrgSettings(organizationId: string): Promise<{
   windowMs: number;
   source: RateLimitPolicy["source"];
 } | null> {
-  if (!hasServiceRole()) {
-    const override = getDemoRateLimitOverride(organizationId);
-    if (!override) return null;
-    return {
-      requests: override.rate_limit_requests,
-      windowMs: override.rate_limit_window_ms,
-      source: "demo",
-    };
-  }
+  if (!hasServiceRole()) return null;
 
   const admin = createAdminClient();
   if (!admin) return null;
@@ -73,10 +59,8 @@ async function readOrgSettings(organizationId: string): Promise<{
 
 export async function getOrgRateLimitPolicy(
   organizationId: string,
-  isDemo: boolean,
 ): Promise<RateLimitPolicy> {
-  const supabase = await createClient();
-  const demoMode = !supabase;
+  const serviceConfigured = hasServiceRole();
   const orgSettings = await readOrgSettings(organizationId);
 
   const requestsPerWindow = orgSettings?.requests ?? DEFAULT_LIMIT;
@@ -102,8 +86,7 @@ export async function getOrgRateLimitPolicy(
     source,
     remaining,
     resetAt,
-    isDemo: isDemo || demoMode,
-    demoMode,
+    serviceConfigured,
   };
 }
 
@@ -122,12 +105,10 @@ export async function updateOrgRateLimitPolicy(
   }
 
   if (!hasServiceRole()) {
-    setDemoRateLimitOverride(
-      organizationId,
-      input.requestsPerWindow,
-      input.windowMs,
-    );
-    return { ok: true };
+    return {
+      error:
+        "No se pueden guardar límites: Supabase no está configurado en este entorno.",
+    };
   }
 
   const admin = createAdminClient();
@@ -141,7 +122,7 @@ export async function updateOrgRateLimitPolicy(
       rate_limit_requests: input.requestsPerWindow,
       rate_limit_window_ms: input.windowMs,
       updated_at: new Date().toISOString(),
-      updated_by: userId === "demo-user" ? null : userId,
+      updated_by: userId,
     },
     { onConflict: "organization_id" },
   );

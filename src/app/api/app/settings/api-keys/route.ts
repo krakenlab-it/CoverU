@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createOrgApiKey } from "@/lib/settings/api-keys";
+import { createOrgApiKey, listOrgApiKeys } from "@/lib/settings/api-keys";
 import {
   isOrgAdminRole,
   requireSettingsSession,
@@ -38,7 +38,6 @@ export async function POST(request: Request) {
   const result = await createOrgApiKey(
     session.organizationId,
     parsed.data.name,
-    session.isDemo,
   );
 
   if ("error" in result) {
@@ -48,7 +47,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     key: result.key,
     rawKey: result.rawKey,
-    isDemo: result.isDemo,
   });
 }
 
@@ -58,7 +56,6 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  const { listOrgApiKeys } = await import("@/lib/settings/api-keys");
   const result = await listOrgApiKeys(session.organizationId);
   return NextResponse.json(result);
 }
