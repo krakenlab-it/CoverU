@@ -3,12 +3,12 @@ name: CI
 # Validates lint, types, unit/integration tests, migrations, build, and Playwright.
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main, "cursor/**"]
+  pull_request:
+    branches: [main]
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 env:
