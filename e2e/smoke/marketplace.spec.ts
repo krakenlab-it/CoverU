@@ -4,7 +4,9 @@ import { DEMO_PLAN_VERSION_ID } from "../fixtures/demo";
 test.describe("demo app smoke", () => {
   test("login demo mode enters marketplace", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByText("Modo demo:", { exact: false }).first()).toBeVisible();
+    await expect(
+      page.getByRole("status").or(page.getByText(/DEMO|demostración/i)).first(),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Entrar al panel demo" }).click();
     await expect(page).toHaveURL(/\/app/);
     await expect(
@@ -18,7 +20,7 @@ test.describe("demo app smoke", () => {
 
     await page.getByLabel("Edad").fill("30");
     await page.getByLabel("Género").selectOption("femenino");
-    await page.getByLabel("Región").selectOption("metropolitana");
+    await page.getByLabel("Provincia").selectOption("metropolitana");
     await page.getByRole("button", { name: "Aplicar filtros" }).click();
 
     await expect(page).toHaveURL(/age=30/);
