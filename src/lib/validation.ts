@@ -16,3 +16,12 @@ export const compareQuerySchema = z.object({
   gender: z.enum(["femenino", "masculino"]),
   region: z.string().min(1).max(50),
 });
+
+export const signupSchema = z.object({
+  email: z.string().email("Email inválido").max(320),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  organizationName: z
+    .string()
+    .min(1, "Nombre de organización requerido")
+    .max(200),
+});
