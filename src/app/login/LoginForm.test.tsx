@@ -121,4 +121,24 @@ describe("LoginForm", () => {
       screen.queryByText("Configuración requerida"),
     ).not.toBeInTheDocument();
   });
+
+  it("renders links to registro and recuperar", () => {
+    searchParams = new URLSearchParams();
+
+    render(
+      <LoginForm
+        supabaseUrl="https://example.supabase.co"
+        supabaseAnonKey="test-anon-key"
+        envDiagnostics={configuredDiagnostics}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /registrarse/i })).toHaveAttribute(
+      "href",
+      "/registro",
+    );
+    expect(
+      screen.getByRole("link", { name: /olvidaste tu contraseña/i }),
+    ).toHaveAttribute("href", "/recuperar");
+  });
 });

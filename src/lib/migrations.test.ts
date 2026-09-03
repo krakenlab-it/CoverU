@@ -8,6 +8,7 @@ const UUID_REGEX =
 
 const TARIFF_V1_1_FILE = "20260903180000_tariff_schema_v1_1.sql";
 const TARIFF_V1_3_FILE = "20260903190000_tariff_schema_v1_3.sql";
+const AUTH_ORG_PROVISIONING_FILE = "20260903200000_auth_org_provisioning.sql";
 
 describe("supabase migrations", () => {
   const files = readdirSync(MIGRATIONS_DIR)
@@ -26,6 +27,10 @@ describe("supabase migrations", () => {
 
   it("includes tariff schema v1.3 migration", () => {
     expect(files).toContain(TARIFF_V1_3_FILE);
+  });
+
+  it("includes auth org provisioning migration", () => {
+    expect(files).toContain(AUTH_ORG_PROVISIONING_FILE);
   });
 
   for (const file of files) {
@@ -202,5 +207,36 @@ describe("supabase migrations", () => {
     expect(content).toContain("organization_settings");
     expect(content).toContain("ENABLE ROW LEVEL SECURITY");
     expect(content).toContain("org_settings_admin_update");
+  });
+
+  describe("auth org provisioning migration", () => {
+    const content = readFileSync(
+      join(MIGRATIONS_DIR, AUTH_ORG_PROVISIONING_FILE),
+      "utf-8",
+    );
+
+    it("creates SECURITY DEFINER provisioning functions with search_path = public", () => {
+      expect(content).toContain("SECURITY DEFINER");
+      expect(content).toContain("SET search_path = public");
+      expect(content).toContain("provision_user_organization");
+      expect(content).toContain("provision_my_organization");
+    });
+
+    it("provisions owner membership from organization_name metadata", () => {
+      expect(content).toContain("organization_name");
+      expect(content).toContain("organization_members");
+      expect(content).toMatch(/role[\s\S]*owner/);
+      expect(content).toContain("status = 'active'");
+    });
+
+    it("is idempotent when membership already exists", () => {
+      expect(content).toContain("IF EXISTS");
+      expect(content).toContain("ON CONFLICT");
+    });
+
+    it("attaches trigger on auth.users insert", () => {
+      expect(content).toContain("on_auth_user_created_provision_org");
+      expect(content).toContain("AFTER INSERT ON auth.users");
+    });
   });
 });

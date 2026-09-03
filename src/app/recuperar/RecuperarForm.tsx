@@ -1,36 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { AuthPageFooter, AuthPageShell } from "@/components/auth/AuthPageShell";
 import { SetupError } from "@/components/platform/SetupError";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthPageFooter, AuthPageShell } from "@/components/auth/AuthPageShell";
+import { buildAuthCallbackUrl } from "@/lib/auth/site-url";
 import { createClient } from "@/lib/supabase/client";
 import { type CoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
 import { useLogCoveruEnv } from "@/lib/supabase/use-log-coveru-env";
 
-type LoginFormProps = {
+type RecuperarFormProps = {
   supabaseUrl: string;
   supabaseAnonKey: string;
   envDiagnostics: CoveruEnvDiagnostics;
 };
 
-export default function LoginForm({
+export default function RecuperarForm({
   supabaseUrl,
   supabaseAnonKey,
   envDiagnostics,
-}: LoginFormProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/app";
+}: RecuperarFormProps) {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
   const supabase = supabaseConfigured
@@ -50,20 +47,23 @@ export default function LoginForm({
       return;
     }
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const redirectTo = buildAuthCallbackUrl("/actualizar-contrasena");
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       email,
-      password,
-    });
+      { redirectTo },
+    );
 
     setLoading(false);
 
-    if (authError) {
-      setError("Credenciales inválidas. Verifica tu email y contraseña.");
+    if (resetError) {
+      setError(
+        "No pudimos enviar el enlace. Verifica tu email e inténtalo de nuevo.",
+      );
       return;
     }
 
-    router.push(redirect);
-    router.refresh();
+    setSent(true);
   }
 
   if (!supabaseConfigured) {
@@ -75,13 +75,38 @@ export default function LoginForm({
     );
   }
 
+  if (sent) {
+    return (
+      <AuthPageShell>
+        <Card>
+          <CardHeader>
+            <CardTitle>Revisa tu correo</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Si existe una cuenta con{" "}
+              <span className="font-medium text-foreground">{email}</span>,
+              recibirás un enlace para restablecer tu contraseña.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              <Link href="/login" className="text-primary hover:underline">
+                Volver a iniciar sesión
+              </Link>
+            </p>
+            <AuthPageFooter />
+          </CardContent>
+        </Card>
+      </AuthPageShell>
+    );
+  }
+
   return (
     <AuthPageShell>
       <Card>
         <CardHeader>
-          <CardTitle>Iniciar sesión</CardTitle>
+          <CardTitle>Recuperar contraseña</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Accede al panel de CoverÜ para tu organización.
+            Te enviaremos un enlace para restablecer tu contraseña.
           </p>
         </CardHeader>
         <CardContent>
@@ -97,17 +122,6 @@ export default function LoginForm({
                 autoComplete="email"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-            </div>
 
             {error ? (
               <p className="text-sm text-destructive" role="alert">
@@ -115,29 +129,19 @@ export default function LoginForm({
               </p>
             ) : null}
 
-            <div className="text-right">
-              <Link
-                href="/recuperar"
-                className="text-sm text-primary hover:underline"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-
             <Button
               type="submit"
               variant="brand"
               className="w-full rounded-full"
               disabled={loading}
             >
-              {loading ? "Ingresando…" : "Iniciar sesión"}
+              {loading ? "Enviando…" : "Enviar enlace"}
             </Button>
           </form>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            ¿No tienes cuenta?{" "}
-            <Link href="/registro" className="text-primary hover:underline">
-              Registrarse
+            <Link href="/login" className="text-primary hover:underline">
+              ← Volver a iniciar sesión
             </Link>
           </p>
 

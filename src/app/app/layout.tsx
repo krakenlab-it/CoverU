@@ -41,6 +41,8 @@ export default async function AppLayout({
     <AppShell
       organizationName={membership?.organizationName}
       userEmail={session.user.email}
+      supabaseUrl={supabaseConfig.url}
+      supabaseAnonKey={supabaseConfig.anonKey}
     >
       {children}
     </AppShell>
