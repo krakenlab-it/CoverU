@@ -21,6 +21,7 @@ describe("MarketplacePlanCard", () => {
     render(<MarketplacePlanCard {...baseProps} />);
     expect(screen.getByText(/Cotización/i)).toBeInTheDocument();
     expect(screen.getByText(/12\.500/)).toBeInTheDocument();
+    expect(screen.getByText(/Prima mensual estimada/i)).toBeInTheDocument();
   });
 
   it("shows exclusion and waiting period warnings", () => {
