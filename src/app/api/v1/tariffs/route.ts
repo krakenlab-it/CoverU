@@ -4,7 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
 export const GET = withApiV1(
-  async ({ requestId, searchParams }) => {
+  async (ctx) => {
+    const { requestId, searchParams } = ctx;
     if (!isSupabaseAdminConfigured()) {
       return apiError(
         requestId,
@@ -19,6 +20,27 @@ export const GET = withApiV1(
     const region = searchParams.get("region");
     const gender = searchParams.get("gender");
     const age = searchParams.get("age");
+
+    if (planId) {
+      ctx.usageMetadata = {
+        planId,
+        metadata: {
+          route: "tariffs",
+          region,
+          gender,
+          age,
+        },
+      };
+    } else {
+      ctx.usageMetadata = {
+        metadata: {
+          route: "tariffs",
+          region,
+          gender,
+          age,
+        },
+      };
+    }
 
     const supabase = createAdminClient();
     if (!supabase) {

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Code2,
   GitCompare,
+  LayoutDashboard,
   LayoutGrid,
   Settings,
   type LucideIcon,
@@ -12,7 +13,12 @@ import {
 import { cn } from "@/lib/utils";
 import { motion } from "@/lib/motion";
 
-export type AppNavIcon = "marketplace" | "compare" | "developers" | "settings";
+export type AppNavIcon =
+  | "dashboard"
+  | "marketplace"
+  | "compare"
+  | "developers"
+  | "settings";
 
 export type AppNavItem = {
   href: string;
@@ -21,6 +27,7 @@ export type AppNavItem = {
 };
 
 const ICONS: Record<AppNavIcon, LucideIcon> = {
+  dashboard: LayoutDashboard,
   marketplace: LayoutGrid,
   compare: GitCompare,
   developers: Code2,
@@ -28,12 +35,18 @@ const ICONS: Record<AppNavIcon, LucideIcon> = {
 };
 
 function isNavItemActive(pathname: string, href: string): boolean {
+  if (href === "/app") {
+    return pathname === "/app" || pathname === "/app/dashboard";
+  }
   if (href === "/app/marketplace") {
     return (
       pathname === href ||
       (pathname.startsWith("/app/marketplace") &&
         !pathname.startsWith("/app/marketplace/compare"))
     );
+  }
+  if (href.startsWith("/app/desarrolladores")) {
+    return pathname.startsWith("/app/desarrolladores");
   }
   if (href.startsWith("/app/configuracion")) {
     return pathname.startsWith("/app/configuracion");

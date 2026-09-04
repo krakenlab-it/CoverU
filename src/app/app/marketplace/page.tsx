@@ -70,7 +70,7 @@ async function MarketplaceContent({
           breadcrumbs={
             <Breadcrumbs
               items={[
-                { label: "Panel", href: "/app/marketplace" },
+                { label: "Panel", href: "/app" },
                 { label: "Marketplace" },
               ]}
             />

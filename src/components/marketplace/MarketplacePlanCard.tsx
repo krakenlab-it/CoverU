@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCatalogDisplayName } from "@/lib/marketplace/display";
 import type { QuoteState } from "@/lib/marketplace/types";
 import { formatCLP } from "@/lib/marketplace/format";
 import { motion } from "@/lib/motion";
@@ -56,9 +57,11 @@ export function MarketplacePlanCard({
     >
       <CardHeader className="flex-row items-start justify-between gap-2 space-y-0">
         <div>
-          <p className="text-sm text-muted-foreground">{insurerName}</p>
+          <p className="text-sm text-muted-foreground">
+            {formatCatalogDisplayName(insurerName)}
+          </p>
           <CardTitle id={`plan-${planVersionId}-title`} className="text-lg">
-            {planName}
+            {formatCatalogDisplayName(planName)}
           </CardTitle>
         </div>
       </CardHeader>
