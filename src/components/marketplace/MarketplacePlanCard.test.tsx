@@ -18,9 +18,10 @@ describe("MarketplacePlanCard", () => {
   };
 
   it("shows quoted price state", () => {
-    render(<MarketplacePlanCard {...baseProps} />);
+    render(<MarketplacePlanCard {...baseProps} insurerLogoUrl="/insurers/bmi.png" />);
     expect(screen.getByText(/Cotización/i)).toBeInTheDocument();
     expect(screen.getByText(/12\.500/)).toBeInTheDocument();
+    expect(screen.getByText("Aseguradora Alpha")).toBeInTheDocument();
     expect(screen.getByText(/Prima mensual estimada/i)).toBeInTheDocument();
   });
 

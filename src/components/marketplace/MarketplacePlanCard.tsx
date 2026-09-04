@@ -8,6 +8,7 @@ import {
   GitCompareArrowsIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -36,6 +37,7 @@ interface MarketplacePlanCardProps {
   planVersionId: string;
   planName: string;
   insurerName: string;
+  insurerLogoUrl?: string | null;
   monthlyPrice: number | null;
   quoteState: QuoteState;
   deductible?: number | null;
@@ -52,6 +54,7 @@ export function MarketplacePlanCard({
   planVersionId,
   planName,
   insurerName,
+  insurerLogoUrl,
   monthlyPrice,
   quoteState,
   deductible,
@@ -78,9 +81,11 @@ export function MarketplacePlanCard({
       <CardHeader className="space-y-3 border-b border-border/50 bg-muted/20 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {formatCatalogDisplayName(insurerName)}
-            </p>
+            <InsurerIdentity
+              name={insurerName}
+              logoUrl={insurerLogoUrl}
+              size="sm"
+            />
             <h3
               id={`plan-${planVersionId}-title`}
               className="text-lg font-semibold leading-tight text-foreground"

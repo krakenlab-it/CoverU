@@ -89,6 +89,12 @@ export function MarketplaceResultsToolbar({
       case "waitingMaxDays":
         next.waitingMaxDays = undefined;
         break;
+      case "priceMin":
+        next.priceMin = undefined;
+        break;
+      case "priceMax":
+        next.priceMax = undefined;
+        break;
       case "sort":
         next.sort = "price_asc";
         break;

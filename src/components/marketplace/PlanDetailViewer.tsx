@@ -7,6 +7,7 @@ import {
   getTariffRegionLabel,
 } from "@/lib/catalog-enums";
 import { formatUsd } from "@/lib/coverage/tariff-snapshot";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import type { MarketplaceFilters, QuoteState } from "@/lib/marketplace/types";
 import type { Tariff } from "@/lib/types/database";
@@ -140,9 +141,12 @@ export function PlanDetailViewer({
       >
         <div className="h-1 bg-coveru-red" aria-hidden="true" />
         <div className="px-6 py-8 sm:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-coveru-gray">
-            {formatCatalogDisplayName(insurer.name)}
-          </p>
+          <InsurerIdentity
+            name={insurer.name}
+            logoUrl={insurer.logo_url}
+            size="md"
+            nameClassName="text-coveru-gray"
+          />
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             {formatCatalogDisplayName(plan.name)}
           </h1>
