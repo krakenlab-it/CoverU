@@ -170,6 +170,20 @@ export interface MatchedTariffSnapshot {
   tax_included: boolean | null;
 }
 
+export interface CoverageQaRunTrace {
+  id: string;
+  status: string;
+  duration_ms: number;
+  intent: string | null;
+  provider: string;
+  tools: Array<{
+    name: string;
+    summary: string;
+    ok: boolean;
+    duration_ms: number;
+  }>;
+}
+
 export interface CoverageQaResult {
   status: CoverageStatus;
   answer: string;
@@ -178,4 +192,5 @@ export interface CoverageQaResult {
   abstained: boolean;
   policy_wording_controls: boolean;
   provider: string;
+  run?: CoverageQaRunTrace;
 }

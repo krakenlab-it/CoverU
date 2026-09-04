@@ -159,7 +159,18 @@
         "properties": {
           "plan_version_id": { "type": "string", "format": "uuid" },
           "plan_id": { "type": "string", "format": "uuid" },
-          "question": { "type": "string", "minLength": 3, "maxLength": 1000 }
+          "question": { "type": "string", "minLength": 3, "maxLength": 1000 },
+          "history": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "required": ["question"],
+              "properties": {
+                "question": { "type": "string", "minLength": 3, "maxLength": 1000 }
+              }
+            }
+          }
         }
       },
       "MatchedTariffSnapshot": {
@@ -207,7 +218,19 @@
           },
           "abstained": { "type": "boolean" },
           "policy_wording_controls": { "type": "boolean" },
-          "provider": { "type": "string" }
+          "provider": { "type": "string" },
+          "run": {
+            "type": "object",
+            "description": "Harness trace: status, tools, and duration.",
+            "properties": {
+              "id": { "type": "string" },
+              "status": { "type": "string" },
+              "duration_ms": { "type": "integer" },
+              "intent": { "type": "string", "nullable": true },
+              "provider": { "type": "string" },
+              "tools": { "type": "array" }
+            }
+          }
         }
       }
     },

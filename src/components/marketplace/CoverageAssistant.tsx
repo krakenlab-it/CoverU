@@ -69,7 +69,7 @@ export function CoverageAssistant({
         ))}
         {loading && (
           <p className="text-sm text-muted-foreground" aria-busy="true">
-            Consultando catálogo y documentos…
+            Consultando catálogo, póliza y búsqueda semántica…
           </p>
         )}
       </div>
@@ -233,6 +233,24 @@ function AssistantAnswer({ result }: { result: CoverageQaResult }) {
         <p className="mt-2 text-xs text-muted-foreground">
           La redacción oficial de la póliza prevalece sobre este resumen.
         </p>
+      )}
+
+      {result.run && result.run.tools.length > 0 && (
+        <details className="mt-3 rounded-lg border border-border bg-muted/30 p-2 text-xs">
+          <summary className="cursor-pointer font-medium text-muted-foreground">
+            Cómo llegó a esta respuesta · {result.run.status} ·{" "}
+            {result.run.duration_ms} ms
+          </summary>
+          <ol className="mt-2 list-decimal space-y-1 pl-4">
+            {result.run.tools.map((tool, index) => (
+              <li key={`${tool.name}-${index}`}>
+                <span className="font-semibold">{tool.name}</span>
+                {": "}
+                {tool.summary}
+              </li>
+            ))}
+          </ol>
+        </details>
       )}
 
       {result.citations.length > 0 && (

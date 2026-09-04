@@ -10,6 +10,7 @@ const TARIFF_V1_1_FILE = "20260903180000_tariff_schema_v1_1.sql";
 const TARIFF_V1_3_FILE = "20260903190000_tariff_schema_v1_3.sql";
 const AUTH_ORG_PROVISIONING_FILE = "20260903200000_auth_org_provisioning.sql";
 const INSURER_LOGO_URLS_FILE = "20260904010000_insurer_logo_urls_v1_3.sql";
+const COVERAGE_AGENT_HARNESS_FILE = "20260904020000_coverage_agent_harness.sql";
 
 describe("supabase migrations", () => {
   const files = readdirSync(MIGRATIONS_DIR)
@@ -36,6 +37,10 @@ describe("supabase migrations", () => {
 
   it("includes insurer logo URLs migration for v1.3 carriers", () => {
     expect(files).toContain(INSURER_LOGO_URLS_FILE);
+  });
+
+  it("includes coverage agent harness and pgvector search migration", () => {
+    expect(files).toContain(COVERAGE_AGENT_HARNESS_FILE);
   });
 
   for (const file of files) {
@@ -242,6 +247,27 @@ describe("supabase migrations", () => {
     it("attaches trigger on auth.users insert", () => {
       expect(content).toContain("on_auth_user_created_provision_org");
       expect(content).toContain("AFTER INSERT ON auth.users");
+    });
+  });
+
+  describe("coverage agent harness migration", () => {
+    const content = readFileSync(
+      join(MIGRATIONS_DIR, COVERAGE_AGENT_HARNESS_FILE),
+      "utf-8",
+    );
+
+    it("enables pgvector and hybrid search filtered by plan version", () => {
+      expect(content).toContain("CREATE EXTENSION IF NOT EXISTS vector");
+      expect(content).toContain("policy_chunks");
+      expect(content).toContain("hybrid_search_policy_chunks");
+      expect(content).toContain("match_plan_version_id");
+      expect(content).toContain("ENABLE ROW LEVEL SECURITY");
+    });
+
+    it("records agent runs with tool traces", () => {
+      expect(content).toContain("coverage_agent_runs");
+      expect(content).toContain("tool_calls");
+      expect(content).toContain("events");
     });
   });
 });

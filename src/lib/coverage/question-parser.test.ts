@@ -29,4 +29,9 @@ describe("parseCoverageQuestion", () => {
     expect(parsed.intent).toBe("policy_coverage");
     expect(parsed.policyTopic).toBe("hospitalizacion");
   });
+
+  it("detects catalog overview questions", () => {
+    const parsed = parseCoverageQuestion("¿Qué regiones hay en este plan?");
+    expect(parsed.intent).toBe("catalog_overview");
+  });
 });

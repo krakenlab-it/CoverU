@@ -10,6 +10,10 @@ const coverageQaSchema = z
     plan_version_id: z.string().uuid().optional(),
     plan_id: z.string().uuid().optional(),
     question: z.string().min(3).max(1000),
+    history: z
+      .array(z.object({ question: z.string().min(3).max(1000) }))
+      .max(8)
+      .optional(),
   })
   .refine((data) => data.plan_version_id || data.plan_id, {
     message: "plan_version_id o plan_id es requerido",
@@ -83,6 +87,9 @@ export async function POST(request: Request) {
     planVersionId: parsed.data.plan_version_id,
     planId: parsed.data.plan_id,
     question: parsed.data.question,
+    history: parsed.data.history,
+    organizationId: membership.organizationId,
+    requestId,
   });
 
   if (!result) {
@@ -118,7 +125,15 @@ export async function POST(request: Request) {
     Date.now() - start,
     {
       planVersionId: parsed.data.plan_version_id,
-      metadata: { route: "app_coverage_qa" },
+      metadata: {
+        route: "app_coverage_qa",
+        agent_run_id: result.run.id,
+        agent_status: result.run.status,
+        agent_tools: result.run.tools.map((tool) => tool.name),
+        provider: result.provider,
+        result_status: result.status,
+        abstained: result.abstained,
+      },
     },
   );
   return response;

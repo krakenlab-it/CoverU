@@ -40,12 +40,18 @@ export function useCoverageAssistantChat(planVersionId: string) {
       setLoading(true);
 
       try {
+        const history = messages
+          .filter((message) => message.role === "user" && message.question)
+          .slice(-6)
+          .map((message) => ({ question: message.question as string }));
+
         const res = await fetch("/api/app/coverage/qa", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             plan_version_id: planVersionId,
             question: trimmed,
+            history,
           }),
         });
 
@@ -89,7 +95,7 @@ export function useCoverageAssistantChat(planVersionId: string) {
         setLoading(false);
       }
     },
-    [loading, planVersionId],
+    [loading, planVersionId, messages],
   );
 
   return {
