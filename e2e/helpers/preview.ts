@@ -24,7 +24,7 @@ export async function gotoPreviewPath(page: Page, path: string) {
 }
 
 /**
- * Resilient landing assertions for Astro Cover U marketing chrome.
+ * Resilient landing assertions for Cover U marketing chrome.
  * Prefers role-based selectors over brittle hero carousel copy.
  */
 export async function expectCoverULanding(page: Page) {

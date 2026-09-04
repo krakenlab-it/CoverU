@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { DEMO_PLAN_VERSION_ID } from "../fixtures/demo";
 import { hasE2eAuth, loginAsTestUser } from "../helpers/auth";
+import { openCoverageAssistant } from "../helpers/marketplace";
 
 test.describe("coverage assistant smoke", () => {
   test.beforeEach(async ({ page }, testInfo) => {
@@ -9,6 +10,7 @@ test.describe("coverage assistant smoke", () => {
       return;
     }
     await loginAsTestUser(page, `/app/marketplace/plans/${DEMO_PLAN_VERSION_ID}`);
+    await openCoverageAssistant(page);
   });
 
   test("known question returns citation-backed answer", async ({ page }) => {
@@ -38,7 +40,7 @@ test.describe("coverage assistant smoke", () => {
 
     await expect(page.getByText("Sin respuesta en póliza")).toBeVisible();
     await expect(
-      page.getByText(/No encontré respuesta en los documentos/i),
+      page.getByText(/No hay texto de póliza para esta pregunta/i),
     ).toBeVisible();
   });
 });
