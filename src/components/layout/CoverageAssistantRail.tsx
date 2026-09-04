@@ -10,12 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import {
-  MessageSquareText,
-  PanelRightClose,
-  PanelRightOpen,
-  X,
-} from "lucide-react";
+import { MessageSquareText, PanelRightClose, X } from "lucide-react";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-media-query";
 
@@ -80,14 +75,13 @@ function AssistantPanelBody() {
       key={planContext.planVersionId}
       planVersionId={planContext.planVersionId}
       planName={planContext.planName}
-      layout="panel"
     />
   );
 }
 
 function AssistantPanel({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <RailHeader onClose={onClose} />
       <AssistantPanelBody />
     </div>
@@ -100,22 +94,6 @@ export function CoverageAssistantRail() {
 
   return (
     <>
-      {!isOpen && isMobile ? (
-        <Button
-          type="button"
-          variant="brand"
-          size="sm"
-          className="fixed bottom-5 right-4 z-40 gap-2 shadow-lg"
-          onClick={open}
-          aria-expanded={false}
-          aria-controls="coverage-assistant-mobile-panel"
-          aria-label="Abrir asistente de cobertura"
-        >
-          <MessageSquareText className="size-4" aria-hidden="true" />
-          Asistente
-        </Button>
-      ) : null}
-
       {isMobile ? (
         <Sheet
           open={isOpen}
@@ -130,60 +108,44 @@ export function CoverageAssistantRail() {
             <SheetHeader className="sr-only">
               <SheetTitle>Asistente de cobertura</SheetTitle>
             </SheetHeader>
-            <AssistantPanel onClose={close} />
+            <div className="flex h-full min-h-0 flex-col">
+              <AssistantPanel onClose={close} />
+            </div>
           </SheetContent>
         </Sheet>
-      ) : null}
-
-      {!isOpen && !isMobile ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="fixed right-0 top-1/2 z-30 hidden -translate-y-1/2 rounded-r-none border-r-0 pr-2 pl-3 shadow-sm md:inline-flex"
-          onClick={open}
-          aria-expanded={false}
-          aria-controls="coverage-assistant-desktop-panel"
-          aria-label="Abrir asistente de cobertura"
+      ) : (
+        <aside
+          id="coverage-assistant-desktop-panel"
+          className={cn(
+            "sticky top-0 flex h-screen shrink-0 flex-col border-l border-border bg-background",
+            "transition-[width] duration-200 ease-in-out",
+            isOpen ? "w-[min(33vw,28rem)]" : "w-0 overflow-hidden border-l-0",
+          )}
+          aria-label="Asistente de cobertura"
+          aria-hidden={!isOpen}
         >
-          <PanelRightOpen className="size-4" aria-hidden="true" />
-          <span className="sr-only">Asistente de cobertura</span>
-        </Button>
-      ) : null}
-
-      {!isMobile ? (
-      <aside
-        id="coverage-assistant-desktop-panel"
-        className={cn(
-          "sticky top-0 h-screen shrink-0 flex-col border-l border-border bg-background flex",
-          "transition-[width] duration-200 ease-in-out",
-          isOpen ? "w-[min(33vw,28rem)]" : "w-0 overflow-hidden border-l-0",
-        )}
-        aria-label="Asistente de cobertura"
-        aria-hidden={!isOpen}
-      >
-        {isOpen ? (
-          <>
-            <AssistantPanel onClose={close} />
-            <div className="shrink-0 border-t border-border p-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="w-full justify-center"
-                onClick={toggle}
-                aria-expanded={isOpen}
-                aria-controls="coverage-assistant-desktop-panel"
-                aria-label="Contraer asistente de cobertura"
-              >
-                <PanelRightClose className="size-4" aria-hidden="true" />
-                <span className="ms-1">Contraer</span>
-              </Button>
-            </div>
-          </>
-        ) : null}
-      </aside>
-      ) : null}
+          {isOpen ? (
+            <>
+              <AssistantPanel onClose={close} />
+              <div className="shrink-0 border-t border-border p-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={toggle}
+                  aria-expanded={isOpen}
+                  aria-controls="coverage-assistant-desktop-panel"
+                  aria-label="Contraer asistente de cobertura"
+                >
+                  <PanelRightClose className="size-4" aria-hidden="true" />
+                  <span className="ms-1">Contraer</span>
+                </Button>
+              </div>
+            </>
+          ) : null}
+        </aside>
+      )}
     </>
   );
 }
