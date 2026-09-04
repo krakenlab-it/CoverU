@@ -10,6 +10,7 @@ export type QuestionIntent =
   | "policy_coverage"
   | "exclusion"
   | "waiting_period"
+  | "catalog_overview"
   | "unknown";
 
 export interface ParsedQuestion {
@@ -123,6 +124,13 @@ function detectIntent(text: string): QuestionIntent {
     (extractAge(text) && extractGender(text) && extractRegion(text))
   ) {
     return "price_quote";
+  }
+  if (
+    /qu[eé]\s+(regiones|tarifas|incluye|hay)|resumen\s+del\s+plan|qu[eé]\s+cubre\s+este\s+plan/i.test(
+      text,
+    )
+  ) {
+    return "catalog_overview";
   }
   if (/exclu/i.test(text) || /preexist/i.test(text)) return "exclusion";
   if (/carencia|espera/i.test(text)) return "waiting_period";

@@ -7,6 +7,10 @@ const coverageQaSchema = z
     plan_version_id: z.string().uuid().optional(),
     plan_id: z.string().uuid().optional(),
     question: z.string().min(3).max(1000),
+    history: z
+      .array(z.object({ question: z.string().min(3).max(1000) }))
+      .max(8)
+      .optional(),
   })
   .refine((data) => data.plan_version_id || data.plan_id, {
     message: "plan_version_id o plan_id es requerido",
@@ -38,16 +42,27 @@ export const POST = withApiV1(
       );
     }
 
-    ctx.usageMetadata = {
-      planVersionId: parsed.data.plan_version_id,
-      metadata: { route: "coverage_qa" },
-    };
-
     const result = await answerCoverageQuestion({
       planVersionId: parsed.data.plan_version_id,
       planId: parsed.data.plan_id,
       question: parsed.data.question,
+      history: parsed.data.history,
+      organizationId: ctx.auth.organizationId,
+      requestId,
     });
+
+    ctx.usageMetadata = {
+      planVersionId: parsed.data.plan_version_id,
+      metadata: {
+        route: "coverage_qa",
+        agent_run_id: result?.run.id ?? null,
+        agent_status: result?.run.status ?? null,
+        agent_tools: result?.run.tools.map((tool) => tool.name) ?? [],
+        provider: result?.provider ?? null,
+        result_status: result?.status ?? null,
+        abstained: result?.abstained ?? null,
+      },
+    };
 
     if (!result) {
       return apiError(

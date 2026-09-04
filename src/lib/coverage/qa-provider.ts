@@ -1,9 +1,9 @@
+export { answerCoverageQuestion } from "@/lib/coverage/agent/harness";
+export type { CoverageQaInput } from "@/lib/coverage/agent/types";
 export {
-  answerCoverageQuestion,
   loadAgentContext,
   matchPolicyQuestionForTest,
   answerTariffQuestionForTest,
   resolvePlanVersionId,
   type AgentContext,
-  type CoverageQaInput,
 } from "@/lib/coverage/qa-agent";

@@ -28,6 +28,21 @@ describe("CoverageAssistant", () => {
       abstained: false,
       policy_wording_controls: false,
       provider: "rules",
+      run: {
+        id: "run-1",
+        status: "completed",
+        duration_ms: 18,
+        intent: "price_quote",
+        provider: "rules",
+        tools: [
+          {
+            name: "lookup_tariff",
+            summary: "Prima mensual $92,50",
+            ok: true,
+            duration_ms: 4,
+          },
+        ],
+      },
     };
 
     vi.stubGlobal(
@@ -58,6 +73,9 @@ describe("CoverageAssistant", () => {
         screen.getByText(/prima mensual es \$92,50/i),
       ).toBeInTheDocument();
       expect(screen.getByText("Tarifa coincidente")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Cómo llegó a esta respuesta/i),
+      ).toBeInTheDocument();
     });
   });
 

@@ -9,23 +9,17 @@ import type {
 import type { Insurer, Plan, Tariff } from "@/lib/types/database";
 import type { PlanVersion } from "@/lib/types/phase1";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  parseCoverageQuestion,
-  type ParsedQuestion,
-} from "@/lib/coverage/question-parser";
+import type { CoverageQaInput } from "@/lib/coverage/agent/types";
+import type { ParsedQuestion } from "@/lib/coverage/question-parser";
 import {
   describeTariffDimensions,
   formatUsd,
   toTariffSnapshot,
 } from "@/lib/coverage/tariff-snapshot";
 
-export interface CoverageQaInput {
-  planVersionId?: string;
-  planId?: string;
-  question: string;
-}
+export type { CoverageQaInput } from "@/lib/coverage/agent/types";
 
-interface PolicyClauseRow {
+export interface PolicyClauseRow {
   title: string;
   category: string;
   coverage_status: CoverageStatus;
@@ -33,11 +27,19 @@ interface PolicyClauseRow {
   conditions: string | null;
 }
 
-interface CitationRow {
+export interface CitationRow {
   clause_ref: string;
   excerpt: string;
   page_number: number | null;
   policy_document_title: string;
+}
+
+export interface PolicyChunkRow {
+  id: string;
+  clause_ref: string | null;
+  content: string;
+  source_kind: string;
+  policy_document_title: string | null;
 }
 
 export interface AgentContext {
@@ -49,16 +51,7 @@ export interface AgentContext {
   exclusions: Exclusion[];
   waitingPeriods: WaitingPeriod[];
   citations: CitationRow[];
-}
-
-type CoverageQaProvider = "rules" | "openai";
-
-function getProvider(): CoverageQaProvider {
-  const configured = process.env.COVERAGE_QA_PROVIDER;
-  if (configured === "openai" && process.env.OPENAI_API_KEY) {
-    return "openai";
-  }
-  return "rules";
+  chunks: PolicyChunkRow[];
 }
 
 function hasPolicyGrounding(context: AgentContext): boolean {
@@ -526,121 +519,16 @@ function answerTariffQuestion(
         provider,
       });
     }
-    default:
+    case "catalog_overview":
+    case "policy_coverage":
+    case "exclusion":
+    case "waiting_period":
+    case "unknown":
       return null;
-  }
-}
-
-async function answerWithOpenAI(
-  input: CoverageQaInput,
-  context: AgentContext,
-  parsed: ParsedQuestion,
-): Promise<CoverageQaResult> {
-  const tariffResult = answerTariffQuestion(context, parsed, "openai");
-  if (
-    tariffResult &&
-    (tariffResult.status === "quoted" ||
-      (parsed.intent !== "policy_coverage" &&
-        parsed.intent !== "exclusion" &&
-        parsed.intent !== "waiting_period"))
-  ) {
-    return tariffResult;
-  }
-
-  if (!hasPolicyGrounding(context)) {
-    return tariffResult ?? policyAbstain("openai");
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return (
-      tariffResult ?? answerPolicyQuestion(context, parsed, "rules")
-    );
-  }
-
-  const systemPrompt = `Eres un asistente de cobertura de seguros de salud en Ecuador.
-Responde SOLO con base en el contexto proporcionado (cláusulas, citas y tarifas).
-Nunca inventes números de artículo ni citas. Si no hay cita real en el contexto, abstente.
-Para precios usa status "quoted" y datos de tarifas. Responde en español.
-Formato JSON: { "status": "covered|not_covered|conditional|unknown|quoted", "answer": "...", "citation_refs": ["ref exacto del contexto"] }`;
-
-  const userContent = JSON.stringify({
-    question: input.question,
-    parsed,
-    plan: context.plan.name,
-    insurer: context.insurer.name,
-    clauses: context.clauses,
-    citations: context.citations,
-    tariffs: context.tariffs.slice(0, 20),
-  });
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: process.env.COVERAGE_QA_MODEL ?? "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0,
-    }),
-  });
-
-  if (!response.ok) {
-    return (
-      tariffResult ?? answerPolicyQuestion(context, parsed, "rules")
-    );
-  }
-
-  const payload = (await response.json()) as {
-    choices: Array<{ message: { content: string } }>;
-  };
-
-  try {
-    const raw = JSON.parse(payload.choices[0]?.message?.content ?? "{}") as {
-      status?: CoverageStatus;
-      answer?: string;
-      citation_refs?: string[];
-    };
-
-    const status: CoverageStatus = raw.status ?? "unknown";
-    const citations = buildCitations(raw.citation_refs ?? [], context);
-
-    if (status === "quoted") {
-      return (
-        tariffResult ??
-        baseResult({
-          status: "unknown",
-          answer: raw.answer ?? "No hay tarifa coincidente.",
-          citations: [],
-          abstained: true,
-          policy_wording_controls: false,
-          provider: "openai",
-        })
-      );
+    default: {
+      const _never: never = parsed.intent;
+      return _never;
     }
-
-    if (status === "unknown" || citations.length === 0) {
-      return policyAbstain("openai");
-    }
-
-    return baseResult({
-      status,
-      answer: raw.answer ?? "Consulta la póliza para detalles específicos.",
-      citations,
-      abstained: false,
-      policy_wording_controls: true,
-      provider: "openai",
-    });
-  } catch {
-    return (
-      tariffResult ?? answerPolicyQuestion(context, parsed, "rules")
-    );
   }
 }
 
@@ -741,7 +629,41 @@ export async function loadAgentContext(
     exclusions: (exclusionRows ?? []) as Exclusion[],
     waitingPeriods: (waitingRows ?? []) as WaitingPeriod[],
     citations,
+    chunks: await loadPolicyChunks(supabase, planVersionId, citations),
   };
+}
+
+async function loadPolicyChunks(
+  supabase: NonNullable<ReturnType<typeof createAdminClient>>,
+  planVersionId: string,
+  citations: CitationRow[],
+): Promise<PolicyChunkRow[]> {
+  const { data } = await supabase
+    .from("policy_chunks")
+    .select("id, clause_ref, content, source_kind, policy_document_id")
+    .eq("plan_version_id", planVersionId);
+
+  if (data && data.length > 0) {
+    const titleByExcerpt = new Map(
+      citations.map((citation) => [citation.excerpt, citation.policy_document_title]),
+    );
+    return data.map((row) => ({
+      id: row.id,
+      clause_ref: row.clause_ref,
+      content: row.content,
+      source_kind: row.source_kind,
+      policy_document_title:
+        titleByExcerpt.get(row.content) ?? "Documento de póliza",
+    }));
+  }
+
+  return citations.map((citation, index) => ({
+    id: `citation-${index}-${citation.clause_ref}`,
+    clause_ref: citation.clause_ref,
+    content: citation.excerpt,
+    source_kind: "citation",
+    policy_document_title: citation.policy_document_title,
+  }));
 }
 
 export async function resolvePlanVersionId(
@@ -763,48 +685,6 @@ export async function resolvePlanVersionId(
     .maybeSingle();
 
   return version?.id ?? null;
-}
-
-export async function answerCoverageQuestion(
-  input: CoverageQaInput,
-): Promise<CoverageQaResult | null> {
-  const planVersionId = await resolvePlanVersionId(input);
-  if (!planVersionId) return null;
-
-  const context = await loadAgentContext(planVersionId);
-  if (!context) return null;
-
-  const parsed = parseCoverageQuestion(input.question);
-  const provider = getProvider();
-
-  if (provider === "openai") {
-    return answerWithOpenAI(input, context, parsed);
-  }
-
-  const tariffResult = answerTariffQuestion(context, parsed, "rules");
-  if (tariffResult) return tariffResult;
-
-  if (
-    parsed.intent === "policy_coverage" ||
-    parsed.intent === "exclusion" ||
-    parsed.intent === "waiting_period"
-  ) {
-    return answerPolicyQuestion(context, parsed, "rules");
-  }
-
-  if (context.tariffs.length > 0) {
-    return baseResult({
-      status: "unknown",
-      answer:
-        "Puedo ayudarte con precios y tarifas (edad, género, región) o con coberturas cuando haya texto de póliza cargado.",
-      citations: [],
-      abstained: false,
-      policy_wording_controls: false,
-      provider: "rules",
-    });
-  }
-
-  return policyAbstain("rules");
 }
 
 /** Exported for tests */

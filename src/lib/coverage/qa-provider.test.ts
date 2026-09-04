@@ -104,6 +104,7 @@ function buildTariffContext(tariffs: Tariff[]): AgentContext {
     exclusions: [],
     waitingPeriods: [],
     citations: [],
+    chunks: [],
   };
 }
 
