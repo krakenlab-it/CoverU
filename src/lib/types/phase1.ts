@@ -2,7 +2,8 @@ export type CoverageStatus =
   | "covered"
   | "not_covered"
   | "conditional"
-  | "unknown";
+  | "unknown"
+  | "quoted";
 
 export interface Organization {
   id: string;
@@ -155,10 +156,25 @@ export interface CoverageCitation {
   policy_document_title: string;
 }
 
+export interface MatchedTariffSnapshot {
+  id: string;
+  age_min: number;
+  age_max: number;
+  gender: string;
+  region: string;
+  grupo_asegurado: string | null;
+  maternidad: string | null;
+  deductible: number | null;
+  annual_limit: number | null;
+  monthly_price: number;
+  tax_included: boolean | null;
+}
+
 export interface CoverageQaResult {
   status: CoverageStatus;
   answer: string;
   citations: CoverageCitation[];
+  matched_tariff: MatchedTariffSnapshot | null;
   abstained: boolean;
   policy_wording_controls: boolean;
   provider: string;

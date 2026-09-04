@@ -9,19 +9,25 @@ describe("CoverageAssistant", () => {
 
   it("shows suggested questions and submits to API", async () => {
     const mockResult = {
-      status: "covered" as const,
-      answer: "La hospitalización está cubierta según la póliza.",
-      citations: [
-        {
-          clause_ref: "Art. 4.1",
-          excerpt: "Hospitalización en red preferente.",
-          page_number: 12,
-          policy_document_title: "[DEMO] Condiciones Generales",
-        },
-      ],
+      status: "quoted" as const,
+      answer: "Para edad 35 · masculino · Costa · grupo titular, la prima mensual es $92,50.",
+      citations: [],
+      matched_tariff: {
+        id: "tariff-1",
+        age_min: 18,
+        age_max: 64,
+        gender: "masculino",
+        region: "Costa",
+        grupo_asegurado: "titular",
+        maternidad: "No",
+        deductible: 750,
+        annual_limit: 100000,
+        monthly_price: 92.5,
+        tax_included: true,
+      },
       abstained: false,
-      policy_wording_controls: true,
-      provider: "demo",
+      policy_wording_controls: false,
+      provider: "rules",
     };
 
     vi.stubGlobal(
@@ -40,30 +46,30 @@ describe("CoverageAssistant", () => {
     );
 
     expect(
-      screen.getByText(/únicamente en los documentos de la póliza/i),
+      screen.getByText(/tarifas del catálogo y, cuando exista texto de póliza/i),
     ).toBeInTheDocument();
 
     fireEvent.click(
-      screen.getByRole("button", { name: /¿Está cubierta la hospitalización/i }),
+      screen.getByRole("button", { name: /hombre 35 Costa titular/i }),
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Cubierto")).toBeInTheDocument();
       expect(
-        screen.getByText(/La hospitalización está cubierta/i),
+        screen.getByText(/prima mensual es \$92,50/i),
       ).toBeInTheDocument();
-      expect(screen.getByText("Art. 4.1")).toBeInTheDocument();
+      expect(screen.getByText("Tarifa coincidente")).toBeInTheDocument();
     });
   });
 
   it("handles unknown/abstained responses", async () => {
     const mockResult = {
       status: "unknown" as const,
-      answer: "No encontré información en la póliza.",
+      answer: "No hay texto de póliza disponible para responder esta pregunta.",
       citations: [],
+      matched_tariff: null,
       abstained: true,
       policy_wording_controls: true,
-      provider: "demo",
+      provider: "rules",
     };
 
     vi.stubGlobal(
@@ -90,7 +96,7 @@ describe("CoverageAssistant", () => {
     await waitFor(() => {
       expect(screen.getByText("Sin respuesta en póliza")).toBeInTheDocument();
       expect(
-        screen.getByText(/No encontré respuesta en los documentos/i),
+        screen.getByText(/No hay texto de póliza para esta pregunta/i),
       ).toBeInTheDocument();
     });
   });

@@ -7,6 +7,7 @@ import {
   GitCompare,
   LayoutDashboard,
   LayoutGrid,
+  MessageCircle,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -18,7 +19,8 @@ export type AppNavIcon =
   | "marketplace"
   | "compare"
   | "developers"
-  | "settings";
+  | "settings"
+  | "coverage";
 
 export type AppNavItem = {
   href: string;
@@ -32,6 +34,7 @@ const ICONS: Record<AppNavIcon, LucideIcon> = {
   compare: GitCompare,
   developers: Code2,
   settings: Settings,
+  coverage: MessageCircle,
 };
 
 function isNavItemActive(pathname: string, href: string): boolean {
@@ -44,6 +47,9 @@ function isNavItemActive(pathname: string, href: string): boolean {
       (pathname.startsWith("/app/marketplace") &&
         !pathname.startsWith("/app/marketplace/compare"))
     );
+  }
+  if (href.startsWith("/app/asistente-cobertura")) {
+    return pathname.startsWith("/app/asistente-cobertura");
   }
   if (href.startsWith("/app/desarrolladores")) {
     return pathname.startsWith("/app/desarrolladores");

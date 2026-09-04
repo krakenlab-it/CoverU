@@ -5,10 +5,15 @@ import { generateRequestId } from "@/lib/api/response";
 import { requireAuthWithOrg } from "@/lib/auth/org";
 import { answerCoverageQuestion } from "@/lib/coverage/qa-provider";
 
-const coverageQaSchema = z.object({
-  plan_version_id: z.string().uuid(),
-  question: z.string().min(3).max(1000),
-});
+const coverageQaSchema = z
+  .object({
+    plan_version_id: z.string().uuid().optional(),
+    plan_id: z.string().uuid().optional(),
+    question: z.string().min(3).max(1000),
+  })
+  .refine((data) => data.plan_version_id || data.plan_id, {
+    message: "plan_version_id o plan_id es requerido",
+  });
 
 export async function POST(request: Request) {
   const start = Date.now();
@@ -76,6 +81,7 @@ export async function POST(request: Request) {
 
   const result = await answerCoverageQuestion({
     planVersionId: parsed.data.plan_version_id,
+    planId: parsed.data.plan_id,
     question: parsed.data.question,
   });
 

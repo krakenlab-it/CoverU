@@ -3,13 +3,14 @@
 import { useCallback, useState } from "react";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import type { CoverageCitation, CoverageQaResult } from "@/lib/types/phase1";
+import { formatUsd } from "@/lib/coverage/tariff-snapshot";
 
 const SUGGESTED_QUESTIONS = [
-  "¿Está cubierta la hospitalización?",
-  "¿Qué pasa con las urgencias fuera de red?",
+  "hombre 35 Costa titular",
+  "¿Cuál es el precio mensual?",
   "¿Incluye maternidad?",
-  "¿Hay carencia para cirugías programadas?",
-  "¿Cubren tratamientos cosméticos?",
+  "comparar edad 25 y 45",
+  "¿Está cubierta la hospitalización?",
 ];
 
 interface ChatMessage {
@@ -110,8 +111,9 @@ export function CoverageAssistant({
         Asistente de cobertura
       </h2>
       <p className="mt-1 text-sm text-coveru-gray">
-        Preguntas sobre <strong>{planName}</strong>. Las respuestas se basan
-        únicamente en los documentos de la póliza — nunca en conocimiento general.
+        Preguntas sobre <strong>{planName}</strong>. Responde con tarifas del
+        catálogo y, cuando exista texto de póliza cargado, con citas reales —
+        nunca inventa artículos ni cláusulas.
       </p>
 
       <div
@@ -121,7 +123,8 @@ export function CoverageAssistant({
       >
         {messages.length === 0 && (
           <p className="text-sm text-coveru-gray">
-            Haz una pregunta sobre coberturas de este plan.
+            Pregunta por precios (edad, género, región) o por coberturas cuando
+            haya póliza disponible.
           </p>
         )}
         {messages.map((msg) => (
@@ -144,14 +147,12 @@ export function CoverageAssistant({
                 {msg.error}
               </p>
             )}
-            {msg.result && (
-              <AssistantAnswer result={msg.result} />
-            )}
+            {msg.result && <AssistantAnswer result={msg.result} />}
           </div>
         ))}
         {loading && (
           <p className="text-sm text-coveru-gray" aria-busy="true">
-            Consultando documentos de la póliza…
+            Consultando catálogo y documentos…
           </p>
         )}
       </div>
@@ -190,7 +191,7 @@ export function CoverageAssistant({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ej. ¿Está cubierta la cirugía de rodilla?"
+          placeholder='Ej. "mujer 30 Sierra titular" o "¿cubre maternidad?"'
           disabled={loading}
           className="flex-1 rounded-full border border-coveru-border px-4 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-2 focus:ring-coveru-red/20"
         />
@@ -215,10 +216,63 @@ function AssistantAnswer({ result }: { result: CoverageQaResult }) {
       </div>
       <p className="mt-2">{result.answer}</p>
 
+      {result.matched_tariff && (
+        <div className="mt-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-xs">
+          <p className="font-semibold text-sky-900">Tarifa coincidente</p>
+          <dl className="mt-2 grid gap-1 text-sky-900">
+            <div>
+              <dt className="inline font-medium">Prima mensual: </dt>
+              <dd className="inline">
+                {formatUsd(result.matched_tariff.monthly_price)}
+              </dd>
+            </div>
+            <div>
+              <dt className="inline font-medium">Edad: </dt>
+              <dd className="inline">
+                {result.matched_tariff.age_min}–{result.matched_tariff.age_max}
+              </dd>
+            </div>
+            <div>
+              <dt className="inline font-medium">Región: </dt>
+              <dd className="inline">{result.matched_tariff.region}</dd>
+            </div>
+            {result.matched_tariff.gender !== "any" && (
+              <div>
+                <dt className="inline font-medium">Género: </dt>
+                <dd className="inline">{result.matched_tariff.gender}</dd>
+              </div>
+            )}
+            {result.matched_tariff.grupo_asegurado && (
+              <div>
+                <dt className="inline font-medium">Grupo: </dt>
+                <dd className="inline">{result.matched_tariff.grupo_asegurado}</dd>
+              </div>
+            )}
+            {result.matched_tariff.maternidad && (
+              <div>
+                <dt className="inline font-medium">Maternidad: </dt>
+                <dd className="inline">{result.matched_tariff.maternidad}</dd>
+              </div>
+            )}
+            {result.matched_tariff.deductible != null && (
+              <div>
+                <dt className="inline font-medium">Deducible: </dt>
+                <dd className="inline">
+                  {formatUsd(result.matched_tariff.deductible)}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
+
       {result.abstained && (
-        <p className="mt-2 rounded-lg bg-gray-100 p-2 text-xs text-gray-700" role="note">
-          No encontré respuesta en los documentos de esta póliza. Consulta con un
-          asesor o revisa el texto completo de la póliza.
+        <p
+          className="mt-2 rounded-lg bg-gray-100 p-2 text-xs text-gray-700"
+          role="note"
+        >
+          No hay texto de póliza para esta pregunta. Puedes consultar precios con
+          edad, género y región, o revisar el documento oficial con un asesor.
         </p>
       )}
 
