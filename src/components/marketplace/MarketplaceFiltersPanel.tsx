@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useTransition } from "react";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,11 +14,13 @@ import {
   parseMarketplaceFilters,
   parseTariffRegion,
 } from "@/lib/marketplace/filters";
+import { resolveInsurerLogoUrl } from "@/lib/insurers/assets";
 import type { MarketplaceFilters } from "@/lib/marketplace/types";
 import { TARIFF_REGIONS } from "@/lib/catalog-enums";
 import { GENDER_OPTIONS } from "@/lib/regions";
 import type { Insurer } from "@/lib/types/database";
 import { motion } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 interface MarketplaceFiltersPanelProps {
   insurers: Insurer[];
@@ -78,7 +81,6 @@ export function MarketplaceFiltersPanel({
                   : undefined,
                 gender: String(formData.get("gender") || "") || undefined,
                 region: parseTariffRegion(String(formData.get("region") || "")),
-                insurerId: String(formData.get("insurer_id") || "") || undefined,
                 category: String(formData.get("category") || "") || undefined,
                 deductibleMax: formData.get("deductible_max")
                   ? Number(formData.get("deductible_max"))
@@ -151,20 +153,44 @@ export function MarketplaceFiltersPanel({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="filter-insurer">Aseguradora</Label>
-              <select
-                id="filter-insurer"
-                name="insurer_id"
-                defaultValue={filters.insurerId ?? ""}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              <Label id="filter-insurer-label">Aseguradora</Label>
+              <div
+                className="flex flex-wrap gap-2"
+                role="group"
+                aria-labelledby="filter-insurer-label"
               >
-                <option value="">Todas</option>
-                {insurers.map((i) => (
-                  <option key={i.id} value={i.id}>
-                    {i.name}
-                  </option>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={!filters.insurerId ? "brand" : "outline"}
+                  className="rounded-full"
+                  onClick={() => applyFilters({ insurerId: undefined })}
+                >
+                  Todas
+                </Button>
+                {insurers.map((insurer) => (
+                  <Button
+                    key={insurer.id}
+                    type="button"
+                    size="sm"
+                    variant={filters.insurerId === insurer.id ? "brand" : "outline"}
+                    className={cn("h-auto rounded-full px-3 py-1.5")}
+                    onClick={() => applyFilters({ insurerId: insurer.id })}
+                    aria-pressed={filters.insurerId === insurer.id}
+                  >
+                    <InsurerIdentity
+                      name={insurer.name}
+                      logoUrl={resolveInsurerLogoUrl(insurer, { square: true })}
+                      size="sm"
+                      nameClassName={
+                        filters.insurerId === insurer.id
+                          ? "text-primary-foreground"
+                          : undefined
+                      }
+                    />
+                  </Button>
                 ))}
-              </select>
+              </div>
             </div>
 
             <div className="space-y-2">

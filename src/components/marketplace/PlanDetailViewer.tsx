@@ -3,6 +3,7 @@ import { formatCatalogDisplayName } from "@/lib/marketplace/display";
 import { formatDate } from "@/lib/marketplace/format";
 import { WAITING_PERIOD_LABELS } from "@/lib/marketplace/categories";
 import { EmptyState } from "@/components/platform/EmptyState";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import type {
   Citation,
@@ -38,9 +39,12 @@ export function PlanDetailViewer({
   return (
     <div className="space-y-6">
       <header className="rounded-2xl border border-coveru-border bg-white p-6">
-        <p className="text-sm text-coveru-gray">
-          {formatCatalogDisplayName(insurer.name)}
-        </p>
+        <InsurerIdentity
+          name={insurer.name}
+          logoUrl={insurer.logo_url}
+          size="md"
+          nameClassName="text-coveru-gray"
+        />
         <h1 className="text-2xl font-bold">
           {formatCatalogDisplayName(plan.name)}
         </h1>

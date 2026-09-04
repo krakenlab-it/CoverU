@@ -9,6 +9,7 @@ const UUID_REGEX =
 const TARIFF_V1_1_FILE = "20260903180000_tariff_schema_v1_1.sql";
 const TARIFF_V1_3_FILE = "20260903190000_tariff_schema_v1_3.sql";
 const AUTH_ORG_PROVISIONING_FILE = "20260903200000_auth_org_provisioning.sql";
+const INSURER_LOGO_URLS_FILE = "20260904010000_insurer_logo_urls_v1_3.sql";
 
 describe("supabase migrations", () => {
   const files = readdirSync(MIGRATIONS_DIR)
@@ -31,6 +32,10 @@ describe("supabase migrations", () => {
 
   it("includes auth org provisioning migration", () => {
     expect(files).toContain(AUTH_ORG_PROVISIONING_FILE);
+  });
+
+  it("includes insurer logo URLs migration for v1.3 carriers", () => {
+    expect(files).toContain(INSURER_LOGO_URLS_FILE);
   });
 
   for (const file of files) {

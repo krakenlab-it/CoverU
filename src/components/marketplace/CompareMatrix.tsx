@@ -7,6 +7,7 @@ import type {
   Exclusion,
   WaitingPeriod,
 } from "@/lib/types/phase1";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import Link from "next/link";
 import { EmptyState } from "@/components/platform/EmptyState";
@@ -70,7 +71,12 @@ export function CompareMatrix({
             </th>
             {entries.map((e) => (
               <th key={e.planVersionId} scope="col" className="min-w-[200px] p-3 text-left">
-                <p className="text-xs text-coveru-gray">{e.insurer.name}</p>
+                <InsurerIdentity
+                  name={e.insurer.name}
+                  logoUrl={e.insurer.logo_url}
+                  size="sm"
+                  className="mb-1"
+                />
                 <p className="font-bold">{e.plan.name}</p>
                 <Link
                   href={`/app/marketplace/plans/${e.planVersionId}${filtersQuery}`}

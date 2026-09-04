@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCatalogDisplayName } from "@/lib/marketplace/display";
@@ -19,6 +20,7 @@ interface MarketplacePlanCardProps {
   planVersionId: string;
   planName: string;
   insurerName: string;
+  insurerLogoUrl?: string | null;
   monthlyPrice: number | null;
   quoteState: QuoteState;
   coverageHighlights: string[];
@@ -34,6 +36,7 @@ export function MarketplacePlanCard({
   planVersionId,
   planName,
   insurerName,
+  insurerLogoUrl,
   monthlyPrice,
   quoteState,
   coverageHighlights,
@@ -57,9 +60,11 @@ export function MarketplacePlanCard({
     >
       <CardHeader className="flex-row items-start justify-between gap-2 space-y-0">
         <div>
-          <p className="text-sm text-muted-foreground">
-            {formatCatalogDisplayName(insurerName)}
-          </p>
+          <InsurerIdentity
+            name={insurerName}
+            logoUrl={insurerLogoUrl}
+            size="sm"
+          />
           <CardTitle id={`plan-${planVersionId}-title`} className="text-lg">
             {formatCatalogDisplayName(planName)}
           </CardTitle>
