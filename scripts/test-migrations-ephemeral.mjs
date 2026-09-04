@@ -53,6 +53,7 @@ console.log(
 
 const bootstrapSql = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE SCHEMA IF NOT EXISTS extensions;
 DO $$ BEGIN
   CREATE ROLE anon NOLOGIN NOINHERIT;
 EXCEPTION WHEN duplicate_object THEN NULL;
