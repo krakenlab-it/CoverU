@@ -163,6 +163,16 @@ function buildResult(
     return null;
   }
 
+  const monthlyPrice = tariff?.monthly_price ?? null;
+
+  if (filters.priceMin != null && monthlyPrice != null && monthlyPrice < filters.priceMin) {
+    return null;
+  }
+
+  if (filters.priceMax != null && monthlyPrice != null && monthlyPrice > filters.priceMax) {
+    return null;
+  }
+
   const quoteState = getQuoteState(tariff);
 
   return {
@@ -171,7 +181,7 @@ function buildResult(
     tariff,
     planVersion,
     quoteState,
-    monthlyPrice: tariff?.monthly_price ?? null,
+    monthlyPrice,
     coverageHighlights: buildHighlights(clauses),
     exclusionWarnings: buildExclusionWarnings(tariff, exclusions),
     waitingPeriodWarnings: buildWaitingWarnings(waitingPeriods),

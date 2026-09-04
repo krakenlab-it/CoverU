@@ -15,6 +15,8 @@ describe("marketplace filters", () => {
       deductible_max: "50000",
       waiting_max: "180",
       q: "maternidad",
+      price_min: "50",
+      price_max: "200",
       sort: "price_desc",
     });
 
@@ -27,7 +29,18 @@ describe("marketplace filters", () => {
     expect(filters.deductibleMax).toBe(50000);
     expect(filters.waitingMaxDays).toBe(180);
     expect(filters.keyword).toBe("maternidad");
+    expect(filters.priceMin).toBe(50);
+    expect(filters.priceMax).toBe(200);
     expect(filters.sort).toBe("price_desc");
+  });
+
+  it("serializes price range filters", () => {
+    const params = marketplaceFiltersToSearchParams({
+      priceMin: 40,
+      priceMax: 180,
+    });
+    expect(params.get("price_min")).toBe("40");
+    expect(params.get("price_max")).toBe("180");
   });
 
   it("serializes filters to URL params", () => {

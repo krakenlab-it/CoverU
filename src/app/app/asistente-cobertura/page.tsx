@@ -1,11 +1,16 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { CoverageAssistant } from "@/components/marketplace/CoverageAssistant";
+import { PlanPickerSidebar } from "@/components/marketplace/PlanPickerSidebar";
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
 import { EmptyState } from "@/components/platform/EmptyState";
 import { PageHeader } from "@/components/platform/PageHeader";
+import { Skeleton } from "@/components/ui/skeleton";
 import { buildAppMetadata } from "@/lib/seo/metadata";
-import { listPublishedPlanVersions, searchMarketplace } from "@/lib/marketplace/catalog";
-import { parseMarketplaceFilters } from "@/lib/marketplace/filters";
+import { listInsurers, searchMarketplace } from "@/lib/marketplace/catalog";
+import {
+  parseMarketplaceFilters,
+  toSearchParams,
+} from "@/lib/marketplace/filters";
 
 export const metadata = buildAppMetadata(
   "Asistente de cobertura",
@@ -28,11 +33,12 @@ function readParam(
 
 export default async function CoverageAssistantPage({ searchParams }: PageProps) {
   const raw = await searchParams;
+  const urlParams = toSearchParams(raw);
   const selectedPlanVersionId = readParam(raw, "plan_version_id");
-  const filters = parseMarketplaceFilters(new URLSearchParams());
+  const filters = parseMarketplaceFilters(urlParams);
 
-  const [publishedVersions, marketplaceResults] = await Promise.all([
-    listPublishedPlanVersions(),
+  const [insurers, marketplaceResults] = await Promise.all([
+    listInsurers(),
     searchMarketplace(filters),
   ]);
 
@@ -61,43 +67,18 @@ export default async function CoverageAssistantPage({ searchParams }: PageProps)
       {marketplaceResults.length === 0 ? (
         <EmptyState
           title="Sin planes publicados"
-          description="Cuando haya planes con tarifas en el catálogo, podrás consultarlos aquí."
+          description="Cuando haya planes con tarifas en el catálogo, podrás consultarlos aquí. Prueba ajustar los filtros si no ves resultados."
         />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className="rounded-2xl border border-coveru-border bg-white p-4">
-            <h2 className="text-sm font-semibold">Plan activo</h2>
-            <ul className="mt-3 space-y-2">
-              {marketplaceResults.map((result) => {
-                const active =
-                  result.planVersion.id ===
-                  (selectedResult?.planVersion.id ?? "");
-                return (
-                  <li key={result.planVersion.id}>
-                    <Link
-                      href={`/app/asistente-cobertura?plan_version_id=${result.planVersion.id}`}
-                      className={`block rounded-lg px-3 py-2 text-sm ${
-                        active
-                          ? "bg-primary/10 font-medium text-primary"
-                          : "text-muted-foreground hover:bg-muted"
-                      }`}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      {result.plan.name}
-                      <span className="mt-0.5 block text-xs text-coveru-gray">
-                        {result.insurer.name}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-            {publishedVersions.length > marketplaceResults.length && (
-              <p className="mt-3 text-xs text-coveru-gray">
-                Solo se listan planes publicados con tarifas coincidentes.
-              </p>
-            )}
-          </aside>
+        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+          <Suspense fallback={<Skeleton className="h-[32rem] rounded-2xl" />}>
+            <PlanPickerSidebar
+              key={urlParams.toString()}
+              results={marketplaceResults}
+              insurers={insurers}
+              selectedPlanVersionId={selectedResult?.planVersion.id}
+            />
+          </Suspense>
 
           {selectedResult && (
             <CoverageAssistant
