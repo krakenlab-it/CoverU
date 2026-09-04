@@ -1,6 +1,6 @@
 # CoverU catalog v1.3
 
-Load candidate from Mike clean package `2026.09.03.1.3`.
+Load candidate from Mike clean package `2026.09.03.1.3` (source branch: `cursor/v1-3-tariff-catalog-import`).
 
 - **3** insurers
 - **141** plans and plan_versions
