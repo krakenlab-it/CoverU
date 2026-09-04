@@ -1,25 +1,12 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
-import type { CoverageCitation, CoverageQaResult } from "@/lib/types/phase1";
+import {
+  COVERAGE_SUGGESTED_QUESTIONS,
+  useCoverageAssistantChat,
+} from "@/hooks/use-coverage-assistant-chat";
 import { formatUsd } from "@/lib/coverage/tariff-snapshot";
-
-const SUGGESTED_QUESTIONS = [
-  "hombre 35 Costa titular",
-  "¿Cuál es el precio mensual?",
-  "¿Incluye maternidad?",
-  "comparar edad 25 y 45",
-  "¿Está cubierta la hospitalización?",
-];
-
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  question?: string;
-  result?: CoverageQaResult;
-  error?: string;
-}
+import type { CoverageCitation, CoverageQaResult } from "@/lib/types/phase1";
 
 interface CoverageAssistantProps {
   planVersionId: string;
@@ -30,99 +17,27 @@ export function CoverageAssistant({
   planVersionId,
   planName,
 }: CoverageAssistantProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const askQuestion = useCallback(
-    async (question: string) => {
-      const trimmed = question.trim();
-      if (trimmed.length < 3 || loading) return;
-
-      const userMsg: ChatMessage = {
-        id: `u-${Date.now()}`,
-        role: "user",
-        question: trimmed,
-      };
-
-      setMessages((prev) => [...prev, userMsg]);
-      setInput("");
-      setLoading(true);
-
-      try {
-        const res = await fetch("/api/app/coverage/qa", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            plan_version_id: planVersionId,
-            question: trimmed,
-          }),
-        });
-
-        const json = (await res.json()) as {
-          data?: CoverageQaResult;
-          error?: { message: string };
-        };
-
-        if (!res.ok || !json.data) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: `e-${Date.now()}`,
-              role: "assistant",
-              error:
-                json.error?.message ??
-                "No se pudo obtener una respuesta fundamentada.",
-            },
-          ]);
-          return;
-        }
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `a-${Date.now()}`,
-            role: "assistant",
-            result: json.data,
-          },
-        ]);
-      } catch {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `e-${Date.now()}`,
-            role: "assistant",
-            error: "Error de conexión. Intenta de nuevo.",
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [loading, planVersionId],
-  );
+  const { messages, input, setInput, loading, askQuestion } =
+    useCoverageAssistantChat(planVersionId);
 
   return (
     <section
-      aria-labelledby="assistant-heading"
-      className="rounded-2xl border border-coveru-border bg-white p-6"
+      className="flex h-full min-h-0 flex-1 flex-col"
+      aria-label="Conversación del asistente de cobertura"
     >
-      <h2 id="assistant-heading" className="text-lg font-semibold">
-        Asistente de cobertura
-      </h2>
-      <p className="mt-1 text-sm text-coveru-gray">
-        Preguntas sobre <strong>{planName}</strong>. Responde con tarifas del
-        catálogo y, cuando exista texto de póliza cargado, con citas reales —
-        nunca inventa artículos ni cláusulas.
+      <p className="shrink-0 border-b border-border px-4 py-2 text-xs text-muted-foreground">
+        Preguntas sobre <strong className="text-foreground">{planName}</strong>.
+        Responde con tarifas del catálogo y, cuando exista texto de póliza
+        cargado, con citas reales — nunca inventa artículos ni cláusulas.
       </p>
 
       <div
-        className="mt-4 max-h-96 space-y-4 overflow-y-auto rounded-xl bg-coveru-light p-4"
+        className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-3"
         aria-live="polite"
         aria-label="Historial de conversación"
       >
         {messages.length === 0 && (
-          <p className="text-sm text-coveru-gray">
+          <p className="text-sm text-muted-foreground">
             Pregunta por precios (edad, género, región) o por coberturas cuando
             haya póliza disponible.
           </p>
@@ -132,13 +47,15 @@ export function CoverageAssistant({
             key={msg.id}
             className={
               msg.role === "user"
-                ? "ml-8 rounded-xl bg-white p-3 text-sm shadow-sm"
-                : "mr-8 rounded-xl border border-coveru-border bg-white p-3 text-sm"
+                ? "ml-4 rounded-xl bg-muted/60 p-3 text-sm"
+                : "mr-4 rounded-xl border border-border bg-background p-3 text-sm"
             }
           >
             {msg.role === "user" && msg.question && (
               <p>
-                <span className="font-semibold text-coveru-red">Tú: </span>
+                <span className="font-semibold text-[var(--coveru-red)]">
+                  Tú:{" "}
+                </span>
                 {msg.question}
               </p>
             )}
@@ -151,59 +68,93 @@ export function CoverageAssistant({
           </div>
         ))}
         {loading && (
-          <p className="text-sm text-coveru-gray" aria-busy="true">
+          <p className="text-sm text-muted-foreground" aria-busy="true">
             Consultando catálogo y documentos…
           </p>
         )}
       </div>
 
-      <div className="mt-4">
-        <p className="text-xs font-medium text-coveru-gray">
-          Preguntas sugeridas
-        </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {SUGGESTED_QUESTIONS.map((q) => (
-            <button
-              key={q}
-              type="button"
-              onClick={() => askQuestion(q)}
-              disabled={loading}
-              className="rounded-full border border-coveru-border bg-white px-3 py-1 text-xs hover:border-coveru-red hover:text-coveru-red disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coveru-red"
-            >
-              {q}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <form
-        className="mt-4 flex gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          askQuestion(input);
-        }}
-      >
-        <label htmlFor="coverage-question" className="sr-only">
-          Tu pregunta sobre cobertura
-        </label>
-        <input
-          id="coverage-question"
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder='Ej. "mujer 30 Sierra titular" o "¿cubre maternidad?"'
-          disabled={loading}
-          className="flex-1 rounded-full border border-coveru-border px-4 py-2 text-sm focus:border-coveru-red focus:outline-none focus:ring-2 focus:ring-coveru-red/20"
+      <div className="mt-auto shrink-0 border-t border-border bg-background">
+        <SuggestedQuestions loading={loading} onSelect={askQuestion} />
+        <Composer
+          input={input}
+          loading={loading}
+          onInputChange={setInput}
+          onSubmit={askQuestion}
         />
-        <button
-          type="submit"
-          disabled={loading || input.trim().length < 3}
-          className="rounded-full bg-coveru-red px-5 py-2 text-sm font-semibold text-white hover:bg-coveru-red-dark disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coveru-red"
-        >
-          Preguntar
-        </button>
-      </form>
+      </div>
     </section>
+  );
+}
+
+function SuggestedQuestions({
+  loading,
+  onSelect,
+}: {
+  loading: boolean;
+  onSelect: (question: string) => void;
+}) {
+  return (
+    <div className="px-4 pt-3">
+      <p className="text-xs font-medium text-muted-foreground">
+        Preguntas sugeridas
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2 pb-3">
+        {COVERAGE_SUGGESTED_QUESTIONS.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => onSelect(q)}
+            disabled={loading}
+            className="rounded-full border border-border bg-background px-3 py-1 text-xs hover:border-[var(--coveru-red)] hover:text-[var(--coveru-red)] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--coveru-red)]"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Composer({
+  input,
+  loading,
+  onInputChange,
+  onSubmit,
+}: {
+  input: string;
+  loading: boolean;
+  onInputChange: (value: string) => void;
+  onSubmit: (question: string) => void;
+}) {
+  return (
+    <form
+      className="flex gap-2 border-t border-border p-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(input);
+      }}
+    >
+      <label htmlFor="coverage-question" className="sr-only">
+        Tu pregunta sobre cobertura
+      </label>
+      <input
+        id="coverage-question"
+        type="text"
+        value={input}
+        onChange={(e) => onInputChange(e.target.value)}
+        placeholder='Ej. "mujer 30 Sierra titular" o "¿cubre maternidad?"'
+        disabled={loading}
+        className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm focus:border-[var(--coveru-red)] focus:outline-none focus:ring-2 focus:ring-[var(--coveru-red)]/20"
+      />
+      <button
+        type="submit"
+        disabled={loading || input.trim().length < 3}
+        className="rounded-full bg-[var(--coveru-red)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--coveru-red-dark)] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--coveru-red)]"
+      >
+        Preguntar
+      </button>
+    </form>
   );
 }
 
@@ -211,7 +162,9 @@ function AssistantAnswer({ result }: { result: CoverageQaResult }) {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-semibold text-coveru-red">Asistente:</span>
+        <span className="font-semibold text-[var(--coveru-red)]">
+          Asistente:
+        </span>
         <VerdictBadge status={result.status} abstained={result.abstained} />
       </div>
       <p className="mt-2">{result.answer}</p>
@@ -268,7 +221,7 @@ function AssistantAnswer({ result }: { result: CoverageQaResult }) {
 
       {result.abstained && (
         <p
-          className="mt-2 rounded-lg bg-gray-100 p-2 text-xs text-gray-700"
+          className="mt-2 rounded-lg bg-muted p-2 text-xs text-muted-foreground"
           role="note"
         >
           No hay texto de póliza para esta pregunta. Puedes consultar precios con
@@ -277,34 +230,35 @@ function AssistantAnswer({ result }: { result: CoverageQaResult }) {
       )}
 
       {result.policy_wording_controls && (
-        <p className="mt-2 text-xs text-coveru-gray">
+        <p className="mt-2 text-xs text-muted-foreground">
           La redacción oficial de la póliza prevalece sobre este resumen.
         </p>
       )}
 
       {result.citations.length > 0 && (
         <div className="mt-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-coveru-gray">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Fuentes citadas
           </p>
           <ul className="mt-2 space-y-2">
             {result.citations.map((c: CoverageCitation, i: number) => (
               <li
                 key={`${c.clause_ref}-${i}`}
-                className="rounded-lg border border-coveru-border bg-coveru-light p-2 text-xs"
+                className="rounded-lg border border-border bg-muted/40 p-2 text-xs"
               >
                 <p className="font-semibold">{c.clause_ref}</p>
-                <p className="text-coveru-gray">{c.policy_document_title}</p>
+                <p className="text-muted-foreground">{c.policy_document_title}</p>
                 <p className="mt-1 italic">&ldquo;{c.excerpt}&rdquo;</p>
                 {c.page_number != null && (
-                  <p className="mt-1 text-coveru-gray">Pág. {c.page_number}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Pág. {c.page_number}
+                  </p>
                 )}
               </li>
             ))}
           </ul>
         </div>
       )}
-
     </div>
   );
 }

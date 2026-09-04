@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { CoverageAssistant } from "@/components/marketplace/CoverageAssistant";
+import { PlanCoverageAssistantBridge } from "@/components/marketplace/PlanCoverageAssistantBridge";
+import { PlanCoverageAssistantPrompt } from "@/components/marketplace/PlanCoverageAssistantPrompt";
 import { PlanDetailActions } from "@/components/marketplace/PlanDetailActions";
 import { PlanDetailViewer } from "@/components/marketplace/PlanDetailViewer";
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
@@ -72,6 +73,10 @@ export default async function PlanDetailPage({
 
   return (
     <div className="space-y-6">
+      <PlanCoverageAssistantBridge
+        planVersionId={planVersionId}
+        planName={detail.plan.name}
+      />
       <Breadcrumbs
         items={[
           { label: "Panel", href: "/app" },
@@ -88,32 +93,23 @@ export default async function PlanDetailPage({
         />
       </Suspense>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <PlanDetailViewer
-          plan={detail.plan}
-          insurer={detail.insurer}
-          version={detail.version}
-          coverageClauses={detail.coverage_clauses}
-          exclusions={detail.exclusions}
-          waitingPeriods={detail.waiting_periods}
-          policyDocuments={detail.policy_documents}
-          citations={detail.citations}
-          tariff={quote.tariff}
-          quoteState={quote.quoteState}
-          monthlyPrice={quote.monthlyPrice}
-          tariffCount={quote.tariffCount}
-          filters={filters}
-        />
-        <aside
-          id="asistente-cobertura"
-          className="scroll-mt-24 xl:sticky xl:top-24 xl:self-start"
-        >
-          <CoverageAssistant
-            planVersionId={planVersionId}
-            planName={detail.plan.name}
-          />
-        </aside>
-      </div>
+      <PlanCoverageAssistantPrompt planName={detail.plan.name} />
+
+      <PlanDetailViewer
+        plan={detail.plan}
+        insurer={detail.insurer}
+        version={detail.version}
+        coverageClauses={detail.coverage_clauses}
+        exclusions={detail.exclusions}
+        waitingPeriods={detail.waiting_periods}
+        policyDocuments={detail.policy_documents}
+        citations={detail.citations}
+        tariff={quote.tariff}
+        quoteState={quote.quoteState}
+        monthlyPrice={quote.monthlyPrice}
+        tariffCount={quote.tariffCount}
+        filters={filters}
+      />
     </div>
   );
 }

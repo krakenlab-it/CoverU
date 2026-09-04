@@ -1,43 +1,32 @@
 "use client";
 
 import Image from "next/image";
+import { useCoverageAssistantPanel } from "@/components/coverage/coverage-assistant-context";
 import { Button } from "@/components/ui/button";
 import { VISUAL_PACK_ICONS } from "@/lib/visual-pack/assets";
 import { cn } from "@/lib/utils";
 
-export const COVERAGE_ASSISTANT_TOGGLE_EVENT = "coveru:coverage-assistant-toggle";
-
-type CoverageAssistantTriggerProps = {
-  className?: string;
-  /** When KLM-57 rail lands, wire `onToggle` to provider context. */
-  onToggle?: () => void;
-};
-
-/**
- * App-shell entry for the coverage assistant right rail (KLM-57).
- * Dispatches a document event until the rail provider is merged.
- */
 export function CoverageAssistantTrigger({
   className,
-  onToggle,
-}: CoverageAssistantTriggerProps) {
-  function handleClick() {
-    if (onToggle) {
-      onToggle();
-      return;
-    }
-
-    window.dispatchEvent(new CustomEvent(COVERAGE_ASSISTANT_TOGGLE_EVENT));
-  }
+}: {
+  className?: string;
+}) {
+  const { isOpen, toggle, planContext } = useCoverageAssistantPanel();
 
   return (
     <Button
       type="button"
-      variant="outline"
+      variant={isOpen ? "secondary" : "outline"}
       size="sm"
       className={cn("gap-2", className)}
-      onClick={handleClick}
-      aria-label="Abrir asistente de cobertura"
+      onClick={toggle}
+      aria-expanded={isOpen}
+      aria-controls="coverage-assistant-desktop-panel coverage-assistant-mobile-panel"
+      aria-label={
+        isOpen
+          ? "Contraer asistente de cobertura"
+          : "Abrir asistente de cobertura"
+      }
       data-testid="coverage-assistant-trigger"
     >
       <Image
@@ -49,6 +38,11 @@ export function CoverageAssistantTrigger({
         className="size-5 shrink-0"
       />
       <span className="hidden sm:inline">Asistente</span>
+      {planContext ? (
+        <span className="hidden max-w-[10rem] truncate text-xs text-muted-foreground md:inline">
+          · {planContext.planName}
+        </span>
+      ) : null}
     </Button>
   );
 }
