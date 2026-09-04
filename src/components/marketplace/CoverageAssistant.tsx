@@ -251,9 +251,6 @@ function AssistantAnswer({ result }: { result: CoverageQaResult }) {
         </div>
       )}
 
-      <p className="mt-2 text-xs text-coveru-gray">
-        Proveedor: {result.provider}
-      </p>
     </div>
   );
 }

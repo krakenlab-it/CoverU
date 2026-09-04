@@ -1,4 +1,5 @@
 import { getCategoryLabel } from "@/lib/marketplace/catalog";
+import { formatCatalogDisplayName } from "@/lib/marketplace/display";
 import { formatDate } from "@/lib/marketplace/format";
 import { WAITING_PERIOD_LABELS } from "@/lib/marketplace/categories";
 import { EmptyState } from "@/components/platform/EmptyState";
@@ -37,8 +38,12 @@ export function PlanDetailViewer({
   return (
     <div className="space-y-6">
       <header className="rounded-2xl border border-coveru-border bg-white p-6">
-        <p className="text-sm text-coveru-gray">{insurer.name}</p>
-        <h1 className="text-2xl font-bold">{plan.name}</h1>
+        <p className="text-sm text-coveru-gray">
+          {formatCatalogDisplayName(insurer.name)}
+        </p>
+        <h1 className="text-2xl font-bold">
+          {formatCatalogDisplayName(plan.name)}
+        </h1>
         {plan.description && (
           <p className="mt-2 text-coveru-gray">{plan.description}</p>
         )}

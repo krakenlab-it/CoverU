@@ -4,7 +4,7 @@ import { buildAppMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildAppMetadata(
   "Configuración",
-  "Administra tu perfil, claves API, uso, límites y registros de la plataforma CoverÜ.",
+  "Administra el perfil de tu organización y los límites de tasa.",
 );
 
 export default function ConfiguracionLayout({
@@ -16,7 +16,7 @@ export default function ConfiguracionLayout({
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
         title="Configuración"
-        description="Perfil, claves API, uso, límites y registros de solicitudes de tu organización."
+        description="Perfil de organización y límites de tasa para administradores."
       />
       <SettingsTabs />
       <div>{children}</div>

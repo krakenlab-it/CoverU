@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import {
   authenticateApiKey,
-  logApiUsage,
   requireScope,
   type ApiAuthFailure,
 } from "@/lib/api/auth";
+import {
+  logApiUsage,
+  type UsageLogMetadata,
+} from "@/lib/api/usage-log";
 import { getRateLimiter } from "@/lib/api/rate-limit";
 import {
   apiError,
@@ -19,6 +22,7 @@ export interface ApiHandlerContext {
   requestId: string;
   auth: ApiAuthContext;
   searchParams: URLSearchParams;
+  usageMetadata?: UsageLogMetadata;
 }
 
 type ApiHandler = (
@@ -78,6 +82,7 @@ export function withApiV1(
           request,
           scopeError.status,
           Date.now() - start,
+          undefined,
         );
         return apiError(
           requestId,
@@ -89,15 +94,16 @@ export function withApiV1(
     }
 
     const url = new URL(request.url);
+    const handlerContext: ApiHandlerContext = {
+      request,
+      requestId,
+      auth: authResult.context,
+      searchParams: url.searchParams,
+    };
     let response: NextResponse;
 
     try {
-      response = await handler({
-        request,
-        requestId,
-        auth: authResult.context,
-        searchParams: url.searchParams,
-      });
+      response = await handler(handlerContext);
     } catch (err) {
       console.error("API v1 error:", err);
       response = apiError(
@@ -114,6 +120,7 @@ export function withApiV1(
       request,
       response.status,
       Date.now() - start,
+      handlerContext.usageMetadata,
     );
 
     response.headers.set(REQUEST_ID_HEADER, requestId);

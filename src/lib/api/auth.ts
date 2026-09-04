@@ -162,30 +162,7 @@ export function requireScope(
   return null;
 }
 
-export async function logApiUsage(
-  context: ApiAuthContext,
-  requestId: string,
-  request: Request,
-  statusCode: number,
-  durationMs: number,
-): Promise<void> {
-  const supabase = createAdminClient();
-  if (!supabase) return;
-
-  const url = new URL(request.url);
-  await supabase.from("api_usage_logs").insert({
-    api_key_id: context.apiKeyId,
-    organization_id: context.organizationId,
-    request_id: requestId,
-    method: request.method,
-    path: url.pathname,
-    status_code: statusCode,
-    duration_ms: durationMs,
-    ip_address:
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-    user_agent: request.headers.get("user-agent"),
-  });
-}
+export { logApiUsage } from "@/lib/api/usage-log";
 
 /** Exported for tests */
 export { hashApiKey };

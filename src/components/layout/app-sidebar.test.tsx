@@ -2,11 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 import { AppSidebarNav } from "@/components/layout/AppSidebarNav";
+import { DeveloperTabs } from "@/components/developers/DeveloperTabs";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
 import { APP_NAV_ITEMS } from "@/lib/settings/navigation";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/app/marketplace",
+  usePathname: () => "/app",
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
 }));
 
@@ -17,18 +18,25 @@ describe("AppSidebarNav", () => {
     expect(
       screen.getByRole("navigation", { name: /navegación del panel/i }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Panel" })).toHaveAttribute(
+      "href",
+      "/app",
+    );
     expect(screen.getByRole("link", { name: "Marketplace" })).toHaveAttribute(
       "href",
       "/app/marketplace",
     );
     expect(
+      screen.getByRole("link", { name: "Desarrolladores" }),
+    ).toHaveAttribute("href", "/app/desarrolladores");
+    expect(
       screen.getByRole("link", { name: "Configuración" }),
-    ).toHaveAttribute("href", "/app/configuracion/api-keys");
+    ).toHaveAttribute("href", "/app/configuracion/perfil");
   });
 
   it("marks the active route with aria-current", () => {
     render(<AppSidebarNav items={APP_NAV_ITEMS} />);
-    expect(screen.getByRole("link", { name: "Marketplace" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Panel" })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -51,13 +59,27 @@ describe("SettingsTabs", () => {
     expect(
       screen.getByRole("tab", { name: /perfil y organización/i }),
     ).toHaveAttribute("href", "/app/configuracion/perfil");
-    expect(screen.getByRole("tab", { name: /api keys/i })).toHaveAttribute(
+    expect(screen.getByRole("tab", { name: /límites de tasa/i })).toHaveAttribute(
       "href",
-      "/app/configuracion/api-keys",
+      "/app/configuracion/limites",
+    );
+  });
+});
+
+describe("DeveloperTabs", () => {
+  it("renders developer section tabs", () => {
+    render(<DeveloperTabs />);
+
+    expect(
+      screen.getByRole("navigation", { name: /secciones de desarrolladores/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /claves api/i })).toHaveAttribute(
+      "href",
+      "/app/desarrolladores/api-keys",
     );
     expect(screen.getByRole("tab", { name: /registros/i })).toHaveAttribute(
       "href",
-      "/app/configuracion/registros",
+      "/app/desarrolladores/registros",
     );
   });
 });

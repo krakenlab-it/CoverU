@@ -186,7 +186,7 @@ export function MarketplaceFiltersPanel({
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="filter-deductible">Deducible máx. (demo)</Label>
+                <Label htmlFor="filter-deductible">Deducible máx.</Label>
                 <Input
                   id="filter-deductible"
                   name="deductible_max"

@@ -11,6 +11,7 @@ export interface ApiKeyListItem {
   lastUsedAt: string | null;
   createdAt: string;
   clientName: string;
+  scopes: string[];
 }
 
 export interface ApiKeyListResult {
@@ -26,7 +27,7 @@ export interface CreateApiKeyResult {
 function toListItem(
   key: Pick<
     ApiKeyRecord,
-    "id" | "name" | "key_prefix" | "status" | "last_used_at" | "created_at"
+    "id" | "name" | "key_prefix" | "status" | "last_used_at" | "created_at" | "scopes"
   >,
   clientName: string,
 ): ApiKeyListItem {
@@ -38,6 +39,7 @@ function toListItem(
     lastUsedAt: key.last_used_at,
     createdAt: key.created_at,
     clientName,
+    scopes: key.scopes ?? [],
   };
 }
 
@@ -70,7 +72,7 @@ export async function listOrgApiKeys(
   const { data: keys, error: keysError } = await admin
     .from("api_keys")
     .select(
-      "id, api_client_id, name, key_prefix, status, last_used_at, created_at",
+      "id, api_client_id, name, key_prefix, status, last_used_at, created_at, scopes",
     )
     .in("api_client_id", clientIds)
     .order("created_at", { ascending: false });
@@ -158,7 +160,7 @@ export async function createOrgApiKey(
       scopes: ["read:catalog", "read:quotes", "read:coverage"],
     })
     .select(
-      "id, name, key_prefix, status, last_used_at, created_at, api_client_id",
+      "id, name, key_prefix, status, last_used_at, created_at, api_client_id, scopes",
     )
     .single();
 

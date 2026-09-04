@@ -64,7 +64,7 @@ export default async function PlanDetailPage({
     <div className="space-y-6">
       <Breadcrumbs
         items={[
-          { label: "Panel", href: "/app/marketplace" },
+          { label: "Panel", href: "/app" },
           { label: "Marketplace", href: `/app/marketplace${backQuery}` },
           { label: detail.plan.name },
         ]}

@@ -8,7 +8,8 @@ const coverageQaSchema = z.object({
 });
 
 export const POST = withApiV1(
-  async ({ request, requestId }) => {
+  async (ctx) => {
+    const { request, requestId } = ctx;
     let body: unknown;
     try {
       body = await request.json();
@@ -31,6 +32,11 @@ export const POST = withApiV1(
         parsed.error.flatten(),
       );
     }
+
+    ctx.usageMetadata = {
+      planVersionId: parsed.data.plan_version_id,
+      metadata: { route: "coverage_qa" },
+    };
 
     const result = await answerCoverageQuestion({
       planVersionId: parsed.data.plan_version_id,

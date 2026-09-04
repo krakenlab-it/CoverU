@@ -1,9 +1,15 @@
 import type { AppNavItem } from "@/components/layout/AppSidebarNav";
 
 export const APP_NAV_ITEMS: readonly AppNavItem[] = [
+  { href: "/app", label: "Panel", icon: "dashboard" },
   { href: "/app/marketplace", label: "Marketplace", icon: "marketplace" },
   {
-    href: "/app/configuracion/api-keys",
+    href: "/app/desarrolladores",
+    label: "Desarrolladores",
+    icon: "developers",
+  },
+  {
+    href: "/app/configuracion/perfil",
     label: "Configuración",
     icon: "settings",
   },
@@ -16,22 +22,30 @@ export const SETTINGS_NAV_ITEMS = [
     segment: "perfil",
   },
   {
-    href: "/app/configuracion/api-keys",
-    label: "API keys",
-    segment: "api-keys",
-  },
-  {
-    href: "/app/configuracion/uso",
-    label: "Uso",
-    segment: "uso",
-  },
-  {
     href: "/app/configuracion/limites",
     label: "Límites de tasa",
     segment: "limites",
   },
+] as const;
+
+export const DEVELOPER_NAV_ITEMS = [
   {
-    href: "/app/configuracion/registros",
+    href: "/app/desarrolladores",
+    label: "Resumen",
+    segment: "resumen",
+  },
+  {
+    href: "/app/desarrolladores/api-keys",
+    label: "Claves API",
+    segment: "api-keys",
+  },
+  {
+    href: "/app/desarrolladores/uso",
+    label: "Uso",
+    segment: "uso",
+  },
+  {
+    href: "/app/desarrolladores/registros",
     label: "Registros",
     segment: "registros",
   },
@@ -39,3 +53,6 @@ export const SETTINGS_NAV_ITEMS = [
 
 export type SettingsNavSegment =
   (typeof SETTINGS_NAV_ITEMS)[number]["segment"];
+
+export type DeveloperNavSegment =
+  (typeof DEVELOPER_NAV_ITEMS)[number]["segment"];

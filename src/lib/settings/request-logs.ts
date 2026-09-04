@@ -10,6 +10,8 @@ export interface RequestLogRow {
   statusCode: number | null;
   durationMs: number | null;
   keyPrefix: string | null;
+  planVersionId: string | null;
+  planId: string | null;
 }
 
 export interface RequestLogsResult {
@@ -31,6 +33,8 @@ type UsageLogDbRow = {
   status_code: number | null;
   duration_ms: number | null;
   created_at: string;
+  plan_version_id: string | null;
+  plan_id: string | null;
   api_keys: { key_prefix: string } | { key_prefix: string }[] | null;
 };
 
@@ -49,6 +53,8 @@ function mapRow(row: UsageLogDbRow): RequestLogRow {
     statusCode: row.status_code,
     durationMs: row.duration_ms,
     keyPrefix,
+    planVersionId: row.plan_version_id,
+    planId: row.plan_id,
   };
 }
 
@@ -81,7 +87,7 @@ export async function getOrgRequestLogs(
   const { data, error } = await admin
     .from("api_usage_logs")
     .select(
-      "id, request_id, method, path, status_code, duration_ms, created_at, api_keys ( key_prefix )",
+      "id, request_id, method, path, status_code, duration_ms, created_at, plan_version_id, plan_id, api_keys ( key_prefix )",
     )
     .eq("organization_id", organizationId)
     .gte("created_at", since)
