@@ -1,11 +1,15 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { CoverageAssistant } from "@/components/marketplace/CoverageAssistant";
+import { PlanDetailActions } from "@/components/marketplace/PlanDetailActions";
 import { PlanDetailViewer } from "@/components/marketplace/PlanDetailViewer";
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
-import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/platform/LoadingState";
 import { buildAppMetadata } from "@/lib/seo/metadata";
-import { getPlanVersionDetailForMarketplace } from "@/lib/marketplace/catalog";
+import {
+  getPlanTariffQuote,
+  getPlanVersionDetailForMarketplace,
+} from "@/lib/marketplace/catalog";
 import {
   filtersToQueryString,
   parseMarketplaceFilters,
@@ -36,6 +40,10 @@ export async function generateMetadata({ params }: PageProps) {
   );
 }
 
+function ActionsSkeleton() {
+  return <LoadingState label="Cargando acciones" />;
+}
+
 export default async function PlanDetailPage({
   params,
   searchParams,
@@ -60,6 +68,8 @@ export default async function PlanDetailPage({
     notFound();
   }
 
+  const quote = await getPlanTariffQuote(detail.plan.id, filters);
+
   return (
     <div className="space-y-6">
       <Breadcrumbs
@@ -69,11 +79,16 @@ export default async function PlanDetailPage({
           { label: detail.plan.name },
         ]}
       />
-      <Button variant="outline" size="sm" asChild>
-        <Link href={`/app/marketplace${backQuery}`}>← Volver al marketplace</Link>
-      </Button>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+      <Suspense fallback={<ActionsSkeleton />}>
+        <PlanDetailActions
+          planVersionId={planVersionId}
+          filters={filters}
+          backQuery={backQuery}
+        />
+      </Suspense>
+
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <PlanDetailViewer
           plan={detail.plan}
           insurer={detail.insurer}
@@ -83,8 +98,16 @@ export default async function PlanDetailPage({
           waitingPeriods={detail.waiting_periods}
           policyDocuments={detail.policy_documents}
           citations={detail.citations}
+          tariff={quote.tariff}
+          quoteState={quote.quoteState}
+          monthlyPrice={quote.monthlyPrice}
+          tariffCount={quote.tariffCount}
+          filters={filters}
         />
-        <aside className="xl:sticky xl:top-24 xl:self-start">
+        <aside
+          id="asistente-cobertura"
+          className="scroll-mt-24 xl:sticky xl:top-24 xl:self-start"
+        >
           <CoverageAssistant
             planVersionId={planVersionId}
             planName={detail.plan.name}
