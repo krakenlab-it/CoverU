@@ -1,5 +1,7 @@
 -- CoverÜ coverage agent: pgvector hybrid search + run traces
 -- vector lives in the extensions schema (Supabase convention).
+-- hybrid_search_policy_chunks must include extensions in search_path and qualify
+-- the <=> operator / vector_cosine_ops opclass (see 20260904170000 follow-up).
 
 CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 
@@ -29,7 +31,7 @@ CREATE INDEX IF NOT EXISTS policy_chunks_fts_idx
 
 CREATE INDEX IF NOT EXISTS policy_chunks_embedding_hnsw_idx
   ON public.policy_chunks
-  USING hnsw (embedding vector_cosine_ops)
+  USING hnsw (embedding extensions.vector_cosine_ops)
   WHERE embedding IS NOT NULL;
 
 COMMENT ON TABLE public.policy_chunks IS
@@ -57,7 +59,7 @@ RETURNS TABLE (
 )
 LANGUAGE sql
 STABLE
-SET search_path = public
+SET search_path = public, extensions
 AS $$
   WITH full_text AS (
     SELECT
@@ -77,7 +79,7 @@ AS $$
     SELECT
       pc.id,
       ROW_NUMBER() OVER (
-        ORDER BY pc.embedding <=> query_embedding
+        ORDER BY pc.embedding OPERATOR(extensions.<=>) query_embedding
       ) AS rank_ix
     FROM public.policy_chunks pc
     WHERE pc.plan_version_id = match_plan_version_id

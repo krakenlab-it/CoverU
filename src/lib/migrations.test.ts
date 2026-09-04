@@ -11,6 +11,8 @@ const TARIFF_V1_3_FILE = "20260903190000_tariff_schema_v1_3.sql";
 const AUTH_ORG_PROVISIONING_FILE = "20260903200000_auth_org_provisioning.sql";
 const INSURER_LOGO_URLS_FILE = "20260904010000_insurer_logo_urls_v1_3.sql";
 const COVERAGE_AGENT_HARNESS_FILE = "20260904020000_coverage_agent_harness.sql";
+const FIX_HYBRID_SEARCH_VECTOR_OPS_FILE =
+  "20260904170000_fix_hybrid_search_policy_chunks_vector_ops.sql";
 
 describe("supabase migrations", () => {
   const files = readdirSync(MIGRATIONS_DIR)
@@ -41,6 +43,7 @@ describe("supabase migrations", () => {
 
   it("includes coverage agent harness and pgvector search migration", () => {
     expect(files).toContain(COVERAGE_AGENT_HARNESS_FILE);
+    expect(files).toContain(FIX_HYBRID_SEARCH_VECTOR_OPS_FILE);
   });
 
   for (const file of files) {
@@ -261,6 +264,11 @@ describe("supabase migrations", () => {
       expect(content).toContain("policy_chunks");
       expect(content).toContain("hybrid_search_policy_chunks");
       expect(content).toContain("match_plan_version_id");
+      expect(content).toContain("SET search_path = public, extensions");
+      expect(content).toContain(
+        "ORDER BY pc.embedding OPERATOR(extensions.<=>) query_embedding",
+      );
+      expect(content).toContain("extensions.vector_cosine_ops");
       expect(content).toContain("ENABLE ROW LEVEL SECURITY");
     });
 
@@ -268,6 +276,23 @@ describe("supabase migrations", () => {
       expect(content).toContain("coverage_agent_runs");
       expect(content).toContain("tool_calls");
       expect(content).toContain("events");
+    });
+  });
+
+  describe("hybrid search vector ops fix migration", () => {
+    const content = readFileSync(
+      join(MIGRATIONS_DIR, FIX_HYBRID_SEARCH_VECTOR_OPS_FILE),
+      "utf-8",
+    );
+
+    it("only replaces hybrid_search_policy_chunks with extensions-qualified vector ops", () => {
+      expect(content).toContain("CREATE OR REPLACE FUNCTION public.hybrid_search_policy_chunks");
+      expect(content).toContain("SET search_path = public, extensions");
+      expect(content).toContain(
+        "ORDER BY pc.embedding OPERATOR(extensions.<=>) query_embedding",
+      );
+      expect(content).not.toMatch(/CREATE TABLE/i);
+      expect(content).not.toMatch(/CREATE INDEX/i);
     });
   });
 });
