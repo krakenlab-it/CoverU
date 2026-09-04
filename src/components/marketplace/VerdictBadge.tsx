@@ -20,6 +20,10 @@ const VERDICT_CONFIG: Record<
     label: "Sin respuesta",
     className: "bg-gray-100 text-gray-700 border-gray-200",
   },
+  quoted: {
+    label: "Cotizado",
+    className: "bg-sky-100 text-sky-800 border-sky-200",
+  },
 };
 
 interface VerdictBadgeProps {

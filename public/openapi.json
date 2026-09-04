@@ -151,10 +151,30 @@
       },
       "CoverageQaRequest": {
         "type": "object",
-        "required": ["plan_version_id", "question"],
+        "required": ["question"],
         "properties": {
           "plan_version_id": { "type": "string", "format": "uuid" },
+          "plan_id": { "type": "string", "format": "uuid" },
           "question": { "type": "string", "minLength": 3, "maxLength": 1000 }
+        }
+      },
+      "MatchedTariffSnapshot": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "age_min": { "type": "integer" },
+          "age_max": { "type": "integer" },
+          "gender": { "type": "string" },
+          "region": { "type": "string" },
+          "grupo_asegurado": { "type": "string", "nullable": true },
+          "maternidad": { "type": "string", "nullable": true },
+          "deductible": { "type": "number", "nullable": true },
+          "annual_limit": { "type": "number", "nullable": true },
+          "monthly_price": {
+            "type": "number",
+            "description": "USD monthly premium. Dollars, not cents."
+          },
+          "tax_included": { "type": "boolean", "nullable": true }
         }
       },
       "CoverageQaResponse": {
@@ -162,7 +182,7 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["covered", "not_covered", "conditional", "unknown"]
+            "enum": ["covered", "not_covered", "conditional", "unknown", "quoted"]
           },
           "answer": { "type": "string" },
           "citations": {
@@ -176,6 +196,10 @@
                 "policy_document_title": { "type": "string" }
               }
             }
+          },
+          "matched_tariff": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/MatchedTariffSnapshot" }]
           },
           "abstained": { "type": "boolean" },
           "policy_wording_controls": { "type": "boolean" },

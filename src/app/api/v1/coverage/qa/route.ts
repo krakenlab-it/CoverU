@@ -2,10 +2,15 @@ import { z } from "zod";
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
 import { answerCoverageQuestion } from "@/lib/coverage/qa-provider";
 
-const coverageQaSchema = z.object({
-  plan_version_id: z.string().uuid(),
-  question: z.string().min(3).max(1000),
-});
+const coverageQaSchema = z
+  .object({
+    plan_version_id: z.string().uuid().optional(),
+    plan_id: z.string().uuid().optional(),
+    question: z.string().min(3).max(1000),
+  })
+  .refine((data) => data.plan_version_id || data.plan_id, {
+    message: "plan_version_id o plan_id es requerido",
+  });
 
 export const POST = withApiV1(
   async (ctx) => {
@@ -40,6 +45,7 @@ export const POST = withApiV1(
 
     const result = await answerCoverageQuestion({
       planVersionId: parsed.data.plan_version_id,
+      planId: parsed.data.plan_id,
       question: parsed.data.question,
     });
 

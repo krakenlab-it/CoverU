@@ -4,6 +4,11 @@ export const APP_NAV_ITEMS: readonly AppNavItem[] = [
   { href: "/app", label: "Panel", icon: "dashboard" },
   { href: "/app/marketplace", label: "Marketplace", icon: "marketplace" },
   {
+    href: "/app/asistente-cobertura",
+    label: "Asistente de cobertura",
+    icon: "coverage",
+  },
+  {
     href: "/app/desarrolladores",
     label: "Desarrolladores",
     icon: "developers",
