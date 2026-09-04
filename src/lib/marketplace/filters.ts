@@ -1,4 +1,8 @@
 import { TARIFF_REGIONS, type TariffRegion } from "@/lib/catalog-enums";
+import {
+  normalizePage,
+  normalizePageSize,
+} from "@/lib/marketplace/pagination";
 import type { SortOption, MarketplaceFilters } from "@/lib/marketplace/types";
 
 const SORT_OPTIONS: SortOption[] = [
@@ -23,11 +27,16 @@ export function parseMarketplaceFilters(
   const ageRaw = searchParams.get("age");
   const deductibleRaw = searchParams.get("deductible_max");
   const waitingRaw = searchParams.get("waiting_max");
+  const priceMinRaw = searchParams.get("price_min");
+  const priceMaxRaw = searchParams.get("price_max");
 
   const sortRaw = searchParams.get("sort");
   const sort = SORT_OPTIONS.includes(sortRaw as SortOption)
     ? (sortRaw as SortOption)
     : "price_asc";
+
+  const pageRaw = searchParams.get("page");
+  const pageSizeRaw = searchParams.get("page_size");
 
   return {
     insurerId: searchParams.get("insurer_id") ?? undefined,
@@ -38,7 +47,11 @@ export function parseMarketplaceFilters(
     deductibleMax: deductibleRaw ? Number(deductibleRaw) : undefined,
     waitingMaxDays: waitingRaw ? Number(waitingRaw) : undefined,
     keyword: searchParams.get("q")?.trim() || undefined,
+    priceMin: priceMinRaw ? Number(priceMinRaw) : undefined,
+    priceMax: priceMaxRaw ? Number(priceMaxRaw) : undefined,
     sort,
+    page: pageRaw ? normalizePage(Number(pageRaw)) : undefined,
+    pageSize: pageSizeRaw ? normalizePageSize(Number(pageSizeRaw)) : undefined,
   };
 }
 
@@ -59,8 +72,16 @@ export function marketplaceFiltersToSearchParams(
   if (filters.waitingMaxDays != null && !Number.isNaN(filters.waitingMaxDays))
     params.set("waiting_max", String(filters.waitingMaxDays));
   if (filters.keyword) params.set("q", filters.keyword);
+  if (filters.priceMin != null && !Number.isNaN(filters.priceMin))
+    params.set("price_min", String(filters.priceMin));
+  if (filters.priceMax != null && !Number.isNaN(filters.priceMax))
+    params.set("price_max", String(filters.priceMax));
   if (filters.sort && filters.sort !== "price_asc")
     params.set("sort", filters.sort);
+  if (filters.page != null && filters.page > 1)
+    params.set("page", String(filters.page));
+  if (filters.pageSize != null && filters.pageSize !== 12)
+    params.set("page_size", String(filters.pageSize));
   if (compareIds && compareIds.length > 0)
     params.set("compare", compareIds.join(","));
 
@@ -74,4 +95,24 @@ export function filtersToQueryString(
   const params = marketplaceFiltersToSearchParams(filters, compareIds);
   const str = params.toString();
   return str ? `?${str}` : "";
+}
+
+export function toSearchParams(
+  raw: Record<string, string | string[] | undefined>,
+): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(raw)) {
+    if (typeof value === "string") params.set(key, value);
+    else if (Array.isArray(value) && value[0]) params.set(key, value[0]);
+  }
+  return params;
+}
+
+export function asistenteFiltersToSearchParams(
+  filters: MarketplaceFilters,
+  planVersionId?: string,
+): URLSearchParams {
+  const params = marketplaceFiltersToSearchParams(filters);
+  if (planVersionId) params.set("plan_version_id", planVersionId);
+  return params;
 }

@@ -1,21 +1,15 @@
+import { VISUAL_PACK_MARKETING } from "@/lib/visual-pack/assets";
+
 export const HERO_SLIDES = [
   {
-    id: "salud",
-    image: "/marketing/hero-family.webp",
-    imageAlt: "Encuentra el Seguro de Salud ideal y contrátalo 100% Online",
-    headline: "Encuentra el Seguro de Salud ideal y contrátalo",
-    highlight: "100% Online",
-    subheadline:
-      "Te ayudamos a encontrar eso que realmente necesitas. ¡Sin letra chica, fácil y seguro!",
-  },
-  {
-    id: "empresa",
-    image: "/marketing/hero-family.webp",
-    imageAlt: "Seguros de empresa",
-    headline: "Seguros de empresa",
+    id: "demo-clarity",
+    image: VISUAL_PACK_MARKETING.heroCoveru,
+    imageAlt:
+      "Compara coberturas con claridad — experiencia Demo para ordenar opciones de seguros en Ecuador",
+    headline: "Compara coberturas con claridad.",
     highlight: "",
     subheadline:
-      "Te ayudamos a encontrar eso que realmente necesitas. ¡Sin letra chica, fácil y seguro!",
+      "Una experiencia Demo para ordenar opciones de seguros en Ecuador — sin ruido.",
   },
 ] as const;
 
@@ -43,43 +37,34 @@ export const HOW_IT_WORKS_STEPS = [
 
 export const BENTO_CARDS = [
   {
-    id: "easy",
-    title: "La forma más fácil de asegurarte",
+    id: "clarity",
+    title: "Claridad",
     description:
-      "Compara planes de salud con precios claros y sin letra chica. Crea tu cuenta o explora opciones en minutos.",
-    image: "/marketing/bento-easy.webp",
-    imageAlt: "Persona protegida con un escudo de seguro",
-    variant: "primary" as const,
-    cta: { label: "Cotizar", href: "/comparar" },
-    secondaryCta: { label: "Iniciar sesión", href: "/login" },
-  },
-  {
-    id: "copago",
-    title: "Copago Cero",
-    description:
-      "Encuentra planes con copago reducido o cero en prestaciones clave, según tu perfil y región.",
-    image: "/marketing/bento-copago.webp",
-    imageAlt: "Tarjeta de beneficios de salud",
+      "Estructura ordenada para revisar opciones sin ruido. Datos Demo claramente identificados.",
+    image: VISUAL_PACK_MARKETING.bentoClarity,
+    imageAlt: "Claridad — estructura ordenada Demo",
     variant: "glass" as const,
+    cta: { label: "Explorar Demo", href: "/comparar" },
   },
   {
-    id: "colaboradores",
-    title: "Beneficios para tus colaboradores",
+    id: "compare",
+    title: "Comparar",
     description:
-      "Soluciones para equipos: compara coberturas empresariales y solicita asesoría para tu organización.",
-    image: "/marketing/bento-beneficios.webp",
-    imageAlt: "Equipo de trabajo con protección de seguro",
-    variant: "glass" as const,
-  },
-  {
-    id: "vida",
-    title: "Seguro de Vida Temporal",
-    description:
-      "Protege a quienes más importan con coberturas de vida temporal. Cotiza en línea y elige el plazo que necesitas.",
-    image: "/marketing/bento-vida.webp",
-    imageAlt: "Adulto mayor con protección de seguro de vida",
+      "Columnas alineadas para contrastar coberturas lado a lado. Sin logos de aseguradoras ni precios en Demo.",
+    image: VISUAL_PACK_MARKETING.bentoCompare,
+    imageAlt: "Comparar — columnas alineadas Demo",
     variant: "primary" as const,
-    cta: { label: "Cotizar", href: "/comparar" },
+    cta: { label: "Comparar planes", href: "/comparar" },
+  },
+  {
+    id: "trust",
+    title: "Confianza",
+    description:
+      "Sistema visible con controles claros. Mismo panel, menos ruido — experiencia Demo.",
+    image: VISUAL_PACK_MARKETING.bentoTrust,
+    imageAlt: "Confianza — sistema visible Demo",
+    variant: "glass" as const,
+    cta: { label: "Ver sistema", href: "/login" },
   },
 ] as const;
 

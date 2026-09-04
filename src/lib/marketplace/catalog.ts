@@ -163,6 +163,16 @@ function buildResult(
     return null;
   }
 
+  const monthlyPrice = tariff?.monthly_price ?? null;
+
+  if (filters.priceMin != null && monthlyPrice != null && monthlyPrice < filters.priceMin) {
+    return null;
+  }
+
+  if (filters.priceMax != null && monthlyPrice != null && monthlyPrice > filters.priceMax) {
+    return null;
+  }
+
   const quoteState = getQuoteState(tariff);
 
   return {
@@ -171,7 +181,7 @@ function buildResult(
     tariff,
     planVersion,
     quoteState,
-    monthlyPrice: tariff?.monthly_price ?? null,
+    monthlyPrice,
     coverageHighlights: buildHighlights(clauses),
     exclusionWarnings: buildExclusionWarnings(tariff, exclusions),
     waitingPeriodWarnings: buildWaitingWarnings(waitingPeriods),
@@ -321,7 +331,7 @@ export async function getCompareEntries(
   return entries;
 }
 
-async function fetchTariffsForPlan(planId: string): Promise<Tariff[]> {
+export async function fetchTariffsForPlan(planId: string): Promise<Tariff[]> {
   const supabase = createAdminClient();
   if (!supabase) return [];
 
@@ -331,6 +341,30 @@ async function fetchTariffsForPlan(planId: string): Promise<Tariff[]> {
     .eq("plan_id", planId);
 
   return (data ?? []) as Tariff[];
+}
+
+export async function getPlanTariffQuote(
+  planId: string,
+  filters: MarketplaceFilters,
+): Promise<{
+  tariff: Tariff | null;
+  quoteState: QuoteState;
+  monthlyPrice: number | null;
+  tariffCount: number;
+}> {
+  const tariffs = await fetchTariffsForPlan(planId);
+  const tariff = findMatchingTariff(tariffs, {
+    age: filters.age,
+    gender: filters.gender,
+    region: filters.region,
+  });
+
+  return {
+    tariff,
+    quoteState: getQuoteState(tariff),
+    monthlyPrice: tariff?.monthly_price ?? null,
+    tariffCount: tariffs.length,
+  };
 }
 
 export async function getPlanVersionDetailForMarketplace(

@@ -19,7 +19,11 @@ export interface MarketplaceFilters {
   deductibleMax?: number;
   waitingMaxDays?: number;
   keyword?: string;
+  priceMin?: number;
+  priceMax?: number;
   sort?: SortOption;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface MarketplacePlanResult {

@@ -12,6 +12,8 @@ describe("marketing assets", () => {
     expect(MARKETING_ASSETS.heroBackgroundMobile).toBe(
       "/background-cover-mobile.png",
     );
+    expect(MARKETING_ASSETS.heroCoveru).toBe("/marketing/hero-coveru.png");
+    expect(MARKETING_ASSETS.authHero).toBe("/marketing/auth-hero.png");
     expect(MARKETING_ASSETS.webAppManifestIcon512).toBe(
       "/web-app-manifest-512x512.png",
     );
