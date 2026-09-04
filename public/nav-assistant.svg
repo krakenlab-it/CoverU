@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="CoverU assistant rail toggle"><title>CoverU assistant rail toggle</title>
+    <rect width="32" height="32" rx="8" fill="#F3F0EA"/>
+    <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.25" fill="none" stroke="#DDD9D2" stroke-width="1.5"/>
+    <g transform="translate(4 4)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.5 L13.2 8.2 L18 9.4 L13.2 10.6 L12 15.3 L10.8 10.6 L6 9.4 L10.8 8.2 Z"
+            stroke="#17171A" stroke-width="1.5"/>
+      <circle cx="12" cy="9.4" r="1.8" fill="#DF0926" stroke="none"/>
+    </g>
+    </svg>

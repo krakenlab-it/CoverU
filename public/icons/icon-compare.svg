@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="CoverU icon compare icon"><title>CoverU icon compare icon</title><rect width="64" height="64" fill="none"/><g transform="translate(8.00 8.00) scale(2.0000)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="8" height="18" rx="2" stroke="#17171A" stroke-width="1.75"/>
+      <rect x="14" y="3" width="8" height="18" rx="2" stroke="#17171A" stroke-width="1.75"/>
+      <path d="M4.5 8h3 M4.5 12h3 M4.5 16h2" stroke="#6E6D73" stroke-width="1.5"/>
+      <path d="M16.5 8h3 M16.5 12h3" stroke="#6E6D73" stroke-width="1.5"/>
+      <circle cx="18" cy="16.5" r="2.2" fill="#DF0926" stroke="none"/>
+      <path d="M16.9 16.5l0.7 0.7 1.5-1.5" stroke="#FFFFFF" stroke-width="1.2"/>
+    </g></svg>
