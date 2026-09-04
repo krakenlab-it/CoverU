@@ -1,4 +1,8 @@
 import { CATEGORY_LABELS } from "@/lib/marketplace/categories";
+import {
+  deriveMatchedCategories,
+  matchesCategoryWithFallback,
+} from "@/lib/marketplace/category-match";
 import { findMatchingTariff } from "@/lib/marketplace/tariff-match";
 import type {
   ComparePlanEntry,
@@ -86,15 +90,6 @@ function matchesKeyword(
   return haystack.includes(keyword.toLowerCase());
 }
 
-function matchesCategory(clauses: CoverageClause[], category: string): boolean {
-  return clauses.some(
-    (c) =>
-      c.category === category &&
-      (c.coverage_status === "covered" ||
-        c.coverage_status === "conditional"),
-  );
-}
-
 function sortResults(
   results: MarketplacePlanResult[],
   sort: SortOption,
@@ -134,7 +129,10 @@ function buildResult(
   tariff: Tariff | null,
   filters: MarketplaceFilters,
 ): MarketplacePlanResult | null {
-  if (filters.category && !matchesCategory(clauses, filters.category)) {
+  if (
+    filters.category &&
+    !matchesCategoryWithFallback(clauses, filters.category, plan, tariff)
+  ) {
     return null;
   }
 
@@ -177,9 +175,7 @@ function buildResult(
     coverageHighlights: buildHighlights(clauses),
     exclusionWarnings: buildExclusionWarnings(tariff, exclusions),
     waitingPeriodWarnings: buildWaitingWarnings(waitingPeriods),
-    matchedCategories: clauses
-      .filter((c) => c.coverage_status !== "not_covered")
-      .map((c) => c.category),
+    matchedCategories: deriveMatchedCategories(clauses, plan, tariff),
     maxWaitingDays: maxWaiting,
   };
 }

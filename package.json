@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "integrate:visual-pack": "bash scripts/integrate-sam-visual-pack.sh"
+    "integrate:visual-pack": "bash scripts/integrate-sam-visual-pack.sh",
+    "catalog:load": "tsx scripts/catalog-v1_3/load-cli.ts",
+    "catalog:load:dry-run": "tsx scripts/catalog-v1_3/load-cli.ts --dry-run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
@@ -40,6 +42,7 @@
     "eslint-config-next": "16.3.4",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5",
     "vitest": "^3.2.7",
     "vitest-axe": "^0.1.0"
