@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CompareBar } from "@/components/marketplace/CompareBar";
+import { MarketplacePagination } from "@/components/marketplace/MarketplacePagination";
 import { MarketplacePlanCard } from "@/components/marketplace/MarketplacePlanCard";
 import { EmptyState } from "@/components/platform/EmptyState";
 import {
@@ -13,16 +14,19 @@ import {
 } from "@/lib/marketplace/compare";
 import { filtersToQueryString } from "@/lib/marketplace/filters";
 import type { MarketplaceFilters, MarketplacePlanResult } from "@/lib/marketplace/types";
+import type { PaginatedSlice } from "@/lib/marketplace/pagination";
 import { motion } from "@/lib/motion";
 
 interface MarketplaceResultsGridProps {
   results: MarketplacePlanResult[];
   filters: MarketplaceFilters;
+  pagination: PaginatedSlice<MarketplacePlanResult>;
 }
 
 export function MarketplaceResultsGrid({
   results,
   filters,
+  pagination,
 }: MarketplaceResultsGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,24 +61,21 @@ export function MarketplaceResultsGrid({
 
   const handleClear = () => updateCompare([]);
 
-  if (results.length === 0) {
+  if (pagination.totalCount === 0) {
     return (
       <EmptyState
         title="No hay planes que coincidan"
-        description="Prueba ajustar los filtros de edad, provincia, categoría o palabras clave."
+        description="Prueba ajustar los filtros de edad, región, categoría o palabras clave."
+        showIllustration
       />
     );
   }
 
   return (
     <>
-      <p className="mb-4 text-sm text-muted-foreground" aria-live="polite">
-        {results.length} plan{results.length !== 1 ? "es" : ""} encontrado
-        {results.length !== 1 ? "s" : ""}
-      </p>
-      <div className={cnGrid()}>
-        {results.map((result) => {
-          const { planVersion, plan, insurer } = result;
+      <div className={`grid gap-5 md:grid-cols-2 xl:grid-cols-3 ${motion.fadeIn}`}>
+        {pagination.items.map((result) => {
+          const { planVersion, plan, insurer, tariff } = result;
           const isSelected = compareIds.includes(planVersion.id);
           const addCheck = canAddToCompare(compareIds, planVersion.id);
 
@@ -89,6 +90,7 @@ export function MarketplaceResultsGrid({
               insurerName={insurer.name}
               monthlyPrice={result.monthlyPrice}
               quoteState={result.quoteState}
+              deductible={tariff?.deductible}
               coverageHighlights={result.coverageHighlights}
               exclusionWarnings={result.exclusionWarnings}
               waitingPeriodWarnings={result.waitingPeriodWarnings}
@@ -103,6 +105,15 @@ export function MarketplaceResultsGrid({
         })}
       </div>
 
+      <MarketplacePagination
+        totalCount={pagination.totalCount}
+        page={pagination.page}
+        pageSize={pagination.pageSize}
+        startIndex={pagination.startIndex}
+        endIndex={pagination.endIndex}
+        totalPages={pagination.totalPages}
+      />
+
       <CompareBar
         compareIds={compareIds}
         filters={filters}
@@ -112,10 +123,6 @@ export function MarketplaceResultsGrid({
       />
     </>
   );
-}
-
-function cnGrid() {
-  return `grid gap-4 md:grid-cols-2 xl:grid-cols-3 ${motion.fadeIn}`;
 }
 
 export { serializeCompareIds, parseCompareIds };

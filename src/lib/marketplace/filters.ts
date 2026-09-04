@@ -1,4 +1,8 @@
 import { TARIFF_REGIONS, type TariffRegion } from "@/lib/catalog-enums";
+import {
+  normalizePage,
+  normalizePageSize,
+} from "@/lib/marketplace/pagination";
 import type { SortOption, MarketplaceFilters } from "@/lib/marketplace/types";
 
 const SORT_OPTIONS: SortOption[] = [
@@ -29,6 +33,9 @@ export function parseMarketplaceFilters(
     ? (sortRaw as SortOption)
     : "price_asc";
 
+  const pageRaw = searchParams.get("page");
+  const pageSizeRaw = searchParams.get("page_size");
+
   return {
     insurerId: searchParams.get("insurer_id") ?? undefined,
     age: ageRaw ? Number(ageRaw) : undefined,
@@ -39,6 +46,8 @@ export function parseMarketplaceFilters(
     waitingMaxDays: waitingRaw ? Number(waitingRaw) : undefined,
     keyword: searchParams.get("q")?.trim() || undefined,
     sort,
+    page: pageRaw ? normalizePage(Number(pageRaw)) : undefined,
+    pageSize: pageSizeRaw ? normalizePageSize(Number(pageSizeRaw)) : undefined,
   };
 }
 
@@ -61,6 +70,10 @@ export function marketplaceFiltersToSearchParams(
   if (filters.keyword) params.set("q", filters.keyword);
   if (filters.sort && filters.sort !== "price_asc")
     params.set("sort", filters.sort);
+  if (filters.page != null && filters.page > 1)
+    params.set("page", String(filters.page));
+  if (filters.pageSize != null && filters.pageSize !== 12)
+    params.set("page_size", String(filters.pageSize));
   if (compareIds && compareIds.length > 0)
     params.set("compare", compareIds.join(","));
 

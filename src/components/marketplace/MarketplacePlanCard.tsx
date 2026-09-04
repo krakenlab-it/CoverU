@@ -1,8 +1,16 @@
 "use client";
 
+import {
+  AlertTriangleIcon,
+  CheckCircle2Icon,
+  Clock3Icon,
+  ExternalLinkIcon,
+  GitCompareArrowsIcon,
+} from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatCatalogDisplayName } from "@/lib/marketplace/display";
 import type { QuoteState } from "@/lib/marketplace/types";
 import { formatCLP } from "@/lib/marketplace/format";
@@ -15,12 +23,22 @@ const QUOTE_LABELS: Record<QuoteState, string> = {
   unavailable: "Sin tarifa para este perfil",
 };
 
+const QUOTE_VARIANTS: Record<
+  QuoteState,
+  "default" | "secondary" | "outline"
+> = {
+  quoted: "default",
+  indicative: "secondary",
+  unavailable: "outline",
+};
+
 interface MarketplacePlanCardProps {
   planVersionId: string;
   planName: string;
   insurerName: string;
   monthlyPrice: number | null;
   quoteState: QuoteState;
+  deductible?: number | null;
   coverageHighlights: string[];
   exclusionWarnings: string[];
   waitingPeriodWarnings: string[];
@@ -36,6 +54,7 @@ export function MarketplacePlanCard({
   insurerName,
   monthlyPrice,
   quoteState,
+  deductible,
   coverageHighlights,
   exclusionWarnings,
   waitingPeriodWarnings,
@@ -51,46 +70,61 @@ export function MarketplacePlanCard({
       className={cn(
         motion.cardHover,
         motion.panel,
-        isSelectedForCompare && "ring-2 ring-primary ring-offset-2",
+        "flex h-full flex-col overflow-hidden border-border/80",
+        isSelectedForCompare && "border-primary ring-2 ring-primary/20",
       )}
       aria-labelledby={`plan-${planVersionId}-title`}
     >
-      <CardHeader className="flex-row items-start justify-between gap-2 space-y-0">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            {formatCatalogDisplayName(insurerName)}
-          </p>
-          <CardTitle id={`plan-${planVersionId}-title`} className="text-lg">
-            {formatCatalogDisplayName(planName)}
-          </CardTitle>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        <div className="rounded-xl bg-muted/60 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {QUOTE_LABELS[quoteState]}
-          </p>
-          {monthlyPrice != null ? (
-            <p className="text-2xl font-bold text-primary">
-              {formatCLP(monthlyPrice)}
-              <span className="text-sm font-normal text-muted-foreground">/mes</span>
+      <CardHeader className="space-y-3 border-b border-border/50 bg-muted/20 pb-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {formatCatalogDisplayName(insurerName)}
             </p>
+            <h3
+              id={`plan-${planVersionId}-title`}
+              className="text-lg font-semibold leading-tight text-foreground"
+            >
+              {formatCatalogDisplayName(planName)}
+            </h3>
+          </div>
+          <Badge variant={QUOTE_VARIANTS[quoteState]} className="shrink-0">
+            {QUOTE_LABELS[quoteState]}
+          </Badge>
+        </div>
+
+        <div className="rounded-xl border border-border/60 bg-background p-4">
+          {monthlyPrice != null ? (
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Prima mensual estimada</p>
+              <p className="text-3xl font-bold tracking-tight text-primary">
+                {formatCLP(monthlyPrice)}
+                <span className="ml-1 text-sm font-normal text-muted-foreground">/mes</span>
+              </p>
+              {deductible != null ? (
+                <p className="text-xs text-muted-foreground">
+                  Deducible: {formatCLP(deductible)}
+                </p>
+              ) : null}
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Ajusta edad, género o provincia para ver una tarifa.
+              Ajusta edad, género o región para ver una tarifa.
             </p>
           )}
         </div>
+      </CardHeader>
 
+      <CardContent className="flex flex-1 flex-col gap-4 py-4">
         {coverageHighlights.length > 0 ? (
-          <ul className="space-y-1 text-sm" aria-label="Coberturas destacadas">
+          <ul className="space-y-2 text-sm" aria-label="Coberturas destacadas">
             {coverageHighlights.map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span className="text-emerald-600" aria-hidden="true">
-                  ✓
-                </span>
-                {item}
+              <li key={item} className="flex items-start gap-2 text-foreground/90">
+                <CheckCircle2Icon
+                  className="mt-0.5 size-4 shrink-0 text-emerald-600"
+                  aria-hidden="true"
+                />
+                <span>{item}</span>
               </li>
             ))}
           </ul>
@@ -101,10 +135,13 @@ export function MarketplacePlanCard({
             className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-xs text-destructive"
             role="note"
           >
-            <p className="font-semibold">Exclusiones a considerar</p>
-            <ul className="mt-1 list-inside list-disc">
+            <p className="flex items-center gap-1.5 font-semibold">
+              <AlertTriangleIcon className="size-3.5" aria-hidden="true" />
+              Exclusiones a considerar
+            </p>
+            <ul className="mt-1.5 space-y-1 pl-5">
               {exclusionWarnings.slice(0, 2).map((w) => (
-                <li key={w}>{w}</li>
+                <li key={w} className="list-disc">{w}</li>
               ))}
             </ul>
           </div>
@@ -115,19 +152,25 @@ export function MarketplacePlanCard({
             className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-950"
             role="note"
           >
-            <p className="font-semibold">Períodos de carencia</p>
-            <ul className="mt-1 list-inside list-disc">
+            <p className="flex items-center gap-1.5 font-semibold">
+              <Clock3Icon className="size-3.5" aria-hidden="true" />
+              Períodos de carencia
+            </p>
+            <ul className="mt-1.5 space-y-1 pl-5">
               {waitingPeriodWarnings.slice(0, 2).map((w) => (
-                <li key={w}>{w}</li>
+                <li key={w} className="list-disc">{w}</li>
               ))}
             </ul>
           </div>
         ) : null}
       </CardContent>
 
-      <CardFooter className="flex flex-wrap gap-2">
+      <CardFooter className="mt-auto flex flex-wrap gap-2 border-t border-border/50 bg-muted/10 py-4">
         <Button variant="outline" asChild className="flex-1 rounded-full">
-          <Link href={detailHref}>Ver póliza</Link>
+          <Link href={detailHref}>
+            <ExternalLinkIcon aria-hidden="true" />
+            Ver póliza
+          </Link>
         </Button>
         <Button
           type="button"
@@ -143,6 +186,7 @@ export function MarketplacePlanCard({
           }
           title={compareDisabled ? compareDisabledReason : undefined}
         >
+          <GitCompareArrowsIcon aria-hidden="true" />
           {isSelectedForCompare ? "En comparación" : "Comparar"}
         </Button>
       </CardFooter>

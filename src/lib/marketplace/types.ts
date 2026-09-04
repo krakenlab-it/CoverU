@@ -20,6 +20,8 @@ export interface MarketplaceFilters {
   waitingMaxDays?: number;
   keyword?: string;
   sort?: SortOption;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface MarketplacePlanResult {

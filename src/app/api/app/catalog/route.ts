@@ -4,6 +4,7 @@ import { generateRequestId } from "@/lib/api/response";
 import { requireAuthWithOrg } from "@/lib/auth/org";
 import { searchMarketplace } from "@/lib/marketplace/catalog";
 import { parseMarketplaceFilters } from "@/lib/marketplace/filters";
+import { paginateArray } from "@/lib/marketplace/pagination";
 
 export async function GET(request: Request) {
   const start = Date.now();
@@ -29,10 +30,19 @@ export async function GET(request: Request) {
 
   try {
     const results = await searchMarketplace(filters);
+    const pagination = paginateArray(results, filters.page, filters.pageSize);
     const response = NextResponse.json({
       data: {
-        results,
+        results: pagination.items,
         filters,
+        pagination: {
+          total_count: pagination.totalCount,
+          page: pagination.page,
+          page_size: pagination.pageSize,
+          total_pages: pagination.totalPages,
+          start_index: pagination.startIndex,
+          end_index: pagination.endIndex,
+        },
       },
     });
     await logSessionApiUsage(
@@ -45,7 +55,7 @@ export async function GET(request: Request) {
         metadata: {
           route: "marketplace_search",
           filters,
-          result_count: results.length,
+          result_count: pagination.totalCount,
         },
       },
     );

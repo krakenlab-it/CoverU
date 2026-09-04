@@ -16,6 +16,8 @@ describe("marketplace filters", () => {
       waiting_max: "180",
       q: "maternidad",
       sort: "price_desc",
+      page: "2",
+      page_size: "24",
     });
 
     const filters = parseMarketplaceFilters(params);
@@ -28,16 +30,20 @@ describe("marketplace filters", () => {
     expect(filters.waitingMaxDays).toBe(180);
     expect(filters.keyword).toBe("maternidad");
     expect(filters.sort).toBe("price_desc");
+    expect(filters.page).toBe(2);
+    expect(filters.pageSize).toBe(24);
   });
 
   it("serializes filters to URL params", () => {
     const params = marketplaceFiltersToSearchParams(
-      { age: 25, gender: "masculino", sort: "price_asc" },
+      { age: 25, gender: "masculino", sort: "price_asc", page: 2, pageSize: 24 },
       ["plan-1", "plan-2"],
     );
     expect(params.get("age")).toBe("25");
     expect(params.get("gender")).toBe("masculino");
     expect(params.get("compare")).toBe("plan-1,plan-2");
     expect(params.get("sort")).toBeNull();
+    expect(params.get("page")).toBe("2");
+    expect(params.get("page_size")).toBe("24");
   });
 });

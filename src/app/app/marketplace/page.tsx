@@ -1,8 +1,6 @@
 import { Suspense } from "react";
-import { MarketplaceFiltersPanel } from "@/components/marketplace/MarketplaceFiltersPanel";
-import { MarketplaceResultsGrid } from "@/components/marketplace/MarketplaceResultsGrid";
+import { MarketplaceResultsSection } from "@/components/marketplace/MarketplaceResultsSection";
 import { Breadcrumbs } from "@/components/platform/Breadcrumbs";
-import { EmptyState } from "@/components/platform/EmptyState";
 import { ErrorState } from "@/components/platform/ErrorState";
 import { PageHeader } from "@/components/platform/PageHeader";
 import { LoadingState } from "@/components/platform/LoadingState";
@@ -11,6 +9,7 @@ import { buildAppMetadata } from "@/lib/seo/metadata";
 import { listInsurers, searchMarketplace } from "@/lib/marketplace/catalog";
 import { parseCompareIds } from "@/lib/marketplace/compare";
 import { parseMarketplaceFilters } from "@/lib/marketplace/filters";
+import { paginateArray } from "@/lib/marketplace/pagination";
 import type { MarketplacePlanResult } from "@/lib/marketplace/types";
 
 export const metadata = buildAppMetadata(
@@ -60,37 +59,48 @@ async function MarketplaceContent({
     return <ErrorState message={error} />;
   }
 
+  const pagination = paginateArray(results, filters.page, filters.pageSize);
+  const isCatalogEmpty = results.length === 0 && !hasActiveFilters(filters);
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <Suspense fallback={<Skeleton className="h-96" />}>
-        <MarketplaceFiltersPanel insurers={insurers} compareIds={compareIds} />
-      </Suspense>
-      <div>
-        <PageHeader
-          breadcrumbs={
-            <Breadcrumbs
-              items={[
-                { label: "Panel", href: "/app" },
-                { label: "Marketplace" },
-              ]}
-            />
-          }
-          title="Marketplace de seguros"
-          description="Busca, filtra y compara planes de salud publicados en el catálogo."
-          className="mb-4"
-        />
-        {results.length === 0 ? (
-          <EmptyState
-            title="Catálogo vacío"
-            description="Aún no hay planes publicados con tarifas cargadas. Cuando se importen los datos de aseguradoras, aparecerán aquí."
+    <div className="space-y-6">
+      <PageHeader
+        breadcrumbs={
+          <Breadcrumbs
+            items={[
+              { label: "Panel", href: "/app" },
+              { label: "Marketplace" },
+            ]}
           />
-        ) : (
-          <Suspense fallback={<Skeleton className="h-64" />}>
-            <MarketplaceResultsGrid results={results} filters={filters} />
-          </Suspense>
-        )}
-      </div>
+        }
+        title="Marketplace de seguros"
+        description="Busca, filtra y compara planes de salud publicados en el catálogo."
+      />
+
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <MarketplaceResultsSection
+          results={results}
+          filters={filters}
+          pagination={pagination}
+          insurers={insurers}
+          compareIds={compareIds}
+          isCatalogEmpty={isCatalogEmpty}
+        />
+      </Suspense>
     </div>
+  );
+}
+
+function hasActiveFilters(filters: ReturnType<typeof parseMarketplaceFilters>): boolean {
+  return Boolean(
+    filters.keyword ||
+      filters.age != null ||
+      filters.gender ||
+      filters.region ||
+      filters.insurerId ||
+      filters.category ||
+      filters.deductibleMax != null ||
+      filters.waitingMaxDays != null,
   );
 }
 
