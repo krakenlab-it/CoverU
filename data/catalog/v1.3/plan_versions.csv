@@ -1,0 +1,142 @@
+id,plan_id,version_number,label,status,effective_from,effective_to,published_at,changelog,is_demo,natural_key_plan_id
+0deb7182-310b-5a36-9a21-b3518c4198f5,4aea58a3-f1c6-5669-b717-3d6514969da2,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-AUSTRO-TARIFA-10K
+1a309b6e-2339-5d85-9633-3f9013c7f87b,54183554-c205-5db4-94b3-e6e41eef9ff9,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-COSTA-TARIFA-10K
+4634af1f-503e-5b4f-897e-7172fb82f8c9,c3795d5e-d9c1-5fdf-a004-ee514b1a8ada,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-SIERRA-TARIFA-10K
+15f95330-6ed0-5d34-9829-07d8b78d0180,6515cfc8-e334-581a-a9fa-e7f8a1afdab3,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-AUSTRO-TARIFA-15K
+73ebf2cc-dd0d-579d-9fd3-ab2d102874a4,b04f549c-93a5-584a-b965-f14de4b7ef8f,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-COSTA-TARIFA-15K
+3dddf446-5651-5604-a5a5-9ef9ee34d2dc,ab207e8f-8959-5745-a505-381bd87f4d93,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-SIERRA-TARIFA-15K
+c2955d8b-4d8c-59fa-9970-1c5e12b16643,89cea1ee-0aa6-54de-bfcd-73defc750eeb,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-AUSTRO-TARIFA-20K
+854654ca-5264-5069-a0d2-35b2811ab666,cbdc9fc6-d9ca-57a9-9424-d5396cb3e042,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-COSTA-TARIFA-20K
+d7944a9a-7557-5c02-8382-46b9a7c4b50a,2aa13553-a52a-5512-a9d1-3fcab7364630,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-SIERRA-TARIFA-20K
+748252b5-cd42-500e-8225-11689f4d8c6c,97006616-2491-5ec8-b9fe-52fe5cd3c7d1,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-AUSTRO-TARIFA-5K
+6d1fb58f-8161-5773-924a-3622701cc5b3,d9ef2728-4cd9-5126-af6e-1290f6985582,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-COSTA-TARIFA-5K
+c1c7dbc1-6399-5e1b-bb65-220b16c8518c,f4fdc5b2-a8d1-56a1-bd74-1bbf97846aa1,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-GMM-SIERRA-TARIFA-5K
+eff25e1f-d11d-5c3b-a71c-84ecc960fa5b,0d85fa59-fa5a-5701-aa86-fc42401974a0,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-INNOVA-AUSTRO-D250
+73e2dd63-2e54-5b1c-9a08-63e4e25ef820,603fdf13-6146-5a1f-a1f1-ced4e7edc869,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-INNOVA-COSTA-D250
+4dba5eaf-2bc0-5260-9772-f27222df04c4,f21915c9-c09a-54b5-8c58-efe8cedf4ae3,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-INNOVA-SIERRA-D250
+02fa9176-ea7a-59f9-96a9-c270168610cb,ac298936-c1ee-5d5f-9fa8-e3de95da2466,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-AUSTRO-D1000
+84597ee0-eaf4-5eed-b030-0ce8a5b5310e,80348c59-2421-539a-b81c-7abeae017325,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-COSTA-D1000
+4cab39c7-77fa-5382-b223-a9464743b10a,a6608c98-a31a-59dc-a750-417c3bca1d3a,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-SIERRA-D1000
+76605362-72ad-5499-a44d-bfb31382c99f,2c5c6452-767b-57ec-8745-72685c466424,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-AUSTRO-D150
+41e7c7ba-7c2c-590b-bfba-af1551faa83e,cc069171-dfc5-5563-86de-9c00bd2f3369,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-COSTA-D150
+fb536a99-89db-585c-a5d6-4cdd1ffb8401,530f6862-cd6f-5b11-801a-3e49e259bfde,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-SIERRA-D150
+56456df1-ecea-5994-88e8-c2095c4373e4,baea65f3-f082-540c-a9fd-b265342f160e,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-AUSTRO-D2000
+c79a31fd-f8e6-5701-9008-9519c8916685,d558da85-1e14-57d8-8755-28e8b05624ff,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-COSTA-D2000
+064b6925-c930-5b9e-8a78-26279164b896,e4f4ffc5-0aa3-5360-8c90-2f4fdd0a52d9,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-SIERRA-D2000
+60c2d78b-783f-54fe-a2ee-8a70a94659fa,fcc7b3d6-624b-5b12-b85a-f84b07af1623,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-AUSTRO-D250
+d1c65819-9b1c-5d2f-8f2f-988e86d7c434,a68c960b-00b8-5618-b133-f0828fba8cf9,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-COSTA-D250
+47adb2b0-b512-5fbb-b438-7a5618e545cd,37a0d5ea-7430-5608-92e8-d4cef09c7a6e,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-SIERRA-D250
+1d20019c-c6b6-5b23-852e-99d612614165,36280535-b4ef-59ad-b7a9-1582a97a09a8,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-AUSTRO-D500
+306d508a-f18c-5ddb-b012-744e8af1ccc7,1e9f2626-fc18-5d40-b7ec-9b137ac6a687,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-COSTA-D500
+83d3fd68-0d53-52bc-9699-041f07d4c525,980d2ab2-2359-53a5-a723-1e69daecb601,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-SIERRA-D500
+bcbe00f6-7654-5947-8edb-a592a713ecdd,d8a297bb-6ae9-5559-9085-dbd3f71ac992,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-AUSTRO-I150
+bf628cfd-37f1-5ba8-8f16-37c73091306a,193b64ba-8774-508f-a38d-6f7b68ac8d34,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-COSTA-I150
+a7c6742a-17dd-58a5-b806-7c2b7e2e20dd,0bcb019d-8e83-5722-aaff-46872578d66c,1,2026 / Anual (por confirmar),draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,BMI-SIGMA-SIERRA-I150
+074cce10-7a75-5999-8fa1-16160fefb767,33d740fa-f7ab-5f24-8222-32a6f63dd285,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-10K-RED1-BASE
+b131bbdd-e567-547d-b9ba-07b57825367e,e5a17b96-4679-523d-b461-c570c490495b,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-10K-RED1-MAT
+47069a2c-b20f-5029-bf1a-962283f54ac0,8ea58746-a260-57f4-ad7b-1857bdaa86c7,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-10K-RED2-BASE
+b58b9c51-6faa-543d-bc48-39ff4fea6042,3d969784-1ff6-5274-bd09-9b3a7596bbcc,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-10K-RED2-MAT
+3b57ef3f-6736-5669-abf4-c38df8e779b4,b68be0e8-05c3-52fa-8c57-ddda767b471a,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-110K-RED1-TOP-BASE
+510bf4b9-71c9-56cb-b17f-24338f379975,043b96c5-ccfa-535f-9cc2-a902d535d459,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-110K-RED1-TOP-MAT
+8b4f81d1-0145-5a79-b927-e60500cb96bf,19d68aed-4eef-5491-8ba4-3d4e44d7babd,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-110K-RED2-BASE
+4d676c71-47bf-5dd9-990b-7b175dda87b6,1588a862-52f9-5955-ae92-509a23add8a0,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-110K-RED2-MAT
+039915b9-f05c-5a5c-89a3-68ddf32356de,21da5d92-0eff-52bf-a03a-9fcb50d66360,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-30K-RED1-TOP-BASE
+3c501b59-8fc8-53b8-b5e8-cc6885d560c5,04af36a8-1624-5e39-8ea4-62ce890cd37e,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-30K-RED1-TOP-MAT
+ff58a43b-8ba2-50f6-a62f-49a3c603a8ba,425f82ae-0f4f-5f76-a1d5-ed292baeffd4,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-30K-RED2-BASE
+355b2e8a-ecca-569d-809e-9d864ca955e0,b9b229eb-d014-55f5-8853-8be19c513f35,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-30K-RED2-MAT
+9581aec5-7e59-5aa1-ad0b-a2c64bbf4461,6161754d-4e43-5c6b-a16a-50773a112fcc,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published. Sebastian 2026-09-03 remapped RED1-BASE→RED2-BASE because prices come from RED2 sheet `60K RED 2`.,False,CONF-CONFIPLUS-60K-RED2-BASE
+cc8fab03-71ff-5e82-90c0-d604c12a0d6e,9e32d635-b005-5ced-808b-5445dde51995,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-60K-RED1-TOP-BASE
+2d4721dc-1f7d-51bf-9835-a9ecb70921f4,6f76f0e3-b02b-5c05-9f1b-d4d38b159414,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-60K-RED1-TOP-MAT
+862fcec9-ab2c-552f-9a4c-705609ccf73e,ceefb43a-06c4-5f73-b300-5c4e460ec36e,1,2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-CONFIPLUS-60K-RED2-MAT
+124b648e-1442-50a9-8a51-5d8993ec4c8f,0224ccfb-90c3-57f6-86a4-1ac235c0e017,1,05/2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-GMM-DED10K-V1
+9bf5f800-5be4-5efa-b866-4996f0c86f4e,0f092f28-2b63-531d-b4e2-1107e58f9eb0,1,05/2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-GMM-DED10K-R2
+549210b5-66f7-54b8-a14a-cba44302b42b,57628b2e-af45-58e9-90b7-ec0f372d12e0,1,05/2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-GMM-DED5K-V1
+02333eed-484f-523b-a694-ce3f2aef5df8,2e43dec7-52a0-5e97-a498-98318a073094,1,05/2026 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,CONF-GMM-DED5K-R2
+647883cf-9fd6-53d6-9354-c3aa9d7b1315,6aafeed3-9faa-5b6c-80ec-3dfe3e584cf2,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-1000-WALLET
+7ac337c0-b498-5893-8e91-5ec8aba9eb53,8ee49064-156c-5b59-8001-279836f1bf37,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-150
+3eed0327-2a18-53ee-8bd0-bb199a70a8c1,07f5a297-9c64-52bf-bf73-8e7ee786430f,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-150-LITE
+cd61cef0-1739-5018-9764-7b5da988c2f5,f08cebad-b279-50d5-bf0c-e868c6ec92bc,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-150-10K
+94607545-7984-5fa5-b63b-e40dee9b9fc7,ecfd5faa-5d5b-5c63-bbf9-919018eebbae,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-150-2500
+1c6707f7-2a50-5ad6-991e-c88c310bdc32,cec2ee50-3505-589e-8593-c538e7b7fd28,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-150-5000
+23c48541-5e91-5269-bdd3-b0fd0fd5824d,bd14fd24-b0cb-5617-b15c-5d6f01f49f57,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-1500-RET
+13d1b840-80e5-526d-bf17-e563a624167b,209f5185-5f44-5021-8e25-0e510e09ffc6,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-1500-WALLET
+f22b9896-3577-5578-9eb6-67df66f25a38,10577ce6-049f-55a2-9385-c4d167340fea,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-300
+ebee9238-c580-50cd-83ad-a9836fd29f4c,abf1375a-df4a-52d3-b12e-2028c9aa8f91,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-300-LITE
+50ca5672-4fd4-5455-a72b-59e29ff78467,3e18bba4-736a-563c-ae03-9edbd1a087cd,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-300-10K
+591a5adc-96ff-59d1-940a-557570029539,650d1212-1ee1-52bc-aa03-cedd07c890fe,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-300-1500-RET
+0c2131ea-641a-596f-8692-5b5e4d3a4356,1bd5d1e1-7f02-57be-8f53-95c9d30a05c6,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-300-2500
+30193db4-d9c4-5450-b53a-9dd03de165eb,4f2cf488-0ffc-5b5f-a952-d58e82314fc2,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-300-5000
+c2b93ef0-62d9-5918-bfa9-42b81012a6d6,8c348f83-0a3a-56a3-ac3c-a83b38896994,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO150-500-WALLET
+e083187c-1759-512c-a868-dedfda6a20f5,f3c59d94-4fd8-5a71-8442-c093ba42a826,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-1000-WALLET
+c527c024-7229-503b-9bae-6e3b3250a313,b7e061af-de6e-556f-a92f-c032587732ec,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-1500-WALLET
+b7e17be4-d59d-5b15-ab28-507d976c62b5,881c09a6-2908-56c8-9137-2e27db7b4e16,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-200
+5d806d62-67b9-5de5-802d-388b3d7a6cb5,4896e022-a7df-5e04-8409-64e5328433f2,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-200-LITE
+15ab03f5-54c2-573d-891e-5926e6bdaae8,ca0e19e2-a020-536a-a5b6-004884a42047,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-200-10K
+57bb6f3f-7280-557c-a65a-4da6d8ca640a,707e3071-1211-512a-b76a-81f91e22b0ed,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-200-1500-RET
+2006722f-5f6d-5e2a-b468-f15d73071a40,b00d5fc4-a935-56b9-b1dc-16a0a59cd766,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-200-2500
+bdfa52fa-9b38-55a9-be37-74a9762d4490,e1194280-9878-516e-a991-bc329ea43028,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-200-5000
+8a7765cb-d9b0-587a-bb1f-d441de487de3,68f4abcf-d09a-5014-9eea-93124f3104ef,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-400
+9a01e4c2-2731-54e7-bdd4-7fb04b8cc971,a134c6e5-ee24-5b5f-b948-1ad1900177a1,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-400-LITE
+cf4da049-d82b-544e-8339-72272c0f9531,810e6b49-b29c-5f4e-a47f-6c6646338bb0,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-400-10K
+b00994b8-13b8-5769-a029-8ad94c2a66ae,f70e9978-a6fe-5402-94c1-0742c1424202,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-400-1500-RET
+9070200e-534f-5641-9b0e-90f97437ef73,0e3bed79-3e46-505f-b5a1-10d0af97a5da,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-400-2500
+006799d0-cdfc-5881-9883-f73c21a73e9c,93086ef6-691e-56a1-90d1-79e78f933563,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-400-5000
+5c0ac8e2-7d61-5cf8-895f-bd824fdfe260,3942acd5-5ce6-5f2a-b048-e283792e0de5,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-PRO500-500-WALLET
+e0c79cd8-4b46-5c51-819a-faade4846eb0,6c38bd82-3d7a-5305-85a1-35bf5388c02c,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-100
+68a4f605-07fb-58f2-bd4f-36051426219e,e6c50d11-b452-583a-b195-26fdbf94231a,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-100-LITE
+1aac76bd-7438-56c0-ad44-c7c5f1c5bb0f,6a98ac4c-9a88-568b-8ab5-9d515dd8385c,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-100-10000-RET
+b3b2c128-fedf-5b0a-910b-fa7f7f272c6e,ce3ec66f-79ae-50a4-af06-1675bc49b8e9,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-100-1500
+8bf3ef5f-d73d-585a-bed1-b4904d11494f,2f504327-90b9-52f0-8209-23815aef0a25,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-100-2500
+7b73ff1f-8977-54ee-a109-5eaca7429862,709a6a65-df32-5c67-9d13-f3deae2f8d0b,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-100-5000
+402f280b-0312-5023-9847-efad6195637c,2b457d1e-b5c5-5b18-83e2-017c0a26c8c0,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-1000-WALLET
+f20321d7-cb2c-5348-a523-80647aec5c27,cca8beed-1e1a-547f-bcdd-36f78a467699,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-1500-WALLET
+e5e0b90f-5d1a-5f98-bb24-ba8a055f4b13,3700c4b7-6a4a-5bdd-a8ee-db4d9da4d156,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-200
+857b7dd3-24b2-5733-8e95-b40ab656ccb4,98bb3662-459c-5240-8572-2179dd45aa87,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-200-LITE
+d696370e-dd07-5ab2-9912-46ac287f6e41,03d9380d-5f74-5385-b483-d5619aa0ef99,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-200-10000-RET
+89e20fc3-5613-5c2d-89e8-428532519e73,35dcc785-e058-50bf-b2ea-7d613e6b5e76,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-200-1500
+60a1129d-58ca-5c2e-9c6b-9139fb6e3de5,6c5e99d5-dc84-52aa-9a96-c1e9cf959965,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-200-2500
+638aaedd-379e-5490-8c30-bb472e3475fc,680b528d-8a97-567f-bf42-ac763df1e61f,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-200-5000
+a3e4cea9-9885-5365-b457-2669da6dfbbc,d1e61b0d-31ff-5efa-aacc-22b0443a61d8,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500
+61210ec4-531b-5adc-9253-a96975cfdeb5,7a0d9da1-3020-50b3-b196-b29322539bb7,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500-LITE
+9eb53aa9-7f7b-50a7-8541-053bee5c1a58,1f80c2a5-1709-5cc2-aee8-776c125be7bf,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500-WALLET
+508acaf8-6136-54f4-9a4a-cb5158eeed66,39757aa2-ce80-597b-ab1c-b941dd4b5ed6,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500-10000-RET
+a9c35b1d-44c6-586b-8689-49d521400280,f29848fc-2ee9-5dcc-a933-ed6ec8bbe3fd,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500-1500
+85468de7-d5d8-50fa-81a6-f985133921f9,618b4c26-85a3-5f51-94a4-2081400f7943,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500-2500
+b8c8f9f0-2366-52b7-bac0-b2179614f9c2,4bb7e55f-0751-5839-89ee-5a807ff7f800,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY50PLUS-500-5000
+be78e58a-fa15-5184-9bec-63c087607687,5d02410e-0470-5c36-8114-2085e9a80905,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70-100
+77870f5a-bad6-5963-9685-f8743f5d4b73,92077797-594c-5753-bf3f-1141b0d00703,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70-100-1500
+e8d891f6-22c1-56fe-9e64-8f3f3bdd6249,d025b1a8-0b4d-5667-9495-e254cad8deaa,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70-100-2500
+737bd1be-d88c-5d96-9edb-07ede60ea8fc,3ecd784f-2a02-5020-bf34-e0fc94e1e74b,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70-100-5000
+27d3def1-e35e-5463-a436-5f7d1bc98cd3,fc274dbf-3778-5e5d-ae96-14e4cdc2f7ed,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-100
+724fd740-1a67-58dc-ab63-544453e09a2f,069dfcaa-2071-57f7-a97f-c720ca7c3823,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-100-LITE
+41c2692c-9d93-5007-b5e2-75601d2e5da5,b4d51aed-4c18-5ffb-a9e0-e1c94a96e35a,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-100-10000-RET
+2041fe45-e96a-5080-aed9-b0738ca07b71,c56f134d-98f3-5257-a2ee-28f9095bf101,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-100-1500
+f3f3dc3d-d24d-5646-b475-235e1393de7f,c69f0061-1a70-5b02-b7a1-c98761f93b25,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-100-2500
+5f288ae1-c4cf-50c6-accd-b06f37d03358,5f906884-c977-511c-931b-eb2462765003,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-100-5000
+94929868-7380-5958-b212-cd110703504b,b0b60767-2377-57af-90e5-ca4cc6994f4b,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-1000-WALLET
+e02c7418-6bbd-5e62-981a-0876b72fba06,687fcf19-fc20-51a7-8efb-8632c3ceb746,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-1500-WALLET
+daeed424-7cd0-5847-998a-53005dcc0876,2f227e72-ba11-5985-ac58-0cd4a9547fe1,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-200
+be7ebb73-5214-5d38-9d83-57e8823028e5,04694064-fb58-52d7-b876-e597592ab9b4,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-200-LITE
+c680af05-03d5-5e08-990f-d48ff92470e2,b741b63f-f777-5de7-840a-677fb84f6b9f,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-200-10000-RET
+9ee826c0-4dbe-53ae-9bce-b177d71fe73f,9ea354ef-fc07-5ac8-bbde-c3d0744beb4c,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-200-1500
+24a5972a-5f35-5e2d-b17e-3b9d39006b3e,87c81275-656f-5419-9c9e-72cdc80aea13,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-200-2500
+3a415c1b-c984-5cc7-8f31-b7c513ac30d4,b911b327-97e7-51bb-abc0-632652c2a7d7,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-200-5000
+854b249d-db77-52c2-a173-6527c30c14b3,5fa4d1d6-77fe-5aff-8a18-5cd3f4db44f3,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500
+c8f5c028-9fb8-58ee-b8dc-b78bf397c913,888767bc-6861-5512-ad2f-9ea764521dbd,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500-LITE
+261321e9-922f-5a5c-a545-2863e6f75ef8,36624e63-8fd8-5c88-9a25-e1679f33ff81,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500-WALLET
+21fbaa59-168a-51e5-a8c9-8c79588f5958,18ddb88e-5542-5f69-9a98-51991fe6655d,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500-10000-RET
+e1674266-dbe4-54e2-b0e1-5afbdfb60a39,8bd2648e-caa2-514f-9d25-e17e97def044,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500-1500
+6351b108-9b7a-5a8f-a9d6-d355dae3ab5a,7569290c-8fce-5b7d-8b8f-85801285c743,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500-2500
+f6648a5e-823f-577b-96ff-fdb0525dd684,6173e122-c77f-5789-914b-adaec0c6cd04,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-SKY70PLUS-500-5000
+4e012aa9-dab4-59e9-b1c2-8f9099139520,75a713ef-0822-5638-91c1-1ccd5ac42264,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR15-70
+0defd14e-b2b0-5e89-b9d3-5836ea85d1be,2c8bc525-0669-577c-bff6-379fb2a94c0b,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR15-70-LITE
+a335c6a7-0f02-592d-9bea-934e934a19e9,cca91b29-d969-57f5-afc6-88a8dfd931d5,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR15-70-10000-RET
+409529da-ad1f-5dd0-8507-233ab32689ac,89a92818-f189-5175-9942-730765cdb1d3,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR15-70-1500
+de56790a-bb10-57cb-ac5d-91fd144a9055,8921cbda-3173-55a1-91fa-85278dd84525,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR15-70-2500
+bf7dd6a5-5f78-51c5-9898-c894431c5358,6327d028-01e2-562c-82d0-ad27d2b074f7,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR15-70-5000-RET
+b0258679-e4bf-5cd0-8865-7c4666a139c8,b1fd72a0-f12b-51cb-bb09-cbffd8663ef9,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR30-90
+cb0d81fa-05f7-59c2-8499-f96166e133b3,e929db13-8d0d-536a-8fe7-371ee5eb66c6,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR30-90-LITE
+df30f164-20fa-5c11-924f-8751ffdb5000,0b82f2a2-41de-5cdd-83a4-c6bfa5283770,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR30-90-10000-RET
+f1303208-38dd-52ef-beb5-b0256aea85e6,b7a3dd50-8e00-541c-8540-fa1f8f41ce69,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR30-90-1500
+4121e18a-0af7-59cc-8ab7-c73e94a8de09,225007bd-b5db-5eed-a75c-6b13c4758a6c,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR30-90-2500
+3a338f1d-35b5-5c2f-8aff-9a7f1be0f6e4,ff02108e-adb1-5565-a97f-6b9ce5fcf47c,1,01/04/2025 / Mensual,draft,,,,Staged from matriz_consolidada_coveru PLANES. Not published.,False,SALUD-STAR30-90-5000
