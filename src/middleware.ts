@@ -6,14 +6,19 @@ import {
   logCoveruEnv,
 } from "@/lib/supabase/env-diagnostics";
 
+const REQUEST_ID_HEADER = "x-request-id";
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const requestId =
+    request.headers.get(REQUEST_ID_HEADER) ?? crypto.randomUUID();
 
   const response = pathname.startsWith("/app")
     ? await handleAppAuth(request, pathname)
     : NextResponse.next();
 
   response.headers.set("x-pathname", pathname);
+  response.headers.set(REQUEST_ID_HEADER, requestId);
   return response;
 }
 

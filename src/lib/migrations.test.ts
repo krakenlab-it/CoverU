@@ -1,6 +1,6 @@
+import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
-import { describe, expect, it } from "vitest";
 
 const MIGRATIONS_DIR = join(process.cwd(), "supabase/migrations");
 const UUID_REGEX =
@@ -14,7 +14,7 @@ const COVERAGE_AGENT_HARNESS_FILE = "20260904020000_coverage_agent_harness.sql";
 const FIX_HYBRID_SEARCH_VECTOR_OPS_FILE =
   "20260904170000_fix_hybrid_search_policy_chunks_vector_ops.sql";
 
-describe("supabase migrations", () => {
+describe("supabase migrations (legacy checks)", () => {
   const files = readdirSync(MIGRATIONS_DIR)
     .filter((f) => f.endsWith(".sql"))
     .sort();

@@ -15,7 +15,10 @@ import {
   generateRequestId,
   REQUEST_ID_HEADER,
 } from "@/lib/api/response";
+import { createLogger } from "@/lib/logging/logger";
 import type { ApiAuthContext } from "@/lib/types/phase1";
+
+const apiLogger = createLogger("api.v1");
 
 export interface ApiHandlerContext {
   request: Request;
@@ -105,7 +108,11 @@ export function withApiV1(
     try {
       response = await handler(handlerContext);
     } catch (err) {
-      console.error("API v1 error:", err);
+      apiLogger.error(
+        "API v1 handler error",
+        { error: err instanceof Error ? err.message : "unknown" },
+        requestId,
+      );
       response = apiError(
         requestId,
         500,
