@@ -21,15 +21,9 @@ export function BentoGrid() {
               <article
                 key={card.id}
                 className={[
-                  "relative flex min-h-[18rem] flex-col overflow-hidden rounded-3xl",
-                  card.id === "easy" || card.id === "vida"
-                    ? "md:col-span-2"
-                    : "md:col-span-1",
-                  card.id === "colaboradores" ? "md:row-span-2 md:min-h-[24rem]" : "",
+                  "relative flex min-h-[20rem] flex-col overflow-hidden rounded-3xl",
                   isPrimary ? "marketing-primary-card text-white" : "marketing-glass-card text-foreground",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
+                ].join(" ")}
               >
                 <div className="relative z-10 space-y-2 p-5 md:space-y-3 md:p-6">
                   <h3 className="text-xl font-bold md:text-2xl">{card.title}</h3>
@@ -49,30 +43,11 @@ export function BentoGrid() {
                       >
                         {card.cta.label}
                       </Link>
-                      {"secondaryCta" in card && card.secondaryCta ? (
-                        <Link
-                          href={card.secondaryCta.href}
-                          className={`marketing-pill ${
-                            isPrimary
-                              ? "bg-white/15 text-white hover:bg-white/25"
-                              : "bg-white/80 text-foreground hover:bg-white"
-                          }`}
-                        >
-                          {card.secondaryCta.label}
-                        </Link>
-                      ) : null}
                     </div>
                   ) : null}
                 </div>
 
-                <div
-                  className={[
-                    "relative mt-auto w-full",
-                    card.id === "colaboradores"
-                      ? "max-h-56 md:absolute md:bottom-0 md:max-h-none"
-                      : "max-h-44 md:max-h-52",
-                  ].join(" ")}
-                >
+                <div className="relative mt-auto w-full max-h-52 md:max-h-56">
                   <Image
                     src={card.image}
                     alt={card.imageAlt}

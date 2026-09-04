@@ -6,6 +6,7 @@ import {
   TESTIMONIALS,
 } from "@/lib/marketing-content";
 import { NAV_LINKS } from "@/lib/constants";
+import { VISUAL_PACK_MARKETING } from "@/lib/visual-pack/assets";
 
 const ENGLISH_LOREM_PATTERNS = [
   /content calendar/i,
@@ -43,14 +44,22 @@ describe("marketing content", () => {
     }
   });
 
-  it("replaces template stats card with real product CTAs", () => {
-    const easyCard = BENTO_CARDS.find((card) => card.id === "easy");
-    expect(easyCard).toBeDefined();
-    expect(easyCard && "secondaryCta" in easyCard && easyCard.secondaryCta).toEqual({
-      label: "Iniciar sesión",
-      href: "/login",
-    });
-    expect(easyCard?.cta).toEqual({ label: "Cotizar", href: "/comparar" });
+  it("uses Sam visual pack paths for hero and bento cards", () => {
+    expect(HERO_SLIDES[0].image).toBe(VISUAL_PACK_MARKETING.heroCoveru);
+    expect(BENTO_CARDS.map((card) => card.id)).toEqual([
+      "clarity",
+      "compare",
+      "trust",
+    ]);
+    expect(BENTO_CARDS[0].image).toBe(VISUAL_PACK_MARKETING.bentoClarity);
+    expect(BENTO_CARDS[1].image).toBe(VISUAL_PACK_MARKETING.bentoCompare);
+    expect(BENTO_CARDS[2].image).toBe(VISUAL_PACK_MARKETING.bentoTrust);
+  });
+
+  it("labels bento cards as Demo without insurer claims", () => {
+    for (const card of BENTO_CARDS) {
+      expect(card.description).toMatch(/Demo/i);
+    }
   });
 
   it("uses honest testimonial placeholders instead of fake social proof", () => {
@@ -60,15 +69,9 @@ describe("marketing content", () => {
     }
   });
 
-  it("matches live Astro hero Spanish copy", () => {
-    const saludSlide = HERO_SLIDES[0];
-    expect(saludSlide.headline).toBe(
-      "Encuentra el Seguro de Salud ideal y contrátalo",
-    );
-    expect(saludSlide.highlight).toBe("100% Online");
-    expect(saludSlide.subheadline).toBe(
-      "Te ayudamos a encontrar eso que realmente necesitas. ¡Sin letra chica, fácil y seguro!",
-    );
-    expect(HERO_SLIDES[1].headline).toBe("Seguros de empresa");
+  it("matches visual pack hero Spanish copy", () => {
+    const hero = HERO_SLIDES[0];
+    expect(hero.headline).toBe("Compara coberturas con claridad.");
+    expect(hero.subheadline).toMatch(/experiencia Demo/i);
   });
 });
