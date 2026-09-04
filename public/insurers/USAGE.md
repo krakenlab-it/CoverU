@@ -9,7 +9,7 @@ Static assets for the three v1.3 catalog insurers: **BMI**, **Confiamed**, and *
 | BMI       | `/insurers/bmi.png`       | Horizontal lockup                          |
 | BMI       | `/insurers/bmi-mark.png`  | Square mark for compact UI slots only      |
 | Confiamed | `/insurers/confiamed.png`  | Wordmark + icon                            |
-| Saludsa   | `/insurers/saludsa.svg`   | Preferred vector source                    |
+| Saludsa   | `/insurers/saludsa.svg`   | Saludsa home wordmark (preferred vector `logo_url`) |
 | Saludsa   | `/insurers/saludsa.png`   | Raster fallback for non-SVG slots          |
 
 ConfiPlus is a Confiamed product line — not a separate insurer.
