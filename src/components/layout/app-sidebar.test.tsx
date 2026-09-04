@@ -80,6 +80,10 @@ describe("DeveloperTabs", () => {
       "href",
       "/app/desarrolladores/api-keys",
     );
+    expect(screen.getByRole("tab", { name: /documentación/i })).toHaveAttribute(
+      "href",
+      "/app/desarrolladores/docs",
+    );
     expect(screen.getByRole("tab", { name: /registros/i })).toHaveAttribute(
       "href",
       "/app/desarrolladores/registros",

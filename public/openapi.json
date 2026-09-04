@@ -3,16 +3,20 @@
   "info": {
     "title": "CoverÜ API",
     "version": "1.0.0",
-    "description": "API B2B de CoverÜ para catálogo de seguros de salud, cotizaciones y consultas de cobertura fundamentadas. Todos los datos de demostración están claramente marcados como [DEMO].",
+    "description": "API B2B de CoverÜ para catálogo de seguros de salud, cotizaciones y consultas de cobertura fundamentadas en el texto de póliza.",
     "contact": {
-      "name": "CoverÜ",
-      "url": "https://coveru.cl"
+      "name": "KrakenLab — CoverÜ",
+      "url": "https://github.com/krakenlab-it/CoverU"
     }
   },
   "servers": [
     {
+      "url": "https://cover-u-app.vercel.app/api/v1",
+      "description": "Producción"
+    },
+    {
       "url": "/api/v1",
-      "description": "API v1 (relativa al dominio de despliegue)"
+      "description": "Relativa al dominio de despliegue"
     }
   ],
   "security": [
