@@ -14,7 +14,7 @@ export const APP_NAV_ITEMS: readonly AppNavItem[] = [
     icon: "developers",
   },
   {
-    href: "/app/configuracion/perfil",
+    href: "/app/configuracion",
     label: "Configuración",
     icon: "settings",
   },

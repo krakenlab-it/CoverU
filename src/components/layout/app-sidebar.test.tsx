@@ -34,7 +34,7 @@ describe("AppSidebarNav", () => {
     ).toHaveAttribute("href", "/app/desarrolladores");
     expect(
       screen.getByRole("link", { name: "Configuración" }),
-    ).toHaveAttribute("href", "/app/configuracion/perfil");
+    ).toHaveAttribute("href", "/app/configuracion");
   });
 
   it("marks the active route with aria-current", () => {
