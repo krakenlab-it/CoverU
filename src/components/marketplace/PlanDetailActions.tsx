@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCoverageAssistantPanel } from "@/components/coverage/coverage-assistant-context";
 import { Button } from "@/components/ui/button";
 import {
   canAddToCompare,
@@ -24,6 +25,7 @@ export function PlanDetailActions({
 }: PlanDetailActionsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { open: openCoverageAssistant } = useCoverageAssistantPanel();
   const compareIds = parseCompareIds(searchParams.get("compare"));
   const isInCompare = compareIds.includes(planVersionId);
   const addCheck = canAddToCompare(compareIds, planVersionId);
@@ -62,10 +64,14 @@ export function PlanDetailActions({
           <Link href={compareHref}>Ver comparación</Link>
         </Button>
       )}
-      <Button variant="ghost" size="sm" asChild className="rounded-full">
-        <a href="#asistente-cobertura">
-          Consultar asistente
-        </a>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="rounded-full"
+        onClick={openCoverageAssistant}
+      >
+        Consultar asistente
       </Button>
     </div>
   );
