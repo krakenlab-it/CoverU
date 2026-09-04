@@ -2,9 +2,11 @@ import Link from "next/link";
 import { UsageChart } from "@/components/developers/UsageChart";
 import { EmptyState } from "@/components/platform/EmptyState";
 import { SetupError } from "@/components/platform/SetupError";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDashboardAnalytics } from "@/lib/dashboard/analytics";
+import { listApiEndpoints } from "@/lib/developers/openapi-reference";
 import { listOrgApiKeys } from "@/lib/settings/api-keys";
 import { requireSettingsSession } from "@/lib/settings/session";
 import { buildAppMetadata } from "@/lib/seo/metadata";
@@ -29,6 +31,7 @@ export default async function DesarrolladoresHubPage() {
   ]);
 
   const activeKeys = keys.filter((key) => key.status === "active");
+  const apiEndpoints = listApiEndpoints().slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -72,17 +75,28 @@ export default async function DesarrolladoresHubPage() {
         <CardContent className="space-y-4 p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-semibold">Documentación de la API</h2>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/developers" target="_blank" rel="noopener noreferrer">
-                Abrir documentación
-              </Link>
+            <Button size="sm" asChild>
+              <Link href="/app/desarrolladores/docs">Ver documentación</Link>
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            Consulta los endpoints disponibles, ejemplos de autenticación y
-            límites de tasa para integrar el catálogo y las consultas de
-            cobertura en tu sistema.
+            Autenticación con <code>X-API-Key</code> o Bearer, referencia de
+            endpoints, ejemplos curl y límites de tasa — todo dentro del panel.
           </p>
+          <ul className="space-y-2 text-sm">
+            {apiEndpoints.map((endpoint) => (
+              <li
+                key={`${endpoint.method}-${endpoint.path}`}
+                className="flex flex-wrap items-center gap-2"
+              >
+                <Badge variant="secondary">{endpoint.method}</Badge>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {endpoint.fullPath}
+                </span>
+                <span className="text-muted-foreground">{endpoint.summary}</span>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
 

@@ -40,6 +40,11 @@ export const DEVELOPER_NAV_ITEMS = [
     segment: "api-keys",
   },
   {
+    href: "/app/desarrolladores/docs",
+    label: "Documentación",
+    segment: "docs",
+  },
+  {
     href: "/app/desarrolladores/uso",
     label: "Uso",
     segment: "uso",
