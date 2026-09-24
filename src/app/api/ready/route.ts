@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { generateRequestId, REQUEST_ID_HEADER } from "@/lib/api/response";
+import { getCoverageQaProvider } from "@/lib/coverage/agent/provider";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,45 @@ interface ReadinessCheck {
   name: string;
   ok: boolean;
   detail?: string;
+}
+
+/**
+ * Matches getCoverageQaProvider(): openai runs only when the key is present.
+ * A missing key falls back to the rules engine, which can still serve Preview.
+ * Production must not advertise openai without the key.
+ */
+function coverageProviderCheck(): ReadinessCheck {
+  const configured = (process.env.COVERAGE_QA_PROVIDER ?? "demo").trim();
+  const effective = getCoverageQaProvider();
+  const hasOpenAiKey = Boolean(process.env.OPENAI_API_KEY);
+
+  if (effective === "openai") {
+    return {
+      name: "coverage_qa_provider",
+      ok: true,
+      detail: "openai",
+    };
+  }
+
+  if (configured === "openai" && !hasOpenAiKey) {
+    const production = process.env.VERCEL_ENV === "production";
+    return {
+      name: "coverage_qa_provider",
+      ok: !production,
+      detail: production
+        ? "Production set COVERAGE_QA_PROVIDER=openai but OPENAI_API_KEY is missing"
+        : "rules fallback; OPENAI_API_KEY is not set in this environment",
+    };
+  }
+
+  return {
+    name: "coverage_qa_provider",
+    ok: true,
+    detail:
+      configured === "demo"
+        ? "demo provider (no external AI)"
+        : `rules (${configured})`,
+  };
 }
 
 export async function GET() {
@@ -37,15 +77,7 @@ export async function GET() {
     });
   }
 
-  const coverageProvider = process.env.COVERAGE_QA_PROVIDER ?? "demo";
-  checks.push({
-    name: "coverage_qa_provider",
-    ok: coverageProvider === "demo" || Boolean(process.env.OPENAI_API_KEY),
-    detail:
-      coverageProvider === "demo"
-        ? "demo provider (no external AI)"
-        : "openai configured",
-  });
+  checks.push(coverageProviderCheck());
 
   const ready = checks.every((check) => check.ok);
   const status = ready ? 200 : 503;

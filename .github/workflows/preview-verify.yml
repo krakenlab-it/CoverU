@@ -97,6 +97,13 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
 
+      - name: Wait until preview serves this commit
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ needs.discover.outputs.preview_url }}
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: node scripts/wait-for-preview-commit.mjs
+
       - name: Preview smoke checks
         env:
           PLAYWRIGHT_BASE_URL: ${{ needs.discover.outputs.preview_url }}

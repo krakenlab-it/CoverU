@@ -40,7 +40,11 @@ The `Preview verification` workflow:
 1. Skips safely for fork PRs (no false green — job reports skipped).
 2. Discovers a Vercel preview URL from GitHub Deployments or Vercel bot comments.
 3. If no URL is found yet, exits neutrally (does not fail the PR).
-4. When a URL is found, runs a minimal Playwright smoke subset against `PLAYWRIGHT_BASE_URL`.
+4. When a URL is found, waits until `/api/health` reports `VERCEL_GIT_COMMIT_SHA` for this commit, then runs a minimal Playwright smoke subset against `PLAYWRIGHT_BASE_URL`.
+
+Preview HTML checks use `domcontentloaded`. They do not wait for `networkidle`, because the Vercel preview toolbar keeps a connection open and that wait consumed the whole test timeout after the page had already rendered.
+
+`/api/ready` follows `getCoverageQaProvider()`. If `COVERAGE_QA_PROVIDER=openai` but `OPENAI_API_KEY` is absent, Preview stays ready on the rules engine. Production stays not ready until that key is set on the Production environment. Deployment Protection is optional: if it is enabled, set the GitHub Actions repository secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation). The Preview verification workflow already sends it as `x-vercel-protection-bypass`.
 
 No new repository secrets are required for local CI or fork PRs.
 
