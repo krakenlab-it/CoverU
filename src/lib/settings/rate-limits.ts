@@ -1,4 +1,4 @@
-import { getRateLimiter } from "@/lib/api/rate-limit";
+import { getDefaultRateLimit } from "@/lib/api/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasServiceRole } from "@/lib/settings/session";
 
@@ -17,8 +17,17 @@ export interface RateLimitUpdateInput {
   windowMs: number;
 }
 
-const DEFAULT_LIMIT = Number(process.env.API_RATE_LIMIT ?? "100");
-const DEFAULT_WINDOW_MS = Number(process.env.API_RATE_WINDOW_MS ?? "60000");
+export async function getEffectiveRateLimit(
+  organizationId: string,
+): Promise<{ limit: number; windowMs: number }> {
+  const defaults = getDefaultRateLimit();
+  const orgSettings = await readOrgSettings(organizationId);
+
+  return {
+    limit: orgSettings?.requests ?? defaults.limit,
+    windowMs: orgSettings?.windowMs ?? defaults.windowMs,
+  };
+}
 
 function formatWindowLabel(windowMs: number): string {
   if (windowMs % 3600000 === 0) {
@@ -61,31 +70,18 @@ export async function getOrgRateLimitPolicy(
   organizationId: string,
 ): Promise<RateLimitPolicy> {
   const serviceConfigured = hasServiceRole();
+  const defaults = getDefaultRateLimit();
   const orgSettings = await readOrgSettings(organizationId);
-
-  const requestsPerWindow = orgSettings?.requests ?? DEFAULT_LIMIT;
-  const windowMs = orgSettings?.windowMs ?? DEFAULT_WINDOW_MS;
-  const source = orgSettings?.source ?? "env";
-
-  let remaining: number | null = null;
-  let resetAt: string | null = null;
-
-  try {
-    const probe = await getRateLimiter().check(`org-display:${organizationId}`);
-    remaining = probe.remaining;
-    resetAt = new Date(probe.resetAt).toISOString();
-  } catch {
-    remaining = null;
-    resetAt = null;
-  }
+  const requestsPerWindow = orgSettings?.requests ?? defaults.limit;
+  const windowMs = orgSettings?.windowMs ?? defaults.windowMs;
 
   return {
     requestsPerWindow,
     windowMs,
     windowLabel: formatWindowLabel(windowMs),
-    source,
-    remaining,
-    resetAt,
+    source: orgSettings?.source ?? "env",
+    remaining: null,
+    resetAt: null,
     serviceConfigured,
   };
 }

@@ -8,6 +8,7 @@ import {
 } from "@/lib/catalog-enums";
 import { formatUsd } from "@/lib/coverage/tariff-snapshot";
 import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
+import { resolveInsurerLogoUrl } from "@/lib/insurers/assets";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import type { MarketplaceFilters, QuoteState } from "@/lib/marketplace/types";
 import type { Tariff } from "@/lib/types/database";
@@ -143,7 +144,7 @@ export function PlanDetailViewer({
         <div className="px-6 py-8 sm:px-8">
           <InsurerIdentity
             name={insurer.name}
-            logoUrl={insurer.logo_url}
+            logoUrl={resolveInsurerLogoUrl(insurer)}
             size="md"
             nameClassName="text-coveru-gray"
           />

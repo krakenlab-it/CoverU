@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatCatalogDisplayName } from "@/lib/marketplace/display";
 import type { QuoteState } from "@/lib/marketplace/types";
-import { formatCLP } from "@/lib/marketplace/format";
+import { formatUsd } from "@/lib/marketplace/format";
 import { motion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -103,12 +103,12 @@ export function MarketplacePlanCard({
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Prima mensual estimada</p>
               <p className="text-3xl font-bold tracking-tight text-primary">
-                {formatCLP(monthlyPrice)}
+                {formatUsd(monthlyPrice)}
                 <span className="ml-1 text-sm font-normal text-muted-foreground">/mes</span>
               </p>
               {deductible != null ? (
                 <p className="text-xs text-muted-foreground">
-                  Deducible: {formatCLP(deductible)}
+                  Deducible: {formatUsd(deductible)}
                 </p>
               ) : null}
             </div>

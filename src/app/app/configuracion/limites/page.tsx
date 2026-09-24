@@ -54,20 +54,6 @@ export default async function RateLimitsSettingsPage() {
               <dt className="text-muted-foreground">Origen</dt>
               <dd className="font-medium">{sourceLabel(policy.source)}</dd>
             </div>
-            <div>
-              <dt className="text-muted-foreground">Restantes (aprox.)</dt>
-              <dd className="font-medium">
-                {policy.remaining != null ? policy.remaining : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Reinicio</dt>
-              <dd className="font-medium">
-                {policy.resetAt
-                  ? new Date(policy.resetAt).toLocaleString("es-EC")
-                  : "—"}
-              </dd>
-            </div>
           </dl>
         </CardContent>
       </Card>

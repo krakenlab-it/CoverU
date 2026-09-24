@@ -16,6 +16,19 @@ export interface ApiErrorBody {
   request_id: string;
 }
 
+export function apiDatabaseError(
+  requestId: string,
+  error: { message?: string },
+): NextResponse<ApiErrorBody> {
+  console.error("database_error", error.message ?? "unknown");
+  return apiError(
+    requestId,
+    500,
+    "database_error",
+    "Error al consultar la base de datos",
+  );
+}
+
 export function apiError(
   requestId: string,
   status: number,

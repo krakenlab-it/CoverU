@@ -72,4 +72,17 @@ describe("GET /auth/callback", () => {
 
     expect(response.headers.get("location")).toBe("https://cover-u-app.vercel.app/app");
   });
+
+  it("rejects backslash open redirects", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://cover-u-app.vercel.app";
+    exchangeCodeForSession.mockResolvedValueOnce({ error: null });
+
+    const response = await GET(
+      new Request(
+        "https://cover-u-app.vercel.app/auth/callback?code=abc&next=/%5Cevil.example",
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe("https://cover-u-app.vercel.app/app");
+  });
 });

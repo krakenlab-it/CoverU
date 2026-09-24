@@ -21,4 +21,24 @@ describe("insurer assets", () => {
       resolveInsurerLogoUrl({ slug: "confiamed", logo_url: "/insurers/confiamed.png" }, { square: true }),
     ).toBe("/insurers/confiamed.png");
   });
+
+  it("falls back to known carrier assets and rejects remote logo URLs", () => {
+    expect(
+      resolveInsurerLogoUrl({ slug: "saludsa", logo_url: null }),
+    ).toBe("/insurers/saludsa.svg");
+
+    expect(
+      resolveInsurerLogoUrl({
+        slug: "bmi",
+        logo_url: "https://evil.example/logo.png",
+      }),
+    ).toBe("/insurers/bmi.png");
+
+    expect(
+      resolveInsurerLogoUrl({
+        slug: "unknown",
+        logo_url: "https://evil.example/logo.png",
+      }),
+    ).toBeNull();
+  });
 });

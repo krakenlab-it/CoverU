@@ -31,6 +31,23 @@ export function verifyApiKey(rawKey: string, storedHash: string): boolean {
   return timingSafeEqual(computed, storedHash);
 }
 
+/**
+ * Prefix lookup can return more than one active key. Compare every hash so a
+ * collision does not fail the query or authenticate the wrong key.
+ */
+export function findMatchingApiKey<T extends { key_hash: string }>(
+  records: T[],
+  rawKey: string,
+): T | null {
+  let match: T | null = null;
+  for (const record of records) {
+    if (verifyApiKey(rawKey, record.key_hash)) {
+      match = record;
+    }
+  }
+  return match;
+}
+
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let result = 0;

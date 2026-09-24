@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthPageFooter, AuthPageShell } from "@/components/auth/AuthPageShell";
+import { safeInternalPath } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
 import { type CoveruEnvDiagnostics } from "@/lib/supabase/env-diagnostics";
 import { useLogCoveruEnv } from "@/lib/supabase/use-log-coveru-env";
@@ -26,7 +27,7 @@ export default function LoginForm({
 }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/app";
+  const redirect = safeInternalPath(searchParams.get("redirect"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);

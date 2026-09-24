@@ -1,4 +1,6 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
+import { canAccessOrganizationQuote } from "@/lib/api/quote-access";
+import { apiDatabaseError } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
@@ -53,23 +55,11 @@ export const GET = withApiV1(
       .maybeSingle();
 
     if (error) {
-      return apiError(requestId, 500, "database_error", error.message);
+      return apiDatabaseError(requestId, error);
     }
 
-    if (!quote) {
+    if (!quote || !canAccessOrganizationQuote(quote.organization_id, auth.organizationId)) {
       return apiError(requestId, 404, "not_found", "Cotización no encontrada");
-    }
-
-    if (
-      quote.organization_id &&
-      quote.organization_id !== auth.organizationId
-    ) {
-      return apiError(
-        requestId,
-        403,
-        "forbidden",
-        "No tienes acceso a esta cotización",
-      );
     }
 
     return apiSuccess(requestId, { quote });

@@ -24,6 +24,18 @@ describe("InMemoryRateLimiter", () => {
     expect(r3.remaining).toBe(0);
   });
 
+  it("applies a per-call limit override", async () => {
+    const limiter = new InMemoryRateLimiter(100, 60_000);
+    await limiter.check("org-key", { limit: 1, windowMs: 60_000 });
+    const blocked = await limiter.check("org-key", {
+      limit: 1,
+      windowMs: 60_000,
+    });
+
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.limit).toBe(1);
+  });
+
   it("isolates keys", async () => {
     const limiter = new InMemoryRateLimiter(1, 60_000);
     await limiter.check("key-a");

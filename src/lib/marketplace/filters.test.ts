@@ -38,6 +38,22 @@ describe("marketplace filters", () => {
     expect(filters.pageSize).toBe(24);
   });
 
+  it("ignores non-numeric and unknown gender filters", () => {
+    const filters = parseMarketplaceFilters(
+      new URLSearchParams({
+        age: "nope",
+        gender: "otro",
+        price_min: "Infinity",
+        deductible_max: "abc",
+      }),
+    );
+
+    expect(filters.age).toBeUndefined();
+    expect(filters.gender).toBeUndefined();
+    expect(filters.priceMin).toBeUndefined();
+    expect(filters.deductibleMax).toBeUndefined();
+  });
+
   it("serializes price range filters", () => {
     const params = marketplaceFiltersToSearchParams({
       priceMin: 40,

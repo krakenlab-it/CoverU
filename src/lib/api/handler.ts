@@ -9,6 +9,7 @@ import {
   type UsageLogMetadata,
 } from "@/lib/api/usage-log";
 import { getRateLimiter } from "@/lib/api/rate-limit";
+import { getEffectiveRateLimit } from "@/lib/settings/rate-limits";
 import {
   apiError,
   apiSuccess,
@@ -56,8 +57,10 @@ export function withApiV1(
       );
     }
 
+    const policy = await getEffectiveRateLimit(authResult.context.organizationId);
     const rateLimit = await getRateLimiter().check(
       `api:${authResult.context.apiKeyId}`,
+      policy,
     );
 
     if (!rateLimit.allowed) {
