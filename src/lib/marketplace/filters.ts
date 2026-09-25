@@ -1,4 +1,5 @@
 import { TARIFF_REGIONS, type TariffRegion } from "@/lib/catalog-enums";
+import { GENDER_OPTIONS } from "@/lib/regions";
 import {
   normalizePage,
   normalizePageSize,
@@ -13,6 +14,20 @@ const SORT_OPTIONS: SortOption[] = [
 ];
 
 const TARIFF_REGION_VALUES = TARIFF_REGIONS.map((r) => r.value);
+const GENDER_VALUES = GENDER_OPTIONS.map((option) => option.value);
+
+function parseFiniteNumber(value: string | null): number | undefined {
+  if (value == null || value.trim() === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseGender(value: string | null): string | undefined {
+  if (!value) return undefined;
+  return GENDER_VALUES.includes(value as (typeof GENDER_VALUES)[number])
+    ? value
+    : undefined;
+}
 
 export function parseTariffRegion(value: string | null): TariffRegion | undefined {
   if (!value) return undefined;
@@ -24,12 +39,6 @@ export function parseTariffRegion(value: string | null): TariffRegion | undefine
 export function parseMarketplaceFilters(
   searchParams: URLSearchParams,
 ): MarketplaceFilters {
-  const ageRaw = searchParams.get("age");
-  const deductibleRaw = searchParams.get("deductible_max");
-  const waitingRaw = searchParams.get("waiting_max");
-  const priceMinRaw = searchParams.get("price_min");
-  const priceMaxRaw = searchParams.get("price_max");
-
   const sortRaw = searchParams.get("sort");
   const sort = SORT_OPTIONS.includes(sortRaw as SortOption)
     ? (sortRaw as SortOption)
@@ -40,15 +49,15 @@ export function parseMarketplaceFilters(
 
   return {
     insurerId: searchParams.get("insurer_id") ?? undefined,
-    age: ageRaw ? Number(ageRaw) : undefined,
-    gender: searchParams.get("gender") ?? undefined,
+    age: parseFiniteNumber(searchParams.get("age")),
+    gender: parseGender(searchParams.get("gender")),
     region: parseTariffRegion(searchParams.get("region")),
     category: searchParams.get("category") ?? undefined,
-    deductibleMax: deductibleRaw ? Number(deductibleRaw) : undefined,
-    waitingMaxDays: waitingRaw ? Number(waitingRaw) : undefined,
+    deductibleMax: parseFiniteNumber(searchParams.get("deductible_max")),
+    waitingMaxDays: parseFiniteNumber(searchParams.get("waiting_max")),
     keyword: searchParams.get("q")?.trim() || undefined,
-    priceMin: priceMinRaw ? Number(priceMinRaw) : undefined,
-    priceMax: priceMaxRaw ? Number(priceMaxRaw) : undefined,
+    priceMin: parseFiniteNumber(searchParams.get("price_min")),
+    priceMax: parseFiniteNumber(searchParams.get("price_max")),
     sort,
     page: pageRaw ? normalizePage(Number(pageRaw)) : undefined,
     pageSize: pageSizeRaw ? normalizePageSize(Number(pageSizeRaw)) : undefined,

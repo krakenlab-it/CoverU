@@ -12,6 +12,7 @@ import {
   serializeCompareIds,
   toggleCompareId,
 } from "@/lib/marketplace/compare";
+import { resolveInsurerLogoUrl } from "@/lib/insurers/assets";
 import { filtersToQueryString } from "@/lib/marketplace/filters";
 import type { MarketplaceFilters, MarketplacePlanResult } from "@/lib/marketplace/types";
 import type { PaginatedSlice } from "@/lib/marketplace/pagination";
@@ -88,7 +89,7 @@ export function MarketplaceResultsGrid({
               planVersionId={planVersion.id}
               planName={plan.name}
               insurerName={insurer.name}
-              insurerLogoUrl={insurer.logo_url}
+              insurerLogoUrl={resolveInsurerLogoUrl(insurer, { square: true })}
               monthlyPrice={result.monthlyPrice}
               quoteState={result.quoteState}
               deductible={tariff?.deductible}

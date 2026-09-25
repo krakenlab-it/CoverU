@@ -7,8 +7,9 @@ const PROTECTION_MARKERS = [
 ];
 
 export async function gotoPreviewPath(page: Page, path: string) {
-  await page.goto(path, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => undefined);
+  // Do not wait for networkidle. Vercel preview keeps a connection open, and
+  // that 30s wait used the entire test budget after the page had already rendered.
+  await page.goto(path, { waitUntil: "domcontentloaded", timeout: 45_000 });
 
   const title = await page.title();
   const bodyText = await page.locator("body").innerText().catch(() => "");

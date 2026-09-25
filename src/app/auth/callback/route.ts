@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
+import { safeInternalPath } from "@/lib/auth/safe-redirect";
 import { getAuthSiteUrl } from "@/lib/auth/site-url";
 import { createClient } from "@/lib/supabase/server";
-
-function resolveRedirectPath(next: string | null): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/app";
-  }
-
-  return next;
-}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = resolveRedirectPath(requestUrl.searchParams.get("next"));
+  const next = safeInternalPath(requestUrl.searchParams.get("next"));
 
   const siteUrl = getAuthSiteUrl();
   const redirectUrl = new URL(next, siteUrl);

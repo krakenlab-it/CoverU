@@ -10,6 +10,8 @@ import {
  * Runs without starting a local web server (PLAYWRIGHT_BASE_URL is set in CI).
  */
 test.describe("preview deployment smoke", () => {
+  test.describe.configure({ timeout: 60_000 });
+
   test("landing page is reachable", async ({ page }) => {
     await gotoPreviewPath(page, "/");
     await expectCoverULanding(page);

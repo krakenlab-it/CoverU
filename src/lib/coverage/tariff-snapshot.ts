@@ -1,5 +1,8 @@
+import { formatUsd } from "@/lib/marketplace/format";
 import type { MatchedTariffSnapshot } from "@/lib/types/phase1";
 import type { Tariff } from "@/lib/types/database";
+
+export { formatUsd };
 
 export function toTariffSnapshot(tariff: Tariff): MatchedTariffSnapshot {
   return {
@@ -15,15 +18,6 @@ export function toTariffSnapshot(tariff: Tariff): MatchedTariffSnapshot {
     monthly_price: tariff.monthly_price,
     tax_included: tariff.tax_included ?? null,
   };
-}
-
-export function formatUsd(amount: number): string {
-  return new Intl.NumberFormat("es-EC", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
 }
 
 export function describeTariffDimensions(snapshot: MatchedTariffSnapshot): string {

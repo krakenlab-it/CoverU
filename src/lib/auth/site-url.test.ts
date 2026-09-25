@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { buildAuthCallbackUrl, getAuthSiteUrl } from "@/lib/auth/site-url";
+import {
+  buildAuthCallbackUrl,
+  getAuthSiteUrl,
+  resolveAuthSiteUrl,
+} from "@/lib/auth/site-url";
 
 const ENV_KEYS = [
   "NEXT_PUBLIC_SITE_URL",
@@ -61,6 +65,16 @@ describe("buildAuthCallbackUrl", () => {
     );
     expect(buildAuthCallbackUrl("/actualizar-contrasena")).toBe(
       "https://cover-u-app.vercel.app/auth/callback?next=%2Factualizar-contrasena",
+    );
+  });
+
+  it("uses the browser origin when public site URL is unset", () => {
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    delete process.env.VERCEL_URL;
+
+    expect(resolveAuthSiteUrl("https://coveru.ec")).toBe("https://coveru.ec");
+    expect(buildAuthCallbackUrl("/actualizar-contrasena", "https://coveru.ec")).toBe(
+      "https://coveru.ec/auth/callback?next=%2Factualizar-contrasena",
     );
   });
 });

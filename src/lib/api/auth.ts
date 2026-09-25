@@ -1,8 +1,8 @@
 import type { ApiAuthContext } from "@/lib/types/phase1";
 import {
   extractKeyPrefix,
+  findMatchingApiKey,
   hashApiKey,
-  verifyApiKey,
 } from "@/lib/api/api-key";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
@@ -65,7 +65,7 @@ export async function authenticateApiKey(
 
   const prefix = extractKeyPrefix(rawKey);
 
-  const { data: keyRecord, error } = await supabase
+  const { data: keyRecords, error } = await supabase
     .from("api_keys")
     .select(
       `
@@ -84,19 +84,11 @@ export async function authenticateApiKey(
     `,
     )
     .eq("key_prefix", prefix)
-    .eq("status", "active")
-    .maybeSingle();
+    .eq("status", "active");
+
+  const keyRecord = findMatchingApiKey(keyRecords ?? [], rawKey);
 
   if (error || !keyRecord) {
-    return {
-      ok: false,
-      code: "invalid_api_key",
-      message: "API key inválida o revocada",
-      status: 401,
-    };
-  }
-
-  if (!verifyApiKey(rawKey, keyRecord.key_hash)) {
     return {
       ok: false,
       code: "invalid_api_key",

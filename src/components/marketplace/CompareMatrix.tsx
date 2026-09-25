@@ -1,5 +1,5 @@
 import { getCategoryLabel } from "@/lib/marketplace/catalog";
-import { formatCLP, formatDate } from "@/lib/marketplace/format";
+import { formatDate, formatUsd } from "@/lib/marketplace/format";
 import { WAITING_PERIOD_LABELS } from "@/lib/marketplace/categories";
 import type { ComparePlanEntry } from "@/lib/marketplace/types";
 import type {
@@ -8,6 +8,7 @@ import type {
   WaitingPeriod,
 } from "@/lib/types/phase1";
 import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
+import { resolveInsurerLogoUrl } from "@/lib/insurers/assets";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
 import Link from "next/link";
 import { EmptyState } from "@/components/platform/EmptyState";
@@ -73,7 +74,7 @@ export function CompareMatrix({
               <th key={e.planVersionId} scope="col" className="min-w-[200px] p-3 text-left">
                 <InsurerIdentity
                   name={e.insurer.name}
-                  logoUrl={e.insurer.logo_url}
+                  logoUrl={resolveInsurerLogoUrl(e.insurer, { square: true })}
                   size="sm"
                   className="mb-1"
                 />
@@ -95,7 +96,7 @@ export function CompareMatrix({
                 {e.monthlyPrice != null ? (
                   <>
                     <span className="text-lg font-bold text-coveru-red">
-                      {formatCLP(e.monthlyPrice)}
+                      {formatUsd(e.monthlyPrice)}
                     </span>
                     <p className="text-xs text-coveru-gray">
                       {e.quoteState === "indicative"
@@ -116,7 +117,7 @@ export function CompareMatrix({
             {entries.map((e) => (
               <td key={e.planVersionId} className="p-3 align-top">
                 {e.tariff?.deductible != null
-                  ? formatCLP(e.tariff.deductible)
+                  ? formatUsd(e.tariff.deductible)
                   : "—"}
               </td>
             ))}

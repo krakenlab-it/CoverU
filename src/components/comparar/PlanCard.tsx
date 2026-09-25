@@ -2,7 +2,7 @@ import { DemoBadge } from "@/components/platform/DemoBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ComparisonResult } from "@/lib/types/database";
 import { getRegionLabel } from "@/lib/regions";
-import { formatCLP } from "@/lib/marketplace/format";
+import { formatUsd } from "@/lib/marketplace/format";
 import { motion } from "@/lib/motion";
 
 interface PlanCardProps {
@@ -26,7 +26,7 @@ export function PlanCard({ result }: PlanCardProps) {
         <div className="rounded-xl bg-muted/60 p-4">
           <p className="text-sm text-muted-foreground">Tú pagas</p>
           <p className="text-3xl font-bold text-primary">
-            {formatCLP(tariff.monthly_price)}
+            {formatUsd(tariff.monthly_price)}
             <span className="text-base font-normal text-muted-foreground">/mes</span>
           </p>
         </div>
@@ -39,7 +39,7 @@ export function PlanCard({ result }: PlanCardProps) {
           {tariff.deductible != null ? (
             <div>
               <dt className="text-muted-foreground">Deducible anual</dt>
-              <dd className="font-medium">{formatCLP(tariff.deductible)}</dd>
+              <dd className="font-medium">{formatUsd(tariff.deductible)}</dd>
             </div>
           ) : null}
           {tariff.copay_pct != null ? (
@@ -51,7 +51,7 @@ export function PlanCard({ result }: PlanCardProps) {
           {tariff.annual_limit != null ? (
             <div>
               <dt className="text-muted-foreground">Tope anual</dt>
-              <dd className="font-medium">{formatCLP(tariff.annual_limit)}</dd>
+              <dd className="font-medium">{formatUsd(tariff.annual_limit)}</dd>
             </div>
           ) : null}
         </dl>

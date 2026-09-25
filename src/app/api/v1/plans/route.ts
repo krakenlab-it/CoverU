@@ -1,5 +1,5 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
-import { parsePaginationParams } from "@/lib/api/response";
+import { apiDatabaseError, parsePaginationParams } from "@/lib/api/response";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
@@ -46,7 +46,7 @@ export const GET = withApiV1(
       .range(from, to);
 
     if (error) {
-      return apiError(requestId, 500, "database_error", error.message);
+      return apiDatabaseError(requestId, error);
     }
 
     return apiSuccess(requestId, {

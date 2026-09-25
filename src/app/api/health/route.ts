@@ -10,6 +10,7 @@ export async function GET() {
     {
       status: "ok",
       service: "coveru",
+      commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
       timestamp: new Date().toISOString(),
       request_id: requestId,
     },

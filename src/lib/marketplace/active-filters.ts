@@ -1,4 +1,5 @@
 import { getTariffRegionLabel } from "@/lib/catalog-enums";
+import { formatUsd } from "@/lib/marketplace/format";
 import { CATEGORY_LABELS } from "@/lib/marketplace/categories";
 import type { MarketplaceFilters } from "@/lib/marketplace/types";
 import { GENDER_OPTIONS } from "@/lib/regions";
@@ -80,7 +81,7 @@ export function getActiveFilterChips(
     chips.push({
       key: "deductibleMax",
       label: "Deducible máx.",
-      value: `$${filters.deductibleMax.toLocaleString("es-CL")}`,
+      value: formatUsd(filters.deductibleMax),
     });
   }
 

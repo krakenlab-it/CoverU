@@ -47,7 +47,10 @@ export default function RecuperarForm({
       return;
     }
 
-    const redirectTo = buildAuthCallbackUrl("/actualizar-contrasena");
+    const redirectTo = buildAuthCallbackUrl(
+      "/actualizar-contrasena",
+      window.location.origin,
+    );
 
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       email,

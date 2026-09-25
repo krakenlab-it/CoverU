@@ -6,12 +6,18 @@ export interface RateLimitResult {
 }
 
 export interface RateLimiter {
-  check(key: string): Promise<RateLimitResult>;
+  check(key: string, policy?: RateLimitWindow): Promise<RateLimitResult>;
 }
 
 interface WindowEntry {
   count: number;
   resetAt: number;
+  windowMs: number;
+}
+
+export interface RateLimitWindow {
+  limit: number;
+  windowMs: number;
 }
 
 /**
@@ -27,25 +33,30 @@ export class InMemoryRateLimiter implements RateLimiter {
     private readonly windowMs: number,
   ) {}
 
-  async check(key: string): Promise<RateLimitResult> {
+  async check(
+    key: string,
+    policy?: RateLimitWindow,
+  ): Promise<RateLimitResult> {
+    const limit = policy?.limit ?? this.limit;
+    const windowMs = policy?.windowMs ?? this.windowMs;
     const now = Date.now();
     const entry = this.windows.get(key);
 
-    if (!entry || now >= entry.resetAt) {
-      const resetAt = now + this.windowMs;
-      this.windows.set(key, { count: 1, resetAt });
+    if (!entry || now >= entry.resetAt || entry.windowMs !== windowMs) {
+      const resetAt = now + windowMs;
+      this.windows.set(key, { count: 1, resetAt, windowMs });
       return {
         allowed: true,
-        limit: this.limit,
-        remaining: this.limit - 1,
+        limit,
+        remaining: Math.max(0, limit - 1),
         resetAt,
       };
     }
 
-    if (entry.count >= this.limit) {
+    if (entry.count >= limit) {
       return {
         allowed: false,
-        limit: this.limit,
+        limit,
         remaining: 0,
         resetAt: entry.resetAt,
       };
@@ -54,21 +65,36 @@ export class InMemoryRateLimiter implements RateLimiter {
     entry.count += 1;
     return {
       allowed: true,
-      limit: this.limit,
-      remaining: this.limit - entry.count,
+      limit,
+      remaining: Math.max(0, limit - entry.count),
       resetAt: entry.resetAt,
     };
   }
 }
 
-const DEFAULT_LIMIT = Number(process.env.API_RATE_LIMIT ?? "100");
-const DEFAULT_WINDOW_MS = Number(process.env.API_RATE_WINDOW_MS ?? "60000");
+function readPositiveNumber(raw: string | undefined, fallback: number): number {
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return parsed;
+}
+
+export function getDefaultRateLimit(): RateLimitWindow {
+  return {
+    limit: readPositiveNumber(process.env.API_RATE_LIMIT, 100),
+    windowMs: readPositiveNumber(process.env.API_RATE_WINDOW_MS, 60_000),
+  };
+}
+
+const DEFAULT_POLICY = getDefaultRateLimit();
 
 let sharedLimiter: RateLimiter | null = null;
 
 export function getRateLimiter(): RateLimiter {
   if (!sharedLimiter) {
-    sharedLimiter = new InMemoryRateLimiter(DEFAULT_LIMIT, DEFAULT_WINDOW_MS);
+    sharedLimiter = new InMemoryRateLimiter(
+      DEFAULT_POLICY.limit,
+      DEFAULT_POLICY.windowMs,
+    );
   }
   return sharedLimiter;
 }

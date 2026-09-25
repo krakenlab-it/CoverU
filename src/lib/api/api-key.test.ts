@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   extractKeyPrefix,
+  findMatchingApiKey,
   hashApiKey,
   verifyApiKey,
 } from "@/lib/api/api-key";
@@ -27,5 +28,16 @@ describe("api-key", () => {
   it("rejects non-matching keys", () => {
     const hash = hashApiKey(TEST_API_KEY);
     expect(verifyApiKey("cov_wrong_key", hash)).toBe(false);
+  });
+
+  it("matches the correct key when prefixes collide", () => {
+    const otherKey = "cov_test_other_key_aaaaaaaa";
+    const records = [
+      { id: "a", key_hash: hashApiKey(otherKey) },
+      { id: "b", key_hash: hashApiKey(TEST_API_KEY) },
+    ];
+
+    expect(findMatchingApiKey(records, TEST_API_KEY)?.id).toBe("b");
+    expect(findMatchingApiKey(records, "cov_missing")).toBeNull();
   });
 });
