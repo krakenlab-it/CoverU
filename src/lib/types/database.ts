@@ -1,4 +1,5 @@
 import type { TariffGender, TariffMaternidad, TariffRegion, GrupoAsegurado } from "@/lib/catalog-enums";
+import type { FunnelSource, FunnelStep } from "@/lib/analytics/funnel-events";
 import type { LeadIntent } from "@/lib/leads/consent";
 
 export interface Insurer {
@@ -90,4 +91,21 @@ export interface ComparisonResult {
   tariff: Tariff;
   plan: Plan;
   insurer: Insurer;
+}
+
+/**
+ * Row in public.funnel_events (KAN-240). Typed columns only: the table has no
+ * JSONB payload, so health data has nowhere to land.
+ */
+/** Keeps the table's column types anchored to the event contract. */
+export type FunnelEventSource = FunnelSource;
+
+export interface FunnelEventRecord {
+  id: string;
+  organization_id: string | null;
+  step: FunnelStep;
+  source: FunnelSource;
+  lead_intent: LeadIntent | null;
+  offer_count: number | null;
+  created_at: string;
 }

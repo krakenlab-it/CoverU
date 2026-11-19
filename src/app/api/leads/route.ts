@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { emitFunnelEvent } from "@/lib/analytics/emit";
 import { LEAD_CONSENT_VERSION } from "@/lib/leads/consent";
 import { leadInsert, type LeadInsertRow } from "@/lib/leads/lead-insert";
 import { fieldIssues, leadSchema, type LeadInput } from "@/lib/validation";
@@ -49,6 +50,26 @@ function toInsertRow(lead: LeadInput): LeadInsertRow {
   };
 }
 
+/**
+ * Funnel steps for an accepted lead. Every accepted lead is the `lead` step;
+ * an advisor request is additionally its own step, because it also opens the
+ * human work queue. Emitted in demo mode too — the emitter is a no-op without
+ * Supabase, and the funnel must not lose steps once a database is configured.
+ */
+async function recordLeadFunnelSteps(lead: LeadInput): Promise<void> {
+  const source = lead.intent === "contact" ? "contacto" : "cotizador";
+
+  await emitFunnelEvent({
+    step: "lead",
+    source,
+    properties: { intent: lead.intent },
+  });
+
+  if (lead.intent === "advisor") {
+    await emitFunnelEvent({ step: "advisor_request", source, properties: {} });
+  }
+}
+
 export async function POST(request: Request) {
   let body: unknown;
 
@@ -75,6 +96,15 @@ export async function POST(request: Request) {
 
   const result = await leadInsert(toInsertRow(parsed.data));
 
+  if (result.status === "error") {
+    return NextResponse.json(
+      { error: "No pudimos guardar tu solicitud. Intenta más tarde." },
+      { status: 500, headers: NO_CACHE_HEADERS },
+    );
+  }
+
+  await recordLeadFunnelSteps(parsed.data);
+
   if (result.status === "demo") {
     return NextResponse.json(
       {
@@ -85,13 +115,6 @@ export async function POST(request: Request) {
           "Lead recibido en modo demo (Supabase no configurado). Configura las variables de entorno para persistir.",
       },
       { headers: NO_CACHE_HEADERS },
-    );
-  }
-
-  if (result.status === "error") {
-    return NextResponse.json(
-      { error: "No pudimos guardar tu solicitud. Intenta más tarde." },
-      { status: 500, headers: NO_CACHE_HEADERS },
     );
   }
 

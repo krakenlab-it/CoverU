@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FunnelChart } from "@/components/dashboard/FunnelChart";
 import { UsageChart } from "@/components/developers/UsageChart";
 import { RequestLogsTable } from "@/components/settings/RequestLogsTable";
 import { EmptyState } from "@/components/platform/EmptyState";
@@ -8,6 +9,7 @@ import { SetupError } from "@/components/platform/SetupError";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDashboardAnalytics } from "@/lib/dashboard/analytics";
+import { getFunnelSummary } from "@/lib/dashboard/funnel";
 import { requireSettingsSession } from "@/lib/settings/session";
 import { buildAppMetadata } from "@/lib/seo/metadata";
 import { redirect } from "next/navigation";
@@ -26,6 +28,7 @@ export default async function DashboardPage() {
   }
 
   const analytics = await getDashboardAnalytics(session.organizationId);
+  const funnel = await getFunnelSummary(session.organizationId);
 
   if (analytics.error) {
     return <ErrorState message={analytics.error} />;
@@ -102,6 +105,22 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section aria-labelledby="funnel-heading">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 id="funnel-heading" className="text-lg font-semibold">
+            Embudo de conversión
+          </h2>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/app/embudo">Ver detalle del embudo</Link>
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <FunnelChart summary={funnel} />
+          </CardContent>
+        </Card>
       </section>
 
       <section aria-labelledby="shortcuts-heading">
