@@ -228,6 +228,134 @@ export function validatePhase1Requirements(files: string[]): MigrationIssue[] {
   return issues;
 }
 
+export const PLAN_CONDITIONS_MIGRATION = "20261119100000_plan_conditions.sql";
+
+export const PLAN_CONDITION_TABLES = [
+  "plan_deductibles",
+  "plan_coinsurance",
+  "plan_copays",
+  "plan_payment_modalities",
+  "plan_coverage_ceilings",
+] as const;
+
+/** Tables that already existed before KAN-230 and must only be extended, never re-created. */
+export const PRE_EXISTING_CONDITION_TABLES = ["exclusions", "waiting_periods"] as const;
+
+/**
+ * KAN-230 guardrails: plan conditions must be additive, versioned by plan_versions,
+ * RLS-protected, immutable after publish, and must not re-create existing tables.
+ */
+export function validatePlanConditionsSchema(files: string[]): MigrationIssue[] {
+  const issues: MigrationIssue[] = [];
+
+  if (!files.includes(PLAN_CONDITIONS_MIGRATION)) {
+    return [
+      {
+        file: "(missing)",
+        rule: "plan_conditions",
+        message: `Missing ${PLAN_CONDITIONS_MIGRATION}`,
+      },
+    ];
+  }
+
+  const content = readFileSync(join(MIGRATIONS_DIR, PLAN_CONDITIONS_MIGRATION), "utf-8");
+
+  for (const table of PLAN_CONDITION_TABLES) {
+    if (!new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+public\\.${table}\\b`, "i").test(content)) {
+      issues.push({
+        file: PLAN_CONDITIONS_MIGRATION,
+        rule: "plan_conditions",
+        message: `Plan conditions table ${table} must be created with IF NOT EXISTS (additive)`,
+      });
+    }
+
+    if (!new RegExp(`ALTER\\s+TABLE\\s+public\\.${table}\\s+ENABLE\\s+ROW\\s+LEVEL\\s+SECURITY`, "i").test(content)) {
+      issues.push({
+        file: PLAN_CONDITIONS_MIGRATION,
+        rule: "plan_conditions",
+        message: `Plan conditions table ${table} must enable RLS`,
+      });
+    }
+  }
+
+  const versionedTables = content.match(
+    /plan_version_id\s+UUID\s+NOT\s+NULL\s+REFERENCES\s+public\.plan_versions\(id\)/gi,
+  );
+  if ((versionedTables ?? []).length < PLAN_CONDITION_TABLES.length) {
+    issues.push({
+      file: PLAN_CONDITIONS_MIGRATION,
+      rule: "plan_conditions",
+      message: "Every plan conditions table must reference plan_versions(id) via plan_version_id",
+    });
+  }
+
+  for (const table of PRE_EXISTING_CONDITION_TABLES) {
+    if (new RegExp(`CREATE\\s+TABLE[^;]*public\\.${table}\\b`, "i").test(content)) {
+      issues.push({
+        file: PLAN_CONDITIONS_MIGRATION,
+        rule: "plan_conditions",
+        message: `${table} already exists in 20250102000000_phase1_schema.sql and must be extended, not re-created`,
+      });
+    }
+
+    if (new RegExp(`DROP\\s+TABLE[^;]*public\\.${table}\\b`, "i").test(content)) {
+      issues.push({
+        file: PLAN_CONDITIONS_MIGRATION,
+        rule: "plan_conditions",
+        message: `${table} must not be dropped by the plan conditions migration`,
+      });
+    }
+  }
+
+  if (!/prevent_published_plan_condition_change/.test(content)) {
+    issues.push({
+      file: PLAN_CONDITIONS_MIGRATION,
+      rule: "plan_conditions",
+      message: "Plan conditions must reuse the published-version immutability trigger pattern",
+    });
+  }
+
+  for (const table of PLAN_CONDITION_TABLES) {
+    if (!new RegExp(`CREATE\\s+TRIGGER\\s+${table}_immutable`, "i").test(content)) {
+      issues.push({
+        file: PLAN_CONDITIONS_MIGRATION,
+        rule: "plan_conditions",
+        message: `Table ${table} must have an immutability trigger`,
+      });
+    }
+  }
+
+  if (!/is_demo\s*=\s*true|\[DEMO\]/.test(content)) {
+    issues.push({
+      file: PLAN_CONDITIONS_MIGRATION,
+      rule: "plan_conditions",
+      message: "Plan conditions demo fixtures must be marked is_demo=true / [DEMO]",
+    });
+  }
+
+  const insertCount = (content.match(/\bINSERT\s+INTO\b/gi) ?? []).length;
+  const idempotentInserts = (content.match(/ON\s+CONFLICT|WHERE\s+NOT\s+EXISTS/gi) ?? [])
+    .length;
+  if (insertCount > 0 && idempotentInserts < insertCount) {
+    issues.push({
+      file: PLAN_CONDITIONS_MIGRATION,
+      rule: "plan_conditions",
+      message:
+        "Every plan conditions fixture insert must be replay-safe (ON CONFLICT or WHERE NOT EXISTS)",
+    });
+  }
+
+  if (/(DROP\s+COLUMN|DROP\s+CONSTRAINT\s+(?!IF\s+EXISTS))/i.test(content)) {
+    issues.push({
+      file: PLAN_CONDITIONS_MIGRATION,
+      rule: "plan_conditions",
+      message: "Plan conditions migration must be additive: no DROP COLUMN, drop constraints only with IF EXISTS",
+    });
+  }
+
+  return issues;
+}
+
 export function validateAllMigrations(): MigrationIssue[] {
   const files = listMigrationFiles();
   const issues: MigrationIssue[] = [
@@ -235,6 +363,7 @@ export function validateAllMigrations(): MigrationIssue[] {
     ...validatePhase1Requirements(files),
     ...validateRlsPresence(files),
     ...validateDuplicateHazards(files),
+    ...validatePlanConditionsSchema(files),
   ];
 
   for (const file of files) {

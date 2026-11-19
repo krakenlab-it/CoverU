@@ -10,6 +10,13 @@ import { formatUsd } from "@/lib/coverage/tariff-snapshot";
 import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
 import { resolveInsurerLogoUrl } from "@/lib/insurers/assets";
 import { VerdictBadge } from "@/components/marketplace/VerdictBadge";
+import { PlanConditionsPanel } from "@/components/marketplace/PlanConditionsPanel";
+import {
+  EXCLUSION_TYPE_LABELS,
+  EMPTY_PLAN_CONDITIONS,
+  hasPlanConditions,
+} from "@/lib/marketplace/plan-conditions";
+import type { PlanConditions } from "@/lib/marketplace/plan-conditions";
 import type { MarketplaceFilters, QuoteState } from "@/lib/marketplace/types";
 import type { Tariff } from "@/lib/types/database";
 import type {
@@ -99,6 +106,7 @@ interface PlanDetailViewerProps {
   waitingPeriods: WaitingPeriod[];
   policyDocuments: PolicyDocument[];
   citations: Citation[];
+  planConditions?: PlanConditions;
   tariff: Tariff | null;
   quoteState: QuoteState;
   monthlyPrice: number | null;
@@ -115,6 +123,7 @@ export function PlanDetailViewer({
   waitingPeriods,
   policyDocuments,
   citations,
+  planConditions = EMPTY_PLAN_CONDITIONS,
   tariff,
   quoteState,
   monthlyPrice,
@@ -126,7 +135,8 @@ export function PlanDetailViewer({
     exclusions.length > 0 ||
     waitingPeriods.length > 0 ||
     policyDocuments.length > 0 ||
-    citations.length > 0;
+    citations.length > 0 ||
+    hasPlanConditions(planConditions);
 
   const regionLabel = tariff?.region
     ? getTariffRegionLabel(String(tariff.region))
@@ -320,9 +330,16 @@ export function PlanDetailViewer({
           <ul className="space-y-4">
             {exclusions.map((ex) => (
               <li key={ex.id}>
-                <p className="text-sm font-medium text-foreground">
-                  {ex.title}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium text-foreground">
+                    {ex.title}
+                  </p>
+                  {ex.exclusion_type ? (
+                    <span className="rounded-full bg-coveru-light px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-coveru-gray">
+                      {EXCLUSION_TYPE_LABELS[ex.exclusion_type]}
+                    </span>
+                  ) : null}
+                </div>
                 {ex.description ? (
                   <p className="mt-1 text-sm leading-relaxed text-coveru-gray">
                     {ex.description}
@@ -359,6 +376,8 @@ export function PlanDetailViewer({
           </ul>
         </SectionShell>
       ) : null}
+
+      <PlanConditionsPanel conditions={planConditions} />
 
       {policyDocuments.length > 0 ? (
         <SectionShell

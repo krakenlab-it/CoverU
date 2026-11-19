@@ -232,6 +232,123 @@
             }
           }
         }
+      },
+      "PlanConditions": {
+        "type": "object",
+        "description": "Condiciones del plan versionadas con plan_versions y congeladas al publicarse la versión. Montos en USD (dólares, no centavos).",
+        "properties": {
+          "deductibles": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlanDeductible" }
+          },
+          "coinsurance": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlanCoinsurance" }
+          },
+          "copays": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlanCopay" }
+          },
+          "paymentModalities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlanPaymentModality" }
+          },
+          "ceilings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlanCoverageCeiling" }
+          }
+        }
+      },
+      "PlanDeductible": {
+        "type": "object",
+        "required": ["id", "plan_version_id", "scope", "basis", "amount"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "scope": { "type": "string", "enum": ["individual", "familiar"] },
+          "basis": {
+            "type": "string",
+            "enum": ["por_evento", "por_anio", "por_ingreso", "vitalicio"]
+          },
+          "amount": { "type": "number", "minimum": 0, "description": "USD" },
+          "notes": { "type": "string", "nullable": true },
+          "sort_order": { "type": "integer" }
+        }
+      },
+      "PlanCoinsurance": {
+        "type": "object",
+        "required": ["id", "plan_version_id", "network", "insurer_pct", "insured_pct"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "network": { "type": "string", "enum": ["en_red", "fuera_de_red"] },
+          "insurer_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+          "insured_pct": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "insurer_pct + insured_pct = 100"
+          },
+          "service_category": { "type": "string", "nullable": true },
+          "notes": { "type": "string", "nullable": true },
+          "sort_order": { "type": "integer" }
+        }
+      },
+      "PlanCopay": {
+        "type": "object",
+        "required": ["id", "plan_version_id", "service_category", "network", "amount"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "service_category": { "type": "string" },
+          "network": { "type": "string", "enum": ["en_red", "fuera_de_red"] },
+          "amount": { "type": "number", "minimum": 0, "description": "USD" },
+          "notes": { "type": "string", "nullable": true },
+          "sort_order": { "type": "integer" }
+        }
+      },
+      "PlanPaymentModality": {
+        "type": "object",
+        "required": ["id", "plan_version_id", "method", "frequency", "is_default"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "method": {
+            "type": "string",
+            "enum": ["debito", "tarjeta_credito", "transferencia", "efectivo", "otro"]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": ["mensual", "trimestral", "semestral", "anual"]
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "Como máximo una modalidad predeterminada por versión"
+          },
+          "payment_url": { "type": "string", "nullable": true, "format": "uri" },
+          "notes": { "type": "string", "nullable": true },
+          "sort_order": { "type": "integer" }
+        }
+      },
+      "PlanCoverageCeiling": {
+        "type": "object",
+        "required": ["id", "plan_version_id", "scope", "amount"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "scope": {
+            "type": "string",
+            "enum": ["por_persona", "por_familia", "por_evento", "por_anio", "vitalicio"]
+          },
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "USD"
+          },
+          "service_category": { "type": "string", "nullable": true },
+          "notes": { "type": "string", "nullable": true },
+          "sort_order": { "type": "integer" }
+        }
       }
     },
     "responses": {
@@ -310,13 +427,31 @@
     "/plan-versions": {
       "get": {
         "summary": "Detalle de versión de plan",
+        "description": "Devuelve la versión publicada con cláusulas, exclusiones, carencias, documentos, citas y condiciones del plan (deducibles, coaseguro, copagos, modalidad de pago y techos de cobertura).",
         "operationId": "getPlanVersion",
         "tags": ["Catálogo"],
         "parameters": [
           { "name": "id", "in": "query", "required": true, "schema": { "type": "string", "format": "uuid" } }
         ],
         "responses": {
-          "200": { "description": "Detalle con cláusulas, exclusiones y citas" },
+          "200": {
+            "description": "Detalle con cláusulas, exclusiones, carencias y condiciones del plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "plan_conditions": { "$ref": "#/components/schemas/PlanConditions" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "404": { "description": "Versión no encontrada" }
         }
       }
