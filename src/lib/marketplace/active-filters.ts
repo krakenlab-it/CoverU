@@ -1,8 +1,7 @@
-import { getTariffRegionLabel } from "@/lib/catalog-enums";
+import { GENDER_OPTIONS, getTariffRegionLabel } from "@/lib/catalog-enums";
 import { formatUsd } from "@/lib/marketplace/format";
 import { CATEGORY_LABELS } from "@/lib/marketplace/categories";
 import type { MarketplaceFilters } from "@/lib/marketplace/types";
-import { GENDER_OPTIONS } from "@/lib/regions";
 import type { Insurer } from "@/lib/types/database";
 
 export interface ActiveFilterChip {

@@ -6,7 +6,7 @@ Comparador de seguros de salud en Chile — Next.js App Router + Supabase.
 
 - Spanish landing with CoverÜ wordmark, Poppins font, and brand red `#DF0926`
 - Responsive header and footer
-- `/comparar` — age/gender/region gate with demo plan cards showing "tú pagas $X", honest limits, and expandable details
+- `/comparar` — mobile-first public quoter: age/gender/region profile → real v1.3 catalog tariffs (Saludsa, Confiamed, BMI) in USD per month
 - Static pages: `/nosotros`, `/agentes`, `/contacto`, `/faqs`
 - `/api/leads` — lead capture API
 - Supabase migrations for `insurers`, `plans`, `tariffs`, and `leads`
@@ -24,7 +24,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Logged-in marketplace: [http://localhost:3000/app/marketplace](http://localhost:3000/app/marketplace) (demo mode without Supabase).
 
-Without Supabase env vars, the app runs in demo mode using in-memory example data.
+Without Supabase env vars, the public quoter at `/comparar` serves the committed v1.3 catalog package (`data/catalog/v1.3`) and authenticated `/app` routes stay in demo mode.
 
 ## Environment variables
 

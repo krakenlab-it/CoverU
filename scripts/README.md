@@ -62,6 +62,8 @@ Steve runs this against Cover-U-DB after the PR merges.
 
 Coverage tables (`coverage_clauses`, `exclusions`, etc.) are header-only in v1.3 — the loader does not invent coverage text.
 
+The public quoter at `/comparar` reads the same package directly (via `src/lib/catalog/package.ts`) when Supabase is not configured, so the committed CSVs are a runtime dependency for CI and local development. `next.config.ts` traces them into the `/comparar` and `/api/compare` server bundles.
+
 ## Visual asset integration
 
 ```bash
