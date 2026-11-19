@@ -1,5 +1,6 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
 import { apiDatabaseError } from "@/lib/api/response";
+import { parsePlanConditions } from "@/lib/marketplace/plan-conditions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
@@ -76,6 +77,11 @@ export const GET = withApiV1(
       { data: exclusions },
       { data: waiting_periods },
       { data: policy_documents },
+      { data: plan_deductibles },
+      { data: plan_coinsurance },
+      { data: plan_copays },
+      { data: plan_payment_modalities },
+      { data: plan_coverage_ceilings },
     ] = await Promise.all([
       supabase
         .from("coverage_clauses")
@@ -95,6 +101,31 @@ export const GET = withApiV1(
         .from("policy_documents")
         .select("*")
         .eq("plan_version_id", versionId),
+      supabase
+        .from("plan_deductibles")
+        .select("*")
+        .eq("plan_version_id", versionId)
+        .order("sort_order"),
+      supabase
+        .from("plan_coinsurance")
+        .select("*")
+        .eq("plan_version_id", versionId)
+        .order("sort_order"),
+      supabase
+        .from("plan_copays")
+        .select("*")
+        .eq("plan_version_id", versionId)
+        .order("sort_order"),
+      supabase
+        .from("plan_payment_modalities")
+        .select("*")
+        .eq("plan_version_id", versionId)
+        .order("sort_order"),
+      supabase
+        .from("plan_coverage_ceilings")
+        .select("*")
+        .eq("plan_version_id", versionId)
+        .order("sort_order"),
     ]);
 
     const docIds = (policy_documents ?? []).map((d) => d.id);
@@ -117,6 +148,13 @@ export const GET = withApiV1(
       waiting_periods: waiting_periods ?? [],
       policy_documents: policy_documents ?? [],
       citations,
+      plan_conditions: parsePlanConditions({
+        deductibles: plan_deductibles,
+        coinsurance: plan_coinsurance,
+        copays: plan_copays,
+        paymentModalities: plan_payment_modalities,
+        ceilings: plan_coverage_ceilings,
+      }),
     });
   },
   { requiredScope: "read:catalog" },

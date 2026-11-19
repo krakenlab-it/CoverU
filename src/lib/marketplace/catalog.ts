@@ -4,6 +4,7 @@ import {
   matchesCategoryWithFallback,
 } from "@/lib/marketplace/category-match";
 import { findMatchingTariff } from "@/lib/marketplace/tariff-match";
+import { parsePlanConditions } from "@/lib/marketplace/plan-conditions";
 import type {
   ComparePlanEntry,
   MarketplaceFilters,
@@ -11,6 +12,7 @@ import type {
   QuoteState,
   SortOption,
 } from "@/lib/marketplace/types";
+import type { PlanConditions } from "@/lib/marketplace/plan-conditions";
 import type { Insurer, Plan, Tariff } from "@/lib/types/database";
 import type {
   Citation,
@@ -31,6 +33,7 @@ export interface PlanVersionDetail {
   waiting_periods: WaitingPeriod[];
   policy_documents: PolicyDocument[];
   citations: Citation[];
+  plan_conditions: PlanConditions;
 }
 
 function getQuoteState(tariff: Tariff | null): QuoteState {
@@ -399,6 +402,11 @@ export async function getPlanVersionDetailForMarketplace(
     { data: exclusions },
     { data: waiting_periods },
     { data: policy_documents },
+    { data: deductibles },
+    { data: coinsurance },
+    { data: copays },
+    { data: payment_modalities },
+    { data: ceilings },
   ] = await Promise.all([
     supabase
       .from("coverage_clauses")
@@ -418,6 +426,31 @@ export async function getPlanVersionDetailForMarketplace(
       .from("policy_documents")
       .select("*")
       .eq("plan_version_id", planVersionId),
+    supabase
+      .from("plan_deductibles")
+      .select("*")
+      .eq("plan_version_id", planVersionId)
+      .order("sort_order"),
+    supabase
+      .from("plan_coinsurance")
+      .select("*")
+      .eq("plan_version_id", planVersionId)
+      .order("sort_order"),
+    supabase
+      .from("plan_copays")
+      .select("*")
+      .eq("plan_version_id", planVersionId)
+      .order("sort_order"),
+    supabase
+      .from("plan_payment_modalities")
+      .select("*")
+      .eq("plan_version_id", planVersionId)
+      .order("sort_order"),
+    supabase
+      .from("plan_coverage_ceilings")
+      .select("*")
+      .eq("plan_version_id", planVersionId)
+      .order("sort_order"),
   ]);
 
   const docIds = (policy_documents ?? []).map((d) => d.id);
@@ -440,6 +473,13 @@ export async function getPlanVersionDetailForMarketplace(
     waiting_periods: (waiting_periods ?? []) as WaitingPeriod[],
     policy_documents: (policy_documents ?? []) as PolicyDocument[],
     citations,
+    plan_conditions: parsePlanConditions({
+      deductibles,
+      coinsurance,
+      copays,
+      paymentModalities: payment_modalities,
+      ceilings,
+    }),
   };
 }
 
