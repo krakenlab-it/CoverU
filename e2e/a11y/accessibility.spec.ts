@@ -26,6 +26,12 @@ const PUBLIC_TARGETS: A11yTarget[] = [
 
 const APP_TARGETS: A11yTarget[] = [
   {
+    name: "funnel",
+    path: "/app/embudo",
+    // Documented exception: persistent sidebar nav active link contrast (UI PR scope).
+    disableRules: ["color-contrast"],
+  },
+  {
     name: "marketplace",
     path: "/app/marketplace?age=30&gender=femenino&region=Nacional",
     // Documented exception: persistent sidebar nav (PR #8) active link contrast — UI PR scope.

@@ -286,3 +286,170 @@ describe("POST /api/leads — persistence", () => {
     vi.resetModules();
   });
 });
+
+describe("POST /api/leads — funnel events", () => {
+  it("records a contact lead as the lead step from the contact form", async () => {
+    const emit = vi.fn().mockResolvedValue(undefined);
+
+    vi.resetModules();
+    vi.doMock("@/lib/analytics/emit", () => ({ emitFunnelEvent: emit }));
+
+    const { POST: postWithoutDatabase } = await import("@/app/api/leads/route");
+    withoutSupabase();
+    await postWithoutDatabase(post(contactLead));
+
+    expect(emit).toHaveBeenCalledWith({
+      step: "lead",
+      source: "contacto",
+      properties: { intent: "contact" },
+    });
+
+    vi.doUnmock("@/lib/analytics/emit");
+    vi.resetModules();
+  });
+
+  it("records a quoter lead from the quoter surface", async () => {
+    const emit = vi.fn().mockResolvedValue(undefined);
+
+    vi.resetModules();
+    vi.doMock("@/lib/analytics/emit", () => ({ emitFunnelEvent: emit }));
+
+    const { POST: postWithoutDatabase } = await import("@/app/api/leads/route");
+    withoutSupabase();
+    await postWithoutDatabase(post(quoteLead));
+
+    expect(emit).toHaveBeenCalledWith({
+      step: "lead",
+      source: "cotizador",
+      properties: { intent: "quote" },
+    });
+
+    vi.doUnmock("@/lib/analytics/emit");
+    vi.resetModules();
+  });
+
+  it("records an advisor request as a lead step plus its own step", async () => {
+    const emit = vi.fn().mockResolvedValue(undefined);
+
+    vi.resetModules();
+    vi.doMock("@/lib/analytics/emit", () => ({ emitFunnelEvent: emit }));
+
+    const { POST: postWithoutDatabase } = await import("@/app/api/leads/route");
+    withoutSupabase();
+    await postWithoutDatabase(post(advisorLead));
+
+    expect(emit).toHaveBeenCalledTimes(2);
+    expect(emit).toHaveBeenCalledWith({
+      step: "lead",
+      source: "cotizador",
+      properties: { intent: "advisor" },
+    });
+    expect(emit).toHaveBeenCalledWith({
+      step: "advisor_request",
+      source: "cotizador",
+      properties: {},
+    });
+
+    vi.doUnmock("@/lib/analytics/emit");
+    vi.resetModules();
+  });
+
+  it("emits no event for a rejected lead", async () => {
+    const emit = vi.fn().mockResolvedValue(undefined);
+
+    vi.resetModules();
+    vi.doMock("@/lib/analytics/emit", () => ({ emitFunnelEvent: emit }));
+
+    const { POST: postWithoutDatabase } = await import("@/app/api/leads/route");
+    withoutSupabase();
+    const response = await postWithoutDatabase(
+      post({ ...contactLead, consent: false }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(emit).not.toHaveBeenCalled();
+
+    vi.doUnmock("@/lib/analytics/emit");
+    vi.resetModules();
+  });
+
+  it("emits no event when the lead could not be stored", async () => {
+    const emit = vi.fn().mockResolvedValue(undefined);
+    const insert = vi.fn().mockReturnValue({
+      select: () => ({
+        single: async () => ({ data: null, error: { message: "boom" } }),
+      }),
+    });
+    const from = vi.fn().mockReturnValue({ insert });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    vi.resetModules();
+    vi.doMock("@/lib/analytics/emit", () => ({ emitFunnelEvent: emit }));
+    vi.doMock("@/lib/supabase/admin", () => ({
+      createAdminClient: () => ({ from }),
+    }));
+
+    const { POST: postWithSupabase } = await import("@/app/api/leads/route");
+    const response = await postWithSupabase(post(quoteLead));
+
+    expect(response.status).toBe(500);
+    expect(emit).not.toHaveBeenCalled();
+
+    vi.doUnmock("@/lib/analytics/emit");
+    vi.doUnmock("@/lib/supabase/admin");
+    vi.resetModules();
+  });
+
+  it("returns the lead even when the funnel insert fails", async () => {
+    const leadInsert = vi.fn().mockReturnValue({
+      select: () => ({
+        single: async () => ({ data: { id: "lead-3" }, error: null }),
+      }),
+    });
+    const funnelInsert = vi.fn().mockRejectedValue(new Error("analytics down"));
+    const from = vi.fn((table: string) =>
+      table === "funnel_events" ? { insert: funnelInsert } : { insert: leadInsert },
+    );
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    vi.resetModules();
+    vi.doMock("@/lib/supabase/admin", () => ({
+      createAdminClient: () => ({ from }),
+    }));
+
+    const { POST: postWithSupabase } = await import("@/app/api/leads/route");
+    const response = await postWithSupabase(post(quoteLead));
+    const body = await response.json();
+
+    // Emitting must never break the user request.
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body.id).toBe("lead-3");
+    expect(funnelInsert).toHaveBeenCalled();
+
+    vi.doUnmock("@/lib/supabase/admin");
+    vi.resetModules();
+  });
+
+  it("sends no health field or qualification profile to the emitter", async () => {
+    const emit = vi.fn().mockResolvedValue(undefined);
+
+    vi.resetModules();
+    vi.doMock("@/lib/analytics/emit", () => ({ emitFunnelEvent: emit }));
+
+    const { POST: postWithoutDatabase } = await import("@/app/api/leads/route");
+    withoutSupabase();
+    await postWithoutDatabase(post(advisorLead));
+
+    // The lead carries age, city, budget and insurer; none of them belong in an event.
+    for (const call of emit.mock.calls) {
+      const serialized = JSON.stringify(call[0]);
+      expect(serialized).not.toMatch(
+        /diagnos|medic|condition|symptom|enfermedad|salud|city|budget|age|email|name/i,
+      );
+    }
+
+    vi.doUnmock("@/lib/analytics/emit");
+    vi.resetModules();
+  });
+});

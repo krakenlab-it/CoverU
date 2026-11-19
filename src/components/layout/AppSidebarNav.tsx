@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Code2,
+  Funnel,
   GitCompare,
   LayoutDashboard,
   LayoutGrid,
@@ -18,6 +19,7 @@ export type AppNavIcon =
   | "dashboard"
   | "marketplace"
   | "compare"
+  | "funnel"
   | "developers"
   | "settings"
   | "coverage";
@@ -32,6 +34,7 @@ const ICONS: Record<AppNavIcon, LucideIcon> = {
   dashboard: LayoutDashboard,
   marketplace: LayoutGrid,
   compare: GitCompare,
+  funnel: Funnel,
   developers: Code2,
   settings: Settings,
   coverage: MessageCircle,
@@ -50,6 +53,9 @@ function isNavItemActive(pathname: string, href: string): boolean {
   }
   if (href.startsWith("/app/asistente-cobertura")) {
     return pathname.startsWith("/app/asistente-cobertura");
+  }
+  if (href.startsWith("/app/embudo")) {
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
   if (href.startsWith("/app/desarrolladores")) {
     return pathname.startsWith("/app/desarrolladores");

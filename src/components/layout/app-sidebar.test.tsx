@@ -29,6 +29,10 @@ describe("AppSidebarNav", () => {
     expect(
       screen.getByRole("link", { name: "Asistente de cobertura" }),
     ).toHaveAttribute("href", "/app/asistente-cobertura");
+    expect(screen.getByRole("link", { name: "Embudo" })).toHaveAttribute(
+      "href",
+      "/app/embudo",
+    );
     expect(
       screen.getByRole("link", { name: "Desarrolladores" }),
     ).toHaveAttribute("href", "/app/desarrolladores");
