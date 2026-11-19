@@ -32,6 +32,7 @@ const ENVELOPE_VERSION = "hde1";
 const ALGORITHM = "aes-256-gcm";
 const KEY_BYTES = 32;
 const IV_BYTES = 12;
+const TAG_BYTES = 16;
 const AAD_SEPARATOR = "\u001f";
 const MAX_CONTEXT_PART_LENGTH = 200;
 
@@ -189,7 +190,9 @@ export function encryptHealthField(
   }
 
   const iv = randomBytes(IV_BYTES);
-  const cipher = createCipheriv(ALGORITHM, key.material, iv);
+  const cipher = createCipheriv(ALGORITHM, key.material, iv, {
+    authTagLength: TAG_BYTES,
+  });
   cipher.setAAD(associatedData);
 
   const ciphertext = Buffer.concat([
@@ -231,15 +234,32 @@ export function decryptHealthField(
     );
   }
 
+  const iv = Buffer.from(ivPart, "base64url");
+  const authTag = Buffer.from(tagPart, "base64url");
+
+  // GCM tag length must be pinned before use: a truncated tag is accepted by
+  // node:crypto and shrinks the forgery space to 2^(8*len).
+  if (authTag.length !== TAG_BYTES) {
+    throw new HealthEncryptionError(
+      "invalid_ciphertext",
+      `Health-data ciphertext must carry a ${TAG_BYTES}-byte authentication tag`,
+    );
+  }
+
+  if (iv.length !== IV_BYTES) {
+    throw new HealthEncryptionError(
+      "invalid_ciphertext",
+      `Health-data ciphertext must carry a ${IV_BYTES}-byte IV`,
+    );
+  }
+
   let plaintext: Buffer;
   try {
-    const decipher = createDecipheriv(
-      ALGORITHM,
-      key.material,
-      Buffer.from(ivPart, "base64url"),
-    );
+    const decipher = createDecipheriv(ALGORITHM, key.material, iv, {
+      authTagLength: TAG_BYTES,
+    });
     decipher.setAAD(associatedData);
-    decipher.setAuthTag(Buffer.from(tagPart, "base64url"));
+    decipher.setAuthTag(authTag);
     plaintext = Buffer.concat([
       decipher.update(Buffer.from(ciphertextPart, "base64url")),
       decipher.final(),

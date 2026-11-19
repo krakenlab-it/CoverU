@@ -157,6 +157,58 @@ describe("encryptHealthField / decryptHealthField", () => {
     );
   });
 
+  it("rejects a truncated authentication tag", () => {
+    const envelope = encryptHealthField("HIV negativo", CONTEXT, keyring);
+    const [version, keyId, iv, tag, ciphertext] = envelope.split(".");
+    const truncatedTag = Buffer.from(tag, "base64url")
+      .subarray(0, 4)
+      .toString("base64url");
+
+    const forged = [version, keyId, iv, truncatedTag, ciphertext].join(".");
+
+    expect(truncatedTag).not.toBe(tag);
+    expect(() => decryptHealthField(forged, CONTEXT, keyring)).toThrow(
+      HealthEncryptionError,
+    );
+    expect(() => decryptHealthField(forged, CONTEXT, keyring)).toThrow(
+      /16-byte authentication tag/,
+    );
+  });
+
+  it("rejects an authentication tag that is too long", () => {
+    const envelope = encryptHealthField("HIV negativo", CONTEXT, keyring);
+    const [version, keyId, iv, tag, ciphertext] = envelope.split(".");
+    const paddedTag = Buffer.concat([
+      Buffer.from(tag, "base64url"),
+      Buffer.alloc(4, 0),
+    ]).toString("base64url");
+
+    expect(() =>
+      decryptHealthField(
+        [version, keyId, iv, paddedTag, ciphertext].join("."),
+        CONTEXT,
+        keyring,
+      ),
+    ).toThrow(/16-byte authentication tag/);
+  });
+
+  it.each([
+    ["too short", 8],
+    ["too long", 16],
+    ["empty", 0],
+  ])("rejects a %s IV", (_label, bytes) => {
+    const envelope = encryptHealthField("HIV negativo", CONTEXT, keyring);
+    const [version, keyId, , tag, ciphertext] = envelope.split(".");
+
+    expect(() =>
+      decryptHealthField(
+        [version, keyId, randomBytes(bytes).toString("base64url"), tag, ciphertext].join("."),
+        CONTEXT,
+        keyring,
+      ),
+    ).toThrow(/12-byte IV/);
+  });
+
   it("decrypts old ciphertexts after key rotation", () => {
     const oldKeyring = keyringFrom({ v1: KEY_ONE });
     const rotated = keyringFrom({ v1: KEY_ONE, v2: KEY_TWO });
