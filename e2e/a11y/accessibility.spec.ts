@@ -13,6 +13,7 @@ interface A11yTarget {
 const PUBLIC_TARGETS: A11yTarget[] = [
   { name: "landing", path: "/" },
   { name: "quoter", path: "/comparar" },
+  { name: "contacto", path: "/contacto" },
   {
     name: "developers",
     path: "/developers",
@@ -85,6 +86,32 @@ test.describe("accessibility — public quoter results (mobile 390x844)", () => 
     expect(
       results.violations,
       `quoter results a11y violations: ${JSON.stringify(results.violations, null, 2)}`,
+    ).toEqual([]);
+  });
+
+  test("quoter lead form validation state has no serious WCAG violations", async ({
+    page,
+  }) => {
+    await page.goto("/comparar");
+    await page.getByLabel("Edad").fill("30");
+    await page.getByLabel("Género").selectOption("femenino");
+    await page.getByLabel("Región").selectOption("Sierra");
+    await page.getByRole("button", { name: /Ver mi plan|Actualizar cotización/ }).click();
+
+    const form = page.getByRole("form", { name: "Datos de contacto" });
+    await form.waitFor({ state: "visible" });
+
+    // Submit empty so every field-level error is rendered and focusable.
+    await page.getByRole("button", { name: "Hablar con un asesor" }).click();
+    await expect(page.getByText(/Necesitamos tu consentimiento/)).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      .analyze();
+
+    expect(
+      results.violations,
+      `quoter lead form a11y violations: ${JSON.stringify(results.violations, null, 2)}`,
     ).toEqual([]);
   });
 });

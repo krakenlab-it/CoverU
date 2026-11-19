@@ -18,7 +18,7 @@
     "test:data-pipeline": "vitest run src/lib/data-pipeline",
     "validate:migrations": "vitest run src/lib/migrations",
     "test:migrations:ephemeral": "node scripts/test-migrations-ephemeral.mjs",
-    "test:e2e": "playwright test e2e/smoke/public.spec.ts e2e/smoke/public-quoter.spec.ts e2e/smoke/marketplace.spec.ts e2e/smoke/coverage-assistant.spec.ts",
+    "test:e2e": "playwright test e2e/smoke/public.spec.ts e2e/smoke/public-quoter.spec.ts e2e/smoke/quoter-leads.spec.ts e2e/smoke/marketplace.spec.ts e2e/smoke/coverage-assistant.spec.ts",
     "test:e2e:preview": "playwright test e2e/smoke/preview.spec.ts",
     "test:a11y": "playwright test e2e/a11y",
     "ci": "npm run lint && npm run typecheck && npm run test:unit && npm run validate:migrations && npm run test:data-pipeline && npm run build && npm run test:e2e && npm run test:a11y",

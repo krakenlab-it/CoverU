@@ -26,3 +26,50 @@ export async function submitProfile(
 export function quoteResults(page: Page) {
   return page.getByRole("region", { name: "Resultados de cotización" });
 }
+
+/** Lead capture card rendered under the quote results. */
+export function leadForm(page: Page) {
+  return page.getByRole("form", { name: "Datos de contacto" });
+}
+
+export interface LeadFormValues {
+  name: string;
+  email: string;
+  phone?: string;
+  dependents?: string;
+  /** Omit to leave the city blank and exercise the required-field error. */
+  city?: string;
+  budget?: string;
+  currentInsurance?: string;
+}
+
+export async function fillLeadForm(page: Page, values: LeadFormValues) {
+  const form = leadForm(page);
+  await form.getByLabel("Nombre").fill(values.name);
+  await form.getByLabel("Email").fill(values.email);
+  if (values.phone !== undefined) {
+    await form.getByLabel("Teléfono (opcional)").fill(values.phone);
+  }
+  if (values.dependents !== undefined) {
+    await form.getByLabel("Dependientes").fill(values.dependents);
+  }
+  if (values.city !== undefined) {
+    await form.getByLabel("Ciudad").fill(values.city);
+  }
+  if (values.budget !== undefined) {
+    await form.getByLabel("Presupuesto mensual (USD, opcional)").fill(values.budget);
+  }
+  if (values.currentInsurance !== undefined) {
+    await form.getByLabel("Seguro actual (opcional)").fill(values.currentInsurance);
+  }
+}
+
+export async function acceptLeadConsent(page: Page) {
+  await page.getByRole("checkbox", { name: /Acepto que CoverÜ/ }).click();
+}
+
+/** `quote` = "Enviar mis datos", `advisor` = "Hablar con un asesor". */
+export async function submitLeadAction(page: Page, action: "quote" | "advisor") {
+  const label = action === "advisor" ? "Hablar con un asesor" : "Enviar mis datos";
+  await page.getByRole("button", { name: label }).click();
+}
