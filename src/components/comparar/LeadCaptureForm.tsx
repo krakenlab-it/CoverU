@@ -91,7 +91,7 @@ export function LeadCaptureForm({
           current_insurance: parsed.data.qualification.current_insurance ?? null,
         },
         consent: true,
-        consent_version: parsed.data.consent_version ?? LEAD_CONSENT_VERSION,
+        consent_version: parsed.data.consent_version,
       };
 
       setIssues(NO_ISSUES);

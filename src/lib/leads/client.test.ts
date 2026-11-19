@@ -89,6 +89,23 @@ describe("submitLead", () => {
     await expect(submitLead(advisorPayload())).rejects.toThrow("Datos inválidos");
   });
 
+  it("surfaces the consent-version message so the visitor can re-accept", async () => {
+    mockFetch({
+      ok: false,
+      body: {
+        error: "Datos inválidos",
+        details: {
+          consent_version:
+            "El consentimiento cambió. Vuelve a aceptarlo para enviar tus datos.",
+        },
+      },
+    });
+
+    await expect(submitLead(advisorPayload())).rejects.toThrow(
+      /El consentimiento cambió/,
+    );
+  });
+
   it("falls back to a generic message when the error body is unreadable", async () => {
     vi.stubGlobal(
       "fetch",

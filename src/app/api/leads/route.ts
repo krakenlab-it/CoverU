@@ -8,7 +8,9 @@ const NO_CACHE_HEADERS = { "Cache-Control": "no-store" } as const;
 /**
  * Maps a validated lead onto a public.leads row. Qualification columns stay
  * null for contact-page leads, and `needs_human_followup` is never read from
- * the request body.
+ * the request body. `consent_version` is the server constant, not the value
+ * echoed by the client: the schema has already proven the client sent exactly
+ * that version, so the stored audit value never depends on the request.
  */
 function toInsertRow(lead: LeadInput): LeadInsertRow {
   const shared = {
@@ -18,7 +20,7 @@ function toInsertRow(lead: LeadInput): LeadInsertRow {
     gender: null,
     region: null,
     consent_granted: true,
-    consent_version: lead.consent_version || LEAD_CONSENT_VERSION,
+    consent_version: LEAD_CONSENT_VERSION,
     intent: lead.intent,
   };
 
