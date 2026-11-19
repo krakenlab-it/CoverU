@@ -217,6 +217,10 @@ export interface Quote {
   organization_id: string | null;
   plan_version_id: string;
   tariff_id: string | null;
+  /** KAN-231: exact tariffs row used to price the quote. Null on legacy quotes. */
+  tariff_version_id: string | null;
+  /** KAN-231: plan_versions row whose plan conditions were priced. Null on legacy quotes. */
+  plan_conditions_version_id: string | null;
   external_ref: string | null;
   status: "draft" | "active" | "expired" | "accepted" | "cancelled";
   age: number | null;

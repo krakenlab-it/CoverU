@@ -15,4 +15,10 @@ export const API_DOCS_CURL_EXAMPLES = {
   -H "Authorization: Bearer $API_KEY" \\
   -d '{"plan_version_id":"$PLAN_VERSION_ID","question":"¿Está cubierta la hospitalización?"}' \\
   "${API_DOCS_PRODUCTION_BASE_URL}/coverage/qa"`,
+
+  createQuote: `curl -sS -X POST \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer $API_KEY" \\
+  -d '{"plan_version_id":"$PLAN_VERSION_ID","age":35,"gender":"femenino","region":"Sierra"}' \\
+  "${API_DOCS_PRODUCTION_BASE_URL}/quotes"`,
 } as const;
