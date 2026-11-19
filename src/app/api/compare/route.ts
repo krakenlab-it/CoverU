@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { getComparisonResults } from "@/lib/comparison";
+import { getPublicQuote } from "@/lib/quoters/public-quote";
 import { compareQuerySchema } from "@/lib/validation";
+
+const NO_CACHE_HEADERS = { "Cache-Control": "no-store" } as const;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,12 +14,22 @@ export async function GET(request: Request) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Parámetros inválidos", details: parsed.error.flatten() },
-      { status: 400 },
+      {
+        error: "Parámetros inválidos",
+        details: parsed.error.flatten().fieldErrors,
+      },
+      { status: 400, headers: NO_CACHE_HEADERS },
     );
   }
 
-  const results = await getComparisonResults(parsed.data);
+  const quote = await getPublicQuote(parsed.data);
 
-  return NextResponse.json({ results });
+  if (!quote) {
+    return NextResponse.json(
+      { error: "El catálogo no está disponible en este momento." },
+      { status: 503, headers: NO_CACHE_HEADERS },
+    );
+  }
+
+  return NextResponse.json(quote, { headers: NO_CACHE_HEADERS });
 }

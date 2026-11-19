@@ -32,8 +32,10 @@ import {
   parseTariffRegion,
 } from "@/lib/marketplace/filters";
 import type { MarketplaceFilters } from "@/lib/marketplace/types";
-import { TARIFF_REGIONS } from "@/lib/catalog-enums";
-import { GENDER_OPTIONS } from "@/lib/regions";
+import {
+  GENDER_OPTIONS,
+  TARIFF_REGIONS,
+} from "@/lib/catalog-enums";
 import type { Insurer } from "@/lib/types/database";
 import { motion } from "@/lib/motion";
 import { cn } from "@/lib/utils";

@@ -30,25 +30,67 @@ describe("leadSchema", () => {
 });
 
 describe("compareQuerySchema", () => {
-  it("accepts valid compare params", () => {
+  it("accepts an Ecuador profile", () => {
     const result = compareQuerySchema.safeParse({
       age: "30",
       gender: "femenino",
-      region: "metropolitana",
+      region: "Sierra",
     });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.age).toBe(30);
+      expect(result.data.region).toBe("Sierra");
     }
+  });
+
+  it("coerces numeric strings for age", () => {
+    const result = compareQuerySchema.safeParse({
+      age: "45",
+      gender: "masculino",
+      region: "Nacional",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.age).toBe(45);
   });
 
   it("rejects invalid gender", () => {
     const result = compareQuerySchema.safeParse({
       age: 30,
       gender: "other",
-      region: "metropolitana",
+      region: "Nacional",
     });
     expect(result.success).toBe(false);
+  });
+
+  it("rejects the internal any gender", () => {
+    const result = compareQuerySchema.safeParse({
+      age: 30,
+      gender: "any",
+      region: "Nacional",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects Chile-era region slugs", () => {
+    for (const region of ["metropolitana", "valparaiso", "biobio"]) {
+      const result = compareQuerySchema.safeParse({
+        age: 30,
+        gender: "femenino",
+        region,
+      });
+      expect(result.success).toBe(false);
+    }
+  });
+
+  it("rejects ages outside 18–99", () => {
+    for (const age of [17, 100, 30.5]) {
+      const result = compareQuerySchema.safeParse({
+        age,
+        gender: "femenino",
+        region: "Nacional",
+      });
+      expect(result.success).toBe(false);
+    }
   });
 });
 

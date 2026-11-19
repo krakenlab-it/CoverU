@@ -1,9 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { mapCatalogPackage } from "./map-rows";
-import { parseCsv, readCsvFile } from "./parse-csv";
-import type { CatalogPackage, TableCounts } from "./types";
+import { mapCatalogPackage } from "@/lib/catalog/map-rows";
+import { parseCsv, readCsvFile } from "@/lib/catalog/parse-csv";
+import type { CatalogPackage, TableCounts } from "@/lib/catalog/types";
 
 const BATCH_SIZE = 250;
 
