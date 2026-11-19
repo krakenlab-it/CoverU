@@ -1,4 +1,5 @@
 import type { TariffGender, TariffMaternidad, TariffRegion, GrupoAsegurado } from "@/lib/catalog-enums";
+import type { LeadIntent } from "@/lib/leads/consent";
 
 export interface Insurer {
   id: string;
@@ -70,6 +71,18 @@ export interface Lead {
   region: string | null;
   source: string | null;
   plan_interest: string | null;
+  /** Qualification profile captured by the quoter lead form. */
+  dependents: number | null;
+  city: string | null;
+  /** Monthly budget declared by the visitor, USD tax included. */
+  budget: number | null;
+  current_insurance: string | null;
+  /** True when the lead asked to talk to an advisor; derived server-side. */
+  needs_human_followup: boolean;
+  consent_granted: boolean;
+  consent_version: string | null;
+  consent_granted_at: string | null;
+  intent: LeadIntent;
   created_at: string;
 }
 

@@ -1,55 +1,78 @@
 "use client";
 
 import { useState } from "react";
+import { ConsentField } from "@/components/leads/ConsentField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { submitLead } from "@/lib/leads/client";
+import { LEAD_CONSENT_VERSION } from "@/lib/leads/consent";
+import { contactLeadSchema, clearFieldIssue, fieldIssues } from "@/lib/validation";
 
 interface ContactFormProps {
   source?: string;
 }
+
+type FieldIssues = Record<string, string>;
+
+const NO_ISSUES: FieldIssues = {};
 
 export function ContactForm({ source = "contacto" }: ContactFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle",
   );
+  const [issues, setIssues] = useState<FieldIssues>(NO_ISSUES);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    const parsed = contactLeadSchema.safeParse({
+      intent: "contact",
+      name,
+      email,
+      phone,
+      source,
+      message,
+      consent,
+      consent_version: LEAD_CONSENT_VERSION,
+    });
+
+    if (!parsed.success) {
+      setIssues(fieldIssues(parsed.error));
+      setStatus("idle");
+      setErrorMessage(null);
+      return;
+    }
+
+    setIssues(NO_ISSUES);
     setStatus("loading");
     setErrorMessage(null);
 
     try {
-      const response = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone: phone || undefined,
-          source,
-          plan_interest: message || undefined,
-        }),
+      await submitLead({
+        intent: "contact",
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        source,
+        message: parsed.data.message,
+        consent: true,
+        consent_version: parsed.data.consent_version ?? LEAD_CONSENT_VERSION,
       });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(
-          (data as { error?: string }).error ?? "No pudimos enviar tu mensaje.",
-        );
-      }
 
       setStatus("success");
       setName("");
       setEmail("");
       setPhone("");
       setMessage("");
+      setConsent(false);
     } catch (err) {
       setStatus("error");
       setErrorMessage(
@@ -68,6 +91,8 @@ export function ContactForm({ source = "contacto" }: ContactFormProps) {
     );
   }
 
+  const issue = (field: string): string | null => issues[field] ?? null;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="space-y-2">
@@ -79,7 +104,14 @@ export function ContactForm({ source = "contacto" }: ContactFormProps) {
           onChange={(e) => setName(e.target.value)}
           required
           autoComplete="name"
+          aria-invalid={Boolean(issue("name"))}
+          aria-describedby={issue("name") ? "contact-name-error" : undefined}
         />
+        {issue("name") ? (
+          <p id="contact-name-error" className="text-sm text-destructive">
+            {issue("name")}
+          </p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
@@ -91,8 +123,14 @@ export function ContactForm({ source = "contacto" }: ContactFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          aria-invalid={status === "error"}
+          aria-invalid={Boolean(issue("email")) || status === "error"}
+          aria-describedby={issue("email") ? "contact-email-error" : undefined}
         />
+        {issue("email") ? (
+          <p id="contact-email-error" className="text-sm text-destructive">
+            {issue("email")}
+          </p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
@@ -116,6 +154,16 @@ export function ContactForm({ source = "contacto" }: ContactFormProps) {
           className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
       </div>
+
+      <ConsentField
+        id="contact-consent"
+        checked={consent}
+        onCheckedChange={(checked) => {
+          setConsent(checked);
+          if (checked) setIssues((current) => clearFieldIssue(current, "consent"));
+        }}
+        error={issue("consent")}
+      />
 
       {status === "error" && errorMessage ? (
         <p className="text-sm text-destructive" role="alert">
