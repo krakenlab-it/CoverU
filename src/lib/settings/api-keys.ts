@@ -157,7 +157,7 @@ export async function createOrgApiKey(
       key_prefix: prefix,
       key_hash: hash,
       status: "active",
-      scopes: ["read:catalog", "read:quotes", "read:coverage"],
+      scopes: ["read:catalog", "read:quotes", "read:coverage", "write:quotes"],
     })
     .select(
       "id, name, key_prefix, status, last_used_at, created_at, api_client_id, scopes",

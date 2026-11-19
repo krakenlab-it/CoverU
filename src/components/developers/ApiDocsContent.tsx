@@ -153,6 +153,9 @@ export function ApiDocsContent() {
         <CodeBlock title="Consulta de cobertura (QA)">
           {API_DOCS_CURL_EXAMPLES.coverageQa}
         </CodeBlock>
+        <CodeBlock title="Crear cotización con versión de tarifa y condiciones">
+          {API_DOCS_CURL_EXAMPLES.createQuote}
+        </CodeBlock>
       </section>
 
       <section
@@ -221,6 +224,14 @@ export function ApiDocsContent() {
           </li>
           <li>
             <code>403 insufficient_scope</code> — Scope insuficiente
+          </li>
+          <li>
+            <code>404 not_found</code> — Versión de plan, cotización original o
+            tarifa no encontrada
+          </li>
+          <li>
+            <code>422 tariff_not_found</code> — No hay tarifa para la edad,
+            género y región indicados
           </li>
           <li>
             <code>429 rate_limit_exceeded</code> — Límite excedido

@@ -4,7 +4,7 @@
  * Never connects to production. Skips gracefully when DATABASE_URL is unset.
  */
 import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const migrationsDir = join(process.cwd(), "supabase/migrations");
@@ -143,5 +143,33 @@ if (seedConstraintSuperseded) {
 runPsql(
   "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;",
 );
+
+// Behavioural checks that a static parse cannot prove (KAN-231 acceptance criteria).
+const behaviouralChecks = ["quotes_version_refs.sql"];
+
+for (const checkFile of behaviouralChecks) {
+  const checkPath = join(process.cwd(), "supabase/tests", checkFile);
+  if (!existsSync(checkPath)) continue;
+
+  const result = spawnSync(
+    "psql",
+    [databaseUrl, "-v", "ON_ERROR_STOP=1", "-f", checkPath],
+    { encoding: "utf-8" },
+  );
+
+  if (result.status !== 0) {
+    console.error(
+      JSON.stringify({
+        status: "check_failed",
+        file: checkFile,
+        stderr: result.stderr,
+        stdout: result.stdout,
+      }),
+    );
+    process.exit(1);
+  }
+
+  console.log(JSON.stringify({ status: "check_passed", file: checkFile }));
+}
 
 console.log(JSON.stringify({ status: "passed", migration_count: files.length }));

@@ -356,6 +356,107 @@ export function validatePlanConditionsSchema(files: string[]): MigrationIssue[] 
   return issues;
 }
 
+export const QUOTE_VERSION_REFS_MIGRATION = "20261119110000_quotes_version_refs.sql";
+
+export const QUOTE_VERSION_REF_COLUMNS = [
+  "tariff_version_id",
+  "plan_conditions_version_id",
+] as const;
+
+/**
+ * KAN-231 guardrails: quotes must pin both versions, the columns must be additive and
+ * nullable for legacy rows, and the pins must be validated and frozen by triggers.
+ */
+export function validateQuoteVersionRefsSchema(files: string[]): MigrationIssue[] {
+  const issues: MigrationIssue[] = [];
+
+  if (!files.includes(QUOTE_VERSION_REFS_MIGRATION)) {
+    return [
+      {
+        file: "(missing)",
+        rule: "quote_version_refs",
+        message: `Missing ${QUOTE_VERSION_REFS_MIGRATION}`,
+      },
+    ];
+  }
+
+  const content = readFileSync(join(MIGRATIONS_DIR, QUOTE_VERSION_REFS_MIGRATION), "utf-8");
+
+  for (const column of QUOTE_VERSION_REF_COLUMNS) {
+    if (
+      !new RegExp(
+        `ALTER\\s+TABLE\\s+public\\.quotes\\s+ADD\\s+COLUMN\\s+IF\\s+NOT\\s+EXISTS\\s+${column}\\b`,
+        "i",
+      ).test(content)
+    ) {
+      issues.push({
+        file: QUOTE_VERSION_REFS_MIGRATION,
+        rule: "quote_version_refs",
+        message: `quotes.${column} must be added additively with ADD COLUMN IF NOT EXISTS`,
+      });
+    }
+  }
+
+  if (/ADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\s+\w+\s+UUID\s+NOT\s+NULL/i.test(content)) {
+    issues.push({
+      file: QUOTE_VERSION_REFS_MIGRATION,
+      rule: "quote_version_refs",
+      message: "Version pins must stay nullable so legacy quotes remain valid",
+    });
+  }
+
+  if (
+    !/tariff_version_id\s+UUID\s+REFERENCES\s+public\.tariffs\(id\)\s+ON\s+DELETE\s+SET\s+NULL/i.test(
+      content,
+    )
+  ) {
+    issues.push({
+      file: QUOTE_VERSION_REFS_MIGRATION,
+      rule: "quote_version_refs",
+      message: "quotes.tariff_version_id must reference public.tariffs(id) ON DELETE SET NULL",
+    });
+  }
+
+  if (
+    !/plan_conditions_version_id\s+UUID\s+REFERENCES\s+public\.plan_versions\(id\)\s+ON\s+DELETE\s+SET\s+NULL/i.test(
+      content,
+    )
+  ) {
+    issues.push({
+      file: QUOTE_VERSION_REFS_MIGRATION,
+      rule: "quote_version_refs",
+      message:
+        "quotes.plan_conditions_version_id must reference public.plan_versions(id) ON DELETE SET NULL",
+    });
+  }
+
+  if (!/CREATE\s+TRIGGER\s+quotes_version_refs_validate/i.test(content)) {
+    issues.push({
+      file: QUOTE_VERSION_REFS_MIGRATION,
+      rule: "quote_version_refs",
+      message: "Quote version pins must be validated by a trigger",
+    });
+  }
+
+  if (!/CREATE\s+TRIGGER\s+quotes_version_refs_immutable/i.test(content)) {
+    issues.push({
+      file: QUOTE_VERSION_REFS_MIGRATION,
+      rule: "quote_version_refs",
+      message: "Quote version pins must be immutable once recorded",
+    });
+  }
+
+  if (/(DROP\s+COLUMN|DROP\s+TABLE)/i.test(content)) {
+    issues.push({
+      file: QUOTE_VERSION_REFS_MIGRATION,
+      rule: "quote_version_refs",
+      message: "Quote version pins must be additive: no DROP COLUMN or DROP TABLE",
+    });
+  }
+
+  return issues;
+}
+
 export function validateAllMigrations(): MigrationIssue[] {
   const files = listMigrationFiles();
   const issues: MigrationIssue[] = [
@@ -364,6 +465,7 @@ export function validateAllMigrations(): MigrationIssue[] {
     ...validateRlsPresence(files),
     ...validateDuplicateHazards(files),
     ...validatePlanConditionsSchema(files),
+    ...validateQuoteVersionRefsSchema(files),
   ];
 
   for (const file of files) {
