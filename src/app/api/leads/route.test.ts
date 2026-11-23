@@ -34,6 +34,7 @@ const contactLead = {
   phone: "+593 99 123 4567",
   message: "Quiero comparar planes.",
   consent: true,
+  consent_version: LEAD_CONSENT_VERSION,
 };
 
 const quoteLead = {
@@ -50,6 +51,7 @@ const quoteLead = {
     current_insurance: "Ninguno",
   },
   consent: true,
+  consent_version: LEAD_CONSENT_VERSION,
 };
 
 const advisorLead = { ...quoteLead, intent: "advisor" };
@@ -92,6 +94,68 @@ describe("POST /api/leads — consent gate", () => {
     withoutSupabase();
     const response = await POST(post({ ...contactLead, consent: "true" }));
     expect(response.status).toBe(400);
+  });
+});
+
+describe("POST /api/leads — consent version", () => {
+  it("accepts a lead that names the current consent version", async () => {
+    withoutSupabase();
+    const response = await POST(post(contactLead));
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects a lead carrying a stale consent version", async () => {
+    withoutSupabase();
+    const response = await POST(
+      post({ ...contactLead, consent_version: "lopdp-placeholder-2025-01" }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe("Datos inválidos");
+    expect(body.details.consent_version).toMatch(/consentimiento cambió/i);
+  });
+
+  it("rejects a quote lead whose consent version does not match", async () => {
+    withoutSupabase();
+    const response = await POST(
+      post({ ...quoteLead, consent_version: "fabricado-por-el-cliente" }),
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("rejects a lead with no consent version, rather than assuming one", async () => {
+    withoutSupabase();
+    const missingVersion = { ...contactLead } as Record<string, unknown>;
+    delete missingVersion.consent_version;
+    const response = await POST(post(missingVersion));
+
+    expect(response.status).toBe(400);
+  });
+
+  it("stores the server's consent version, never the client's echo", async () => {
+    const insert = vi.fn().mockReturnValue({
+      select: () => ({
+        single: async () => ({ data: { id: "lead-3" }, error: null }),
+      }),
+    });
+    const from = vi.fn().mockReturnValue({ insert });
+
+    vi.resetModules();
+    vi.doMock("@/lib/supabase/admin", () => ({
+      createAdminClient: () => ({ from }),
+    }));
+
+    const { POST: postWithSupabase } = await import("@/app/api/leads/route");
+    const response = await postWithSupabase(post(advisorLead));
+
+    expect(response.status).toBe(200);
+    const row = insert.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(row.consent_version).toBe(LEAD_CONSENT_VERSION);
+
+    vi.doUnmock("@/lib/supabase/admin");
+    vi.resetModules();
   });
 });
 

@@ -64,7 +64,7 @@ export function ContactForm({ source = "contacto" }: ContactFormProps) {
         source,
         message: parsed.data.message,
         consent: true,
-        consent_version: parsed.data.consent_version ?? LEAD_CONSENT_VERSION,
+        consent_version: parsed.data.consent_version,
       });
 
       setStatus("success");

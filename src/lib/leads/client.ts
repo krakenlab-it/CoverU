@@ -49,13 +49,17 @@ interface LeadApiResponse {
   needs_human_followup?: boolean;
   message?: string;
   error?: string;
+  /** Field-level messages keyed by dotted path, e.g. `consent_version`. */
+  details?: Record<string, string>;
 }
 
 const FALLBACK_ERROR = "No pudimos enviar tu solicitud.";
 
 /**
  * Posts a lead and normalises the API contract. Throws `Error` with the
- * server-provided Spanish message so forms can render it directly.
+ * server-provided Spanish message so forms can render it directly. A rejected
+ * consent version gets its own message: that lead needs the visitor to accept
+ * the current wording, and "Datos inválidos" would not say so.
  */
 export async function submitLead(payload: LeadPayload): Promise<LeadAccepted> {
   const response = await fetch("/api/leads", {
@@ -67,7 +71,9 @@ export async function submitLead(payload: LeadPayload): Promise<LeadAccepted> {
   const body = (await response.json().catch(() => ({}))) as LeadApiResponse;
 
   if (!response.ok) {
-    throw new Error(body.error ?? FALLBACK_ERROR);
+    throw new Error(
+      body.details?.consent_version ?? body.error ?? FALLBACK_ERROR,
+    );
   }
 
   return {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TARIFF_REGION_VALUES } from "@/lib/catalog-enums";
+import { LEAD_CONSENT_VERSION } from "@/lib/leads/consent";
 import { QUOTE_AGE_MAX, QUOTE_AGE_MIN, QUOTE_GENDERS } from "@/lib/quoters/types";
 
 /**
@@ -75,8 +76,20 @@ export const leadQualificationSchema = z.object({
 
 export type LeadQualification = z.infer<typeof leadQualificationSchema>;
 
+/**
+ * Consent contract. The visitor must have granted consent, and must name the
+ * exact consent version the server publishes: accepting older or invented
+ * wording is not the same consent, so a mismatch is rejected rather than
+ * recorded. Storing the server's own version is what keeps the audit trail
+ * meaningful — a client can never assert which label it accepted.
+ */
 const consentGate = z.literal(true, {
   error: "Necesitamos tu consentimiento para contactarte.",
+});
+
+const consentVersionGate = z.literal(LEAD_CONSENT_VERSION, {
+  error:
+    "El consentimiento cambió. Vuelve a aceptarlo para enviar tus datos.",
 });
 
 const contactFields = {
@@ -87,7 +100,7 @@ const contactFields = {
   email: z.preprocess(trimmedText, z.string().email("Email inválido").max(320)),
   phone: optionalText(30),
   consent: consentGate,
-  consent_version: optionalText(80),
+  consent_version: consentVersionGate,
 };
 
 /** Contact page lead: no qualification profile, just the message. */

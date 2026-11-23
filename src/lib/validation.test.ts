@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { LEAD_CONSENT_VERSION } from "@/lib/leads/consent";
 import {
   compareQuerySchema,
   contactLeadSchema,
@@ -15,6 +16,7 @@ const contactLead = {
   phone: "+593 99 123 4567",
   message: "Quiero comparar planes para mi familia.",
   consent: true as const,
+  consent_version: LEAD_CONSENT_VERSION,
 };
 
 const quoterLead = {
@@ -30,6 +32,7 @@ const quoterLead = {
     current_insurance: "Ninguno",
   },
   consent: true as const,
+  consent_version: LEAD_CONSENT_VERSION,
 };
 
 describe("contactLeadSchema", () => {
@@ -82,6 +85,54 @@ describe("contactLeadSchema", () => {
 
     expect(badEmail.success).toBe(false);
     expect(badName.success).toBe(false);
+  });
+});
+
+describe("consent version contract", () => {
+  it("accepts the version the server currently publishes", () => {
+    expect(contactLeadSchema.safeParse(contactLead).success).toBe(true);
+    expect(quoterLeadSchema.safeParse(quoterLead).success).toBe(true);
+  });
+
+  it("rejects a stale consent version on a contact lead", () => {
+    const result = contactLeadSchema.safeParse({
+      ...contactLead,
+      consent_version: "lopdp-placeholder-2025-01",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.path).toEqual(["consent_version"]);
+      expect(result.error.issues[0]?.message).toMatch(/consentimiento cambió/i);
+    }
+  });
+
+  it("rejects a stale consent version on a quoter lead", () => {
+    const result = quoterLeadSchema.safeParse({
+      ...quoterLead,
+      consent_version: "fabricado-por-el-cliente",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an omitted consent version instead of defaulting it", () => {
+    const withoutVersion = { ...contactLead } as Record<string, unknown>;
+    delete withoutVersion.consent_version;
+
+    expect(contactLeadSchema.safeParse(withoutVersion).success).toBe(false);
+  });
+
+  it("rejects a consent version that only differs by case or padding", () => {
+    for (const version of [
+      LEAD_CONSENT_VERSION.toUpperCase(),
+      `${LEAD_CONSENT_VERSION} `,
+      LEAD_CONSENT_VERSION.slice(0, -1),
+    ]) {
+      expect(
+        contactLeadSchema.safeParse({ ...contactLead, consent_version: version })
+          .success,
+      ).toBe(false);
+    }
   });
 });
 
