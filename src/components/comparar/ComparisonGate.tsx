@@ -1,121 +1,187 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PlanCard } from "@/components/comparar/PlanCard";
-import { DemoBadge } from "@/components/platform/DemoBadge";
 import { EmptyState } from "@/components/platform/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { ComparisonResult } from "@/lib/types/database";
-import { DEMO_REGIONS, GENDER_OPTIONS } from "@/lib/regions";
+import {
+  GENDER_OPTIONS,
+  TARIFF_REGIONS,
+  type TariffRegion,
+} from "@/lib/catalog-enums";
+import { formatUsd } from "@/lib/marketplace/format";
+import {
+  PUBLIC_QUOTE_OFFERS_LIMIT,
+  QUOTE_AGE_MAX,
+  QUOTE_AGE_MIN,
+  type PublicQuoteOffer,
+  type PublicQuoteResult,
+  type QuoteGender,
+} from "@/lib/quoters/types";
+
+const DEFAULT_AGE = "30";
+const DEFAULT_GENDER: QuoteGender = "femenino";
+const DEFAULT_REGION: TariffRegion = "Nacional";
 
 interface ComparisonGateProps {
-  initialResults?: ComparisonResult[];
+  /** Server-fetched quote so the first screen already shows real tariffs. */
+  initialQuote?: PublicQuoteResult | null;
 }
 
-export function ComparisonGate({ initialResults = [] }: ComparisonGateProps) {
-  const [age, setAge] = useState<string>("30");
-  const [gender, setGender] = useState<string>("femenino");
-  const [region, setRegion] = useState<string>("metropolitana");
-  const [results, setResults] = useState<ComparisonResult[]>(initialResults);
+function validateAge(raw: string): string | null {
+  const age = Number(raw);
+  if (!Number.isInteger(age) || age < QUOTE_AGE_MIN || age > QUOTE_AGE_MAX) {
+    return `Ingresa una edad entre ${QUOTE_AGE_MIN} y ${QUOTE_AGE_MAX} años.`;
+  }
+  return null;
+}
+
+interface QuoteRequestBody {
+  age: number;
+  gender: QuoteGender;
+  region: TariffRegion;
+}
+
+async function requestQuote(body: QuoteRequestBody): Promise<PublicQuoteResult> {
+  const search = new URLSearchParams({
+    age: String(body.age),
+    gender: body.gender,
+    region: body.region,
+  });
+  const response = await fetch(`/api/compare?${search.toString()}`);
+  if (!response.ok) {
+    throw new Error(
+      "No pudimos cargar las tarifas del catálogo. Intenta de nuevo.",
+    );
+  }
+  return (await response.json()) as PublicQuoteResult;
+}
+
+export function ComparisonGate({ initialQuote = null }: ComparisonGateProps) {
+  const [age, setAge] = useState(
+    initialQuote ? String(initialQuote.request.age) : DEFAULT_AGE,
+  );
+  const [gender, setGender] = useState<QuoteGender>(
+    initialQuote?.request.gender ?? DEFAULT_GENDER,
+  );
+  const [region, setRegion] = useState<TariffRegion>(
+    initialQuote?.request.region ?? DEFAULT_REGION,
+  );
+  const [quote, setQuote] = useState<PublicQuoteResult | null>(initialQuote);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searched, setSearched] = useState(initialResults.length > 0);
+  const resultsRef = useRef<HTMLElement | null>(null);
 
-  async function handleCompare(event: React.FormEvent) {
-    event.preventDefault();
-    setError(null);
-    setLoading(true);
+  const isStale =
+    quote !== null &&
+    (quote.request.age !== Number(age) ||
+      quote.request.gender !== gender ||
+      quote.request.region !== region);
 
-    const ageNum = parseInt(age, 10);
-    if (Number.isNaN(ageNum) || ageNum < 18 || ageNum > 99) {
-      setError("Ingresa una edad válida entre 18 y 99 años.");
-      setLoading(false);
-      return;
-    }
+  useEffect(() => {
+    if (!quote) return;
+    resultsRef.current?.focus();
+  }, [quote]);
 
-    try {
-      const params = new URLSearchParams({
-        age: String(ageNum),
-        gender,
-        region,
-      });
-      const response = await fetch(`/api/compare?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error("No pudimos cargar los planes. Intenta de nuevo.");
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      const ageError = validateAge(age);
+      if (ageError) {
+        setError(ageError);
+        return;
       }
-      const data = (await response.json()) as { results: ComparisonResult[] };
-      setResults(data.results);
-      setSearched(true);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Error al comparar planes.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+
+      setError(null);
+      setLoading(true);
+      try {
+        setQuote(
+          await requestQuote({ age: Number(age), gender, region }),
+        );
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Error al cotizar el plan.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [age, gender, region],
+  );
+
+  const offers = quote?.offers ?? [];
+  const visibleOffers = offers.slice(0, PUBLIC_QUOTE_OFFERS_LIMIT);
+  const totalOffers = quote?.totalOffers ?? 0;
+  const cheapest: PublicQuoteOffer | null = visibleOffers[0] ?? null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Cuéntanos sobre ti</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Usamos edad, género y provincia para mostrar tarifas de ejemplo
-            relevantes.
+            Con edad, género y región calculamos tu prima mensual en el
+            catálogo de Saludsa, Confiamed y BMI.
           </p>
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={handleCompare}
-            aria-label="Filtros de comparación"
-            className="space-y-6"
+            onSubmit={handleSubmit}
+            aria-label="Cotizador de planes"
+            noValidate
           >
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="compare-age">Edad</Label>
+                <Label htmlFor="quote-age">Edad</Label>
                 <Input
-                  id="compare-age"
+                  id="quote-age"
                   type="number"
-                  min={18}
-                  max={99}
+                  inputMode="numeric"
+                  min={QUOTE_AGE_MIN}
+                  max={QUOTE_AGE_MAX}
                   value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  required
+                  onChange={(event) => setAge(event.target.value)}
+                  autoComplete="off"
                   aria-invalid={Boolean(error)}
+                  aria-describedby={error ? "quote-error" : undefined}
+                  className="h-11 rounded-lg text-base sm:h-9"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="compare-gender">Género</Label>
+                <Label htmlFor="quote-gender">Género</Label>
                 <select
-                  id="compare-gender"
+                  id="quote-gender"
                   value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  onChange={(event) =>
+                    setGender(event.target.value as QuoteGender)
+                  }
+                  className="h-11 w-full rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:h-9 dark:bg-input/30"
                 >
-                  {GENDER_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                  {GENDER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="compare-region">Provincia</Label>
+                <Label htmlFor="quote-region">Región</Label>
                 <select
-                  id="compare-region"
+                  id="quote-region"
                   value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  onChange={(event) =>
+                    setRegion(event.target.value as TariffRegion)
+                  }
+                  className="h-11 w-full rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:h-9 dark:bg-input/30"
                 >
-                  {DEMO_REGIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                  {TARIFF_REGIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -123,7 +189,11 @@ export function ComparisonGate({ initialResults = [] }: ComparisonGateProps) {
             </div>
 
             {error ? (
-              <p className="text-sm text-destructive" role="alert" id="compare-error">
+              <p
+                className="mt-4 text-sm text-destructive"
+                role="alert"
+                id="quote-error"
+              >
                 {error}
               </p>
             ) : null}
@@ -131,35 +201,79 @@ export function ComparisonGate({ initialResults = [] }: ComparisonGateProps) {
             <Button
               type="submit"
               variant="brand"
-              className="w-full rounded-full sm:w-auto"
+              className="mt-4 h-11 w-full rounded-full text-base sm:h-9 sm:w-auto sm:px-8 sm:text-sm"
               disabled={loading}
-              aria-describedby={error ? "compare-error" : undefined}
             >
-              {loading ? "Buscando planes…" : "Comparar planes"}
+              {loading
+                ? "Calculando…"
+                : quote
+                  ? "Actualizar cotización"
+                  : "Ver mi plan"}
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      {searched ? (
-        <section aria-label="Resultados de comparación">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-bold text-foreground">Planes disponibles</h2>
-            <DemoBadge />
-          </div>
+      {quote ? (
+        <section
+          ref={resultsRef}
+          tabIndex={-1}
+          aria-label="Resultados de cotización"
+          aria-live="polite"
+          className="scroll-mt-20 space-y-4 outline-none"
+        >
+          {cheapest ? (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Desde
+              </p>
+              <p className="text-2xl font-bold text-foreground sm:text-3xl">
+                {formatUsd(cheapest.monthlyPrice)}
+                <span className="ml-1 text-sm font-normal text-foreground/70">
+                  /mes
+                </span>
+              </p>
+              <p className="mt-1 text-sm text-foreground/80">
+                {cheapest.insurerName} · {cheapest.planName} · {totalOffers}{" "}
+                {totalOffers === 1 ? "plan" : "planes"} para tu perfil
+              </p>
+            </div>
+          ) : null}
 
-          {results.length === 0 ? (
+          {isStale ? (
+            <p className="text-sm text-muted-foreground" role="status">
+              Cambiaste tu perfil. Actualiza la cotización para ver las tarifas
+              nuevas.
+            </p>
+          ) : null}
+
+          {visibleOffers.length === 0 ? (
             <EmptyState
-              title="Sin resultados para estos criterios"
-              description="Prueba otra combinación de edad, género o provincia."
+              title="Sin planes para este perfil"
+              description="Prueba otra edad, género o región. El catálogo cubre edades de 18 a 99 años."
             />
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {results.map((result) => (
-                <PlanCard key={result.tariff.id} result={result} />
+            <ul className="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {visibleOffers.map((offer) => (
+                <li key={offer.planId}>
+                  <PlanCard offer={offer} />
+                </li>
               ))}
-            </div>
+            </ul>
           )}
+
+          {totalOffers > visibleOffers.length ? (
+            <p className="text-sm text-muted-foreground">
+              Mostrando los {visibleOffers.length} planes más económicos de{" "}
+              {totalOffers}.
+            </p>
+          ) : null}
+
+          <p className="text-xs text-muted-foreground">
+            Prima mensual en USD con impuestos incluidos, según el catálogo
+            vigente. La aseguradora confirma el precio final al emitir la
+            póliza.
+          </p>
         </section>
       ) : null}
     </div>

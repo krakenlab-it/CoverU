@@ -1,5 +1,4 @@
 import type { TariffGender, TariffMaternidad, TariffRegion, GrupoAsegurado } from "@/lib/catalog-enums";
-import type { RegionValue } from "@/lib/regions";
 
 export interface Insurer {
   id: string;
@@ -33,7 +32,7 @@ export interface Tariff {
   age_min: number;
   age_max: number;
   gender: TariffGender;
-  region: TariffRegion | RegionValue | "any";
+  region: TariffRegion | "any";
   grupo_asegurado?: GrupoAsegurado | null;
   /** USD monthly tax-included (prima_mensual_con_imp) — dollars, not cents */
   monthly_price: number;

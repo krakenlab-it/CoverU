@@ -1,5 +1,8 @@
-import { TARIFF_REGIONS, type TariffRegion } from "@/lib/catalog-enums";
-import { GENDER_OPTIONS } from "@/lib/regions";
+import {
+  GENDER_OPTIONS,
+  isTariffRegion,
+  type TariffRegion,
+} from "@/lib/catalog-enums";
 import {
   normalizePage,
   normalizePageSize,
@@ -13,7 +16,6 @@ const SORT_OPTIONS: SortOption[] = [
   "name_asc",
 ];
 
-const TARIFF_REGION_VALUES = TARIFF_REGIONS.map((r) => r.value);
 const GENDER_VALUES = GENDER_OPTIONS.map((option) => option.value);
 
 function parseFiniteNumber(value: string | null): number | undefined {
@@ -31,9 +33,7 @@ function parseGender(value: string | null): string | undefined {
 
 export function parseTariffRegion(value: string | null): TariffRegion | undefined {
   if (!value) return undefined;
-  return TARIFF_REGION_VALUES.includes(value as TariffRegion)
-    ? (value as TariffRegion)
-    : undefined;
+  return isTariffRegion(value) ? value : undefined;
 }
 
 export function parseMarketplaceFilters(

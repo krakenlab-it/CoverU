@@ -7,17 +7,18 @@ test.describe("public site smoke", () => {
     await expectCoverULanding(page);
   });
 
-  test("comparator flow returns demo plans", async ({ page }) => {
+  test("public quoter returns real catalog plans", async ({ page }) => {
     await page.goto("/comparar");
     await expect(
-      page.getByRole("heading", { name: "Comparar planes" }),
+      page.getByRole("heading", { level: 1, name: "Cotiza tu seguro de salud" }),
     ).toBeVisible();
 
-    await page.getByRole("button", { name: "Comparar planes" }).click();
+    await page.getByRole("button", { name: /Ver mi plan|Actualizar cotización/ }).click();
     await expect(
-      page.getByRole("region", { name: "Resultados de comparación" }),
+      page.getByRole("region", { name: "Resultados de cotización" }),
     ).toBeVisible();
-    await expect(page.getByText(/\[DEMO\]/).first()).toBeVisible();
+    await expect(page.getByText(/Desde/)).toBeVisible();
+    await expect(page.getByText(/\[DEMO\]/)).toHaveCount(0);
   });
 
   test("developer docs page lists API endpoints", async ({ page }) => {

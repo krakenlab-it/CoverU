@@ -7,8 +7,8 @@ import {
   mapPlanVersionRow,
   mapTariffRow,
   parseBoolean,
-} from "../../scripts/catalog-v1_3/map-rows";
-import { parseCsv } from "../../scripts/catalog-v1_3/parse-csv";
+} from "@/lib/catalog/map-rows";
+import { parseCsv } from "@/lib/catalog/parse-csv";
 
 describe("catalog v1.3 row mapping", () => {
   it("parses insurer booleans and null logo_url", () => {

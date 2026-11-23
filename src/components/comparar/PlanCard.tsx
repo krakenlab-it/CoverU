@@ -1,83 +1,77 @@
 import { DemoBadge } from "@/components/platform/DemoBadge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ComparisonResult } from "@/lib/types/database";
-import { getRegionLabel } from "@/lib/regions";
+import { InsurerIdentity } from "@/components/insurers/InsurerIdentity";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { getTariffRegionLabel } from "@/lib/catalog-enums";
+import { resolveInsurerLogoUrl } from "@/lib/insurers/assets";
 import { formatUsd } from "@/lib/marketplace/format";
 import { motion } from "@/lib/motion";
+import type { PublicQuoteOffer } from "@/lib/quoters/types";
 
 interface PlanCardProps {
-  result: ComparisonResult;
+  offer: PublicQuoteOffer;
 }
 
-export function PlanCard({ result }: PlanCardProps) {
-  const { tariff, plan, insurer } = result;
+function formatAgeBand(offer: PublicQuoteOffer): string {
+  if (offer.ageMin === offer.ageMax) return `${offer.ageMin} años`;
+  return `${offer.ageMin}–${offer.ageMax} años`;
+}
+
+export function PlanCard({ offer }: PlanCardProps) {
+  const logoUrl = resolveInsurerLogoUrl(
+    { logo_url: offer.insurerLogoUrl, slug: offer.insurerSlug },
+    { square: offer.insurerSlug === "bmi" },
+  );
 
   return (
-    <Card className={motion.cardHover}>
-      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{insurer.name}</p>
-          <CardTitle className="text-lg">{plan.name}</CardTitle>
+    <Card
+      className={motion.cardHover}
+      aria-labelledby={`offer-${offer.planId}-title`}
+    >
+      <CardHeader className="gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <InsurerIdentity name={offer.insurerName} logoUrl={logoUrl} size="sm" />
+          {offer.isDemo ? <DemoBadge /> : null}
         </div>
-        {tariff.is_demo ? <DemoBadge /> : null}
+        <h3
+          id={`offer-${offer.planId}-title`}
+          className="font-heading text-base leading-snug font-medium sm:text-lg"
+        >
+          {offer.planName}
+        </h3>
       </CardHeader>
 
       <CardContent className="space-y-4">
         <div className="rounded-xl bg-muted/60 p-4">
-          <p className="text-sm text-muted-foreground">Tú pagas</p>
-          <p className="text-3xl font-bold text-primary">
-            {formatUsd(tariff.monthly_price)}
-            <span className="text-base font-normal text-muted-foreground">/mes</span>
+          <p className="text-xs text-muted-foreground">Prima mensual</p>
+          <p className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+            {formatUsd(offer.monthlyPrice)}
+            <span className="ml-1 text-sm font-normal text-muted-foreground">
+              /mes
+            </span>
           </p>
         </div>
-
-        {plan.coverage_summary ? (
-          <p className="text-sm text-foreground/80">{plan.coverage_summary}</p>
-        ) : null}
-
-        <dl className="grid gap-2 text-sm sm:grid-cols-2">
-          {tariff.deductible != null ? (
-            <div>
-              <dt className="text-muted-foreground">Deducible anual</dt>
-              <dd className="font-medium">{formatUsd(tariff.deductible)}</dd>
-            </div>
-          ) : null}
-          {tariff.copay_pct != null ? (
-            <div>
-              <dt className="text-muted-foreground">Copago</dt>
-              <dd className="font-medium">{tariff.copay_pct}%</dd>
-            </div>
-          ) : null}
-          {tariff.annual_limit != null ? (
-            <div>
-              <dt className="text-muted-foreground">Tope anual</dt>
-              <dd className="font-medium">{formatUsd(tariff.annual_limit)}</dd>
-            </div>
-          ) : null}
-        </dl>
-
-        <details className="group" aria-label="Detalles del plan">
-          <summary className="cursor-pointer text-sm font-semibold text-primary hover:underline">
-            Ver detalles del plan
-          </summary>
-          <div className="mt-3 space-y-3 text-sm text-foreground/80">
-            {plan.description ? <p>{plan.description}</p> : null}
-            {tariff.exclusions && tariff.exclusions.length > 0 ? (
-              <div>
-                <p className="font-semibold text-foreground">Exclusiones</p>
-                <ul className="mt-1 list-inside list-disc space-y-1">
-                  {tariff.exclusions.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            <p className="text-xs text-muted-foreground">
-              Tarifa para edad {tariff.age_min}–{tariff.age_max},{" "}
-              {getRegionLabel(tariff.region)}, género {tariff.gender}.
-            </p>
+        <dl className="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <dt className="text-muted-foreground">Deducible</dt>
+            <dd className="font-medium">
+              {offer.deductible != null ? formatUsd(offer.deductible) : "—"}
+            </dd>
           </div>
-        </details>
+          <div>
+            <dt className="text-muted-foreground">Tope anual</dt>
+            <dd className="font-medium">
+              {offer.annualLimit != null ? formatUsd(offer.annualLimit) : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Región tarifada</dt>
+            <dd className="font-medium">{getTariffRegionLabel(offer.region)}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Franja de edad</dt>
+            <dd className="font-medium">{formatAgeBand(offer)}</dd>
+          </div>
+        </dl>
       </CardContent>
     </Card>
   );

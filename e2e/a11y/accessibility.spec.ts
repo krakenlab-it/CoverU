@@ -12,7 +12,7 @@ interface A11yTarget {
 
 const PUBLIC_TARGETS: A11yTarget[] = [
   { name: "landing", path: "/" },
-  { name: "comparator", path: "/comparar" },
+  { name: "quoter", path: "/comparar" },
   {
     name: "developers",
     path: "/developers",
@@ -63,6 +63,30 @@ test.describe("accessibility — public pages", () => {
       await runAxe(page, target);
     });
   }
+});
+
+test.describe("accessibility — public quoter results (mobile 390x844)", () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+  test("quoter results have no serious WCAG violations", async ({ page }) => {
+    await page.goto("/comparar");
+    await page.getByLabel("Edad").fill("30");
+    await page.getByLabel("Género").selectOption("femenino");
+    await page.getByLabel("Región").selectOption("Sierra");
+    await page.getByRole("button", { name: /Ver mi plan|Actualizar cotización/ }).click();
+    await page
+      .getByRole("region", { name: "Resultados de cotización" })
+      .waitFor({ state: "visible" });
+
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      .analyze();
+
+    expect(
+      results.violations,
+      `quoter results a11y violations: ${JSON.stringify(results.violations, null, 2)}`,
+    ).toEqual([]);
+  });
 });
 
 test.describe("accessibility — app pages (authenticated)", () => {
