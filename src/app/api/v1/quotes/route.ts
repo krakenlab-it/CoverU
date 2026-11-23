@@ -1,6 +1,7 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
 import { canAccessOrganizationQuote } from "@/lib/api/quote-access";
 import { apiDatabaseError } from "@/lib/api/response";
+import { emitFunnelEvent } from "@/lib/analytics/emit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
@@ -61,6 +62,12 @@ export const GET = withApiV1(
     if (!quote || !canAccessOrganizationQuote(quote.organization_id, auth.organizationId)) {
       return apiError(requestId, 404, "not_found", "Cotización no encontrada");
     }
+
+    // A readable quote is the B2B quote step for the caller's organization.
+    await emitFunnelEvent(
+      { step: "quote", source: "api", properties: {} },
+      { organizationId: auth.organizationId },
+    );
 
     return apiSuccess(requestId, { quote });
   },
