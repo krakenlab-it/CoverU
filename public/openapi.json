@@ -143,6 +143,18 @@
           "id": { "type": "string", "format": "uuid" },
           "organization_id": { "type": "string", "format": "uuid", "nullable": true },
           "plan_version_id": { "type": "string", "format": "uuid" },
+          "tariff_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "KAN-231: fila exacta de tariffs usada para cotizar. Null en cotizaciones anteriores a la migración."
+          },
+          "plan_conditions_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "KAN-231: versión de plan cuyas condiciones (deducibles, coaseguro, copagos, modalidad de pago, techos) se cotizaron. Null en cotizaciones anteriores a la migración."
+          },
           "external_ref": { "type": "string", "nullable": true },
           "status": { "type": "string" },
           "monthly_price": {
@@ -151,6 +163,86 @@
             "description": "USD monthly premium snapshot. Dollars, not cents."
           },
           "is_demo": { "type": "boolean" }
+        }
+      },
+      "QuoteCreateRequest": {
+        "type": "object",
+        "required": ["plan_version_id", "age"],
+        "properties": {
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "age": { "type": "integer", "minimum": 0, "maximum": 120 },
+          "gender": {
+            "type": "string",
+            "enum": ["any", "femenino", "masculino"]
+          },
+          "region": {
+            "type": "string",
+            "enum": ["Nacional", "Austro", "Costa", "Sierra"]
+          },
+          "grupo_asegurado": {
+            "type": "string",
+            "enum": ["titular", "nino_solo"]
+          },
+          "external_ref": { "type": "string", "maxLength": 120 },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "requote_of": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Cotización activa o expirada del mismo tenant que se recalcula contra el catálogo actual."
+          }
+        }
+      },
+      "QuoteVersions": {
+        "type": "object",
+        "description": "KAN-231: referencias de versión guardadas en la cotización.",
+        "required": ["plan_version_id"],
+        "properties": {
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "plan_conditions_version_id": { "type": "string", "format": "uuid", "nullable": true },
+          "tariff_version_id": { "type": "string", "format": "uuid", "nullable": true }
+        }
+      },
+      "QuoteVersionChange": {
+        "type": "object",
+        "description": "KAN-231: diferencia entre la cotización anterior y el catálogo actual al recotizar.",
+        "properties": {
+          "changed": { "type": "boolean" },
+          "tariff_changed": { "type": "boolean" },
+          "conditions_changed": { "type": "boolean" },
+          "price_changed": { "type": "boolean" },
+          "previous": { "$ref": "#/components/schemas/QuoteVersionSnapshot" },
+          "next": { "$ref": "#/components/schemas/QuoteVersionSnapshot" }
+        }
+      },
+      "QuoteVersionSnapshot": {
+        "type": "object",
+        "properties": {
+          "tariffVersionId": { "type": "string", "format": "uuid", "nullable": true },
+          "conditionsVersionId": { "type": "string", "format": "uuid", "nullable": true },
+          "monthlyPrice": {
+            "type": "number",
+            "nullable": true,
+            "description": "USD monthly premium. Dollars, not cents."
+          }
+        }
+      },
+      "ConditionsVersion": {
+        "type": "object",
+        "description": "KAN-231: versión de condiciones asociada a una versión de plan.",
+        "properties": {
+          "plan_conditions_version_id": { "type": "string", "format": "uuid" },
+          "plan_version_id": { "type": "string", "format": "uuid" },
+          "condition_counts": {
+            "type": "object",
+            "properties": {
+              "deductibles": { "type": "integer" },
+              "coinsurance": { "type": "integer" },
+              "copays": { "type": "integer" },
+              "paymentModalities": { "type": "integer" },
+              "ceilings": { "type": "integer" },
+              "total": { "type": "integer" }
+            }
+          }
         }
       },
       "CoverageQaRequest": {
@@ -444,7 +536,8 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "plan_conditions": { "$ref": "#/components/schemas/PlanConditions" }
+                        "plan_conditions": { "$ref": "#/components/schemas/PlanConditions" },
+                        "conditions_version": { "$ref": "#/components/schemas/ConditionsVersion" }
                       }
                     }
                   }
@@ -485,6 +578,48 @@
           "200": { "description": "Cotización encontrada" },
           "403": { "description": "Sin acceso a la cotización" },
           "404": { "description": "Cotización no encontrada" }
+        }
+      },
+      "post": {
+        "summary": "Crear cotización con versión de tarifa y condiciones",
+        "operationId": "createQuote",
+        "tags": ["Cotizaciones"],
+        "description": "Crea una cotización fijando la fila de tarifa y la versión de condiciones usadas. Requiere el scope write:quotes. Con requote_of se recalcula contra el catálogo actual y la nueva fila registra la versión anterior; la cotización original nunca se modifica.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/QuoteCreateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cotización creada con sus versiones fijadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "quote": { "$ref": "#/components/schemas/Quote" },
+                        "versions": { "$ref": "#/components/schemas/QuoteVersions" },
+                        "re_quote": {
+                          "nullable": true,
+                          "allOf": [{ "$ref": "#/components/schemas/QuoteVersionChange" }]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Parámetros inválidos" },
+          "404": { "description": "Versión de plan, cotización original o tarifa no encontrada" },
+          "422": { "description": "No hay tarifa vigente para edad, género y región" }
         }
       }
     },

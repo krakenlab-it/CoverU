@@ -1,6 +1,10 @@
 import { apiError, apiSuccess, withApiV1 } from "@/lib/api/handler";
 import { apiDatabaseError } from "@/lib/api/response";
 import { parsePlanConditions } from "@/lib/marketplace/plan-conditions";
+import {
+  describeConditionsVersion,
+  planConditionsCounts,
+} from "@/lib/quotes/conditions-version";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 
@@ -155,6 +159,13 @@ export const GET = withApiV1(
         paymentModalities: plan_payment_modalities,
         ceilings: plan_coverage_ceilings,
       }),
+      conditions_version: describeConditionsVersion(version.id, planConditionsCounts({
+        deductibles: plan_deductibles,
+        coinsurance: plan_coinsurance,
+        copays: plan_copays,
+        paymentModalities: plan_payment_modalities,
+        ceilings: plan_coverage_ceilings,
+      })),
     });
   },
   { requiredScope: "read:catalog" },

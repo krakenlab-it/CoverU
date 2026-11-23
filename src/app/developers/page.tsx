@@ -84,6 +84,23 @@ export default function DevelopersPage() {
   -H "X-API-Key: cov_demo_test_key_phase1_only" \\
   -d '{"plan_version_id":"d1000000-0000-4000-8000-000000000001","question":"¿Está cubierta la hospitalización?"}' \\
   "https://tu-dominio.com/api/v1/coverage/qa"`}</CodeBlock>
+
+        <h3 className="mt-6 font-medium">
+          Cotizar con versión de tarifa y condiciones
+        </h3>
+        <p className="mt-2 text-sm text-coveru-gray">
+          La cotización guarda la fila de tarifa (
+          <code>tariff_version_id</code>) y la versión de condiciones (
+          <code>plan_conditions_version_id</code>) con las que se calculó, así
+          que sigue siendo reproducible después de cargar un tarifario nuevo.
+          Para recalcular una cotización existente agrega{" "}
+          <code>requote_of</code>: se crea una cotización nueva y la original
+          no cambia.
+        </p>
+        <CodeBlock>{`curl -X POST -H "Content-Type: application/json" \\
+  -H "X-API-Key: cov_demo_test_key_phase1_only" \\
+  -d '{"plan_version_id":"d1000000-0000-4000-8000-000000000001","age":35,"gender":"femenino","region":"Sierra"}' \\
+  "https://tu-dominio.com/api/v1/quotes"`}</CodeBlock>
       </section>
 
       <section className="mt-10">
@@ -102,6 +119,14 @@ export default function DevelopersPage() {
           </li>
           <li>
             <code>403 insufficient_scope</code> — Scope insuficiente
+          </li>
+          <li>
+            <code>404 not_found</code> — Versión de plan o cotización original
+            no encontrada
+          </li>
+          <li>
+            <code>422 tariff_not_found</code> — No hay tarifa para la edad,
+            género y región indicados
           </li>
           <li>
             <code>429 rate_limit_exceeded</code> — Límite excedido

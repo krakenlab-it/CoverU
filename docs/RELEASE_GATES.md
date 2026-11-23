@@ -72,6 +72,12 @@ No new repository secrets are required for local CI or fork PRs.
 
 Applies all migrations to a disposable Postgres database and re-applies seed files to verify idempotency when compatible with the final schema. When `tariff_schema_v1_3` is present, seed re-apply is skipped because that migration backfills demo regions and tightens CHECK constraints — original `metropolitana` seed values are superseded. **Never** point `DATABASE_URL` at production or hosted Supabase.
 
+After the migrations apply, the script runs the behavioural checks in `supabase/tests/` (each file rolls back its own fixtures):
+
+| File | Asserts |
+|------|---------|
+| `quotes_version_refs.sql` | KAN-231: legacy backfill, cross-plan/cross-version pin rejection, recorded-pin immutability, a tariff reload leaving existing quotes untouched, re-quoting after a version bump, and pin clearing on tariff delete |
+
 ## Data pipeline scaffolding (Excel loader)
 
 Scaffolding lives under `src/lib/data-pipeline/` for the forthcoming CoverU Excel loader:

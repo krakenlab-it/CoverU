@@ -74,6 +74,25 @@ Migration `20260903180000_tariff_schema_v1_1.sql` applies locked clean/v1.1 sche
 - Docs: `/developers` — OpenAPI spec at `/openapi.json`
 - Demo API key (local only): `cov_demo_test_key_phase1_only`
 - Endpoints: `/api/v1/insurers`, `/plans`, `/plan-versions`, `/tariffs`, `/quotes`, `/coverage/qa`
+- `POST /api/v1/quotes` (scope `write:quotes`) creates a quote pinned to the tariff row and plan-conditions version it was priced with; `requote_of` re-prices an existing quote. See [Quote version pins](#quote-version-pins).
+
+## Quote version pins
+
+A proposal must be reproducible after a new tariff loads. `quotes` already carried `plan_version_id` (the quoted plan version) and `tariff_id` (plan-level tariff link); migration `20261119110000_quotes_version_refs.sql` adds the two explicit version references:
+
+| Column | References | Meaning |
+|--------|------------|---------|
+| `tariff_version_id` | `public.tariffs(id)` | The exact tariff matrix row that produced `monthly_price` |
+| `plan_conditions_version_id` | `public.plan_versions(id)` | The version whose conditions (deductibles, coinsurance, copays, payment modality, ceilings, exclusions, waiting periods) were priced |
+
+- Both columns are **nullable** so quotes created before this migration stay valid; the migration backfills them from `tariff_id` / `plan_version_id` only when the referenced tariff still belongs to the quoted plan.
+- Both are `ON DELETE SET NULL`: deleting a tariff or version never blocks catalog cleanup and never erases the quote, which keeps its own `monthly_price` snapshot.
+- Triggers reject a pin that points at a tariff row or version from another plan, and reject repointing a recorded pin. Only filling a previously `NULL` pin is allowed.
+- `monthly_price`, the tariff dimensions and both version ids are also written into `quotes.metadata` as `pricing_snapshot` / `versions`, so a proposal can be replayed without joining the catalog.
+
+**Loading a new tariff does not change existing quotes.** A re-quote (`POST /api/v1/quotes` with `requote_of`) creates a **new** quote row, diffs it against the current catalog (`tariff_changed`, `conditions_changed`, `price_changed`) and records `re_quote_of` plus `previous_versions` in its metadata. The original quote keeps its own pins and price as the record of what the customer was shown.
+
+Local verification: `npm run test:migrations:ephemeral` (with a **local** `DATABASE_URL`) applies every migration and then runs `supabase/tests/quotes_version_refs.sql`, which asserts the acceptance criteria — backfill, mismatch rejection, pin immutability, tariff-load isolation, re-quote after a bump, and pin clearing on tariff delete.
 
 ## Vercel deployment
 
