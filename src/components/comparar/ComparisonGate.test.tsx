@@ -168,4 +168,26 @@ describe("ComparisonGate", () => {
       screen.getByText(/Mostrando los 12 planes más económicos de 20/),
     ).toBeInTheDocument();
   });
+
+  it("offers the lead form with the quoted profile after a quote", () => {
+    render(<ComparisonGate initialQuote={quote()} />);
+
+    expect(
+      screen.getByRole("form", { name: "Datos de contacto" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Tu perfil cotizado es 30 años · Femenino · Nacional/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Hablar con un asesor" }),
+    ).toBeInTheDocument();
+  });
+
+  it("hides the lead form when the profile has no plans", () => {
+    render(<ComparisonGate initialQuote={quote({ offers: [], totalOffers: 0 })} />);
+
+    expect(
+      screen.queryByRole("form", { name: "Datos de contacto" }),
+    ).not.toBeInTheDocument();
+  });
 });

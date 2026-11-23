@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { LeadCaptureForm } from "@/components/comparar/LeadCaptureForm";
 import { PlanCard } from "@/components/comparar/PlanCard";
 import { EmptyState } from "@/components/platform/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import {
   GENDER_OPTIONS,
   TARIFF_REGIONS,
+  getGenderLabel,
   type TariffRegion,
 } from "@/lib/catalog-enums";
 import { formatUsd } from "@/lib/marketplace/format";
@@ -275,6 +277,16 @@ export function ComparisonGate({ initialQuote = null }: ComparisonGateProps) {
             póliza.
           </p>
         </section>
+      ) : null}
+
+      {quote && cheapest ? (
+        <LeadCaptureForm
+          age={String(quote.request.age)}
+          profileSummary={`${quote.request.age} años · ${getGenderLabel(
+            quote.request.gender,
+          )} · ${quote.request.region}`}
+          source="cotizador"
+        />
       ) : null}
     </div>
   );
