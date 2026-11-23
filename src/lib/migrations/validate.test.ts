@@ -104,11 +104,10 @@ describe("quote version refs migration (KAN-231)", () => {
   const files = listMigrationFiles();
   const content = readFileSync(join(MIGRATIONS_DIR, QUOTE_VERSION_REFS_MIGRATION), "utf-8");
 
-  it("is the only quote version refs migration and sits last", () => {
+  it("is the only quote version refs migration and sorts after plan conditions", () => {
     expect(files.filter((f) => f.includes("quotes_version_refs"))).toEqual([
       QUOTE_VERSION_REFS_MIGRATION,
     ]);
-    expect(files.at(-1)).toBe(QUOTE_VERSION_REFS_MIGRATION);
     expect(files.indexOf(QUOTE_VERSION_REFS_MIGRATION)).toBeGreaterThan(
       files.indexOf(PLAN_CONDITIONS_MIGRATION),
     );
