@@ -1,5 +1,10 @@
 import type { TariffGender, TariffMaternidad, TariffRegion, GrupoAsegurado } from "@/lib/catalog-enums";
 import type { RegionValue } from "@/lib/regions";
+import type {
+  HealthAccessKind,
+  HealthActorKind,
+  HealthResourceType,
+} from "@/lib/health/types";
 
 export interface Insurer {
   id: string;
@@ -78,4 +83,28 @@ export interface ComparisonResult {
   tariff: Tariff;
   plan: Plan;
   insurer: Insurer;
+}
+
+/**
+ * Append-only LOPDP audit row ("who viewed what, and when").
+ * Field NAMES only — health values are never stored in this table.
+ */
+export interface HealthDataAccessLog {
+  id: string;
+  organization_id: string;
+  actor_kind: HealthActorKind;
+  actor_user_id: string | null;
+  actor_api_key_id: string | null;
+  actor_label: string | null;
+  actor_role: string | null;
+  resource_type: HealthResourceType;
+  resource_id: string;
+  subject_user_id: string | null;
+  fields_accessed: string[];
+  access_kind: HealthAccessKind;
+  purpose: string | null;
+  request_id: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
 }
