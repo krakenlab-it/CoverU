@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PlanDetailViewer } from "@/components/marketplace/PlanDetailViewer";
+import { parsePlanConditions } from "@/lib/marketplace/plan-conditions";
 
 describe("PlanDetailViewer", () => {
   const detail = {
@@ -162,5 +163,62 @@ describe("PlanDetailViewer", () => {
 
     expect(screen.getByText(/5 filas tarifarias/i)).toBeInTheDocument();
     expect(screen.queryByText(/\$92,50/)).not.toBeInTheDocument();
+  });
+
+  it("renders plan conditions attached to the plan version", () => {
+    render(
+      <PlanDetailViewer
+        {...baseProps}
+        planConditions={parsePlanConditions({
+          deductibles: [
+            {
+              id: "ded-1",
+              plan_version_id: "v1",
+              scope: "individual",
+              basis: "por_anio",
+              amount: 100,
+              notes: null,
+              sort_order: 1,
+              is_demo: false,
+              created_at: "2026-11-19T00:00:00Z",
+            },
+          ],
+          coinsurance: [],
+          copays: [],
+          paymentModalities: [],
+          ceilings: [],
+        })}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Deducibles" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Por persona, por año: $100,00")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Modalidad de pago" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("labels the exclusion type when one is recorded", () => {
+    render(
+      <PlanDetailViewer
+        {...baseProps}
+        exclusions={[
+          {
+            id: "ex-1",
+            plan_version_id: "v1",
+            title: "Tratamientos cosméticos",
+            description: null,
+            exclusion_type: "especifica",
+            sort_order: 1,
+            is_demo: false,
+            created_at: "2026-11-19T00:00:00Z",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Exclusión específica")).toBeInTheDocument();
   });
 });

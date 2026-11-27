@@ -70,4 +70,13 @@ describe("searchMarketplace without Supabase", () => {
     const results = await searchMarketplace({ sort: "price_asc" });
     expect(results).toEqual([]);
   });
+
+  it("returns no plan version detail when admin client is unavailable", async () => {
+    const { getPlanVersionDetailForMarketplace } = await import(
+      "@/lib/marketplace/catalog"
+    );
+    await expect(
+      getPlanVersionDetailForMarketplace("ver-1"),
+    ).resolves.toBeNull();
+  });
 });

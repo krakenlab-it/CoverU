@@ -104,6 +104,7 @@ export default async function PlanDetailPage({
         waitingPeriods={detail.waiting_periods}
         policyDocuments={detail.policy_documents}
         citations={detail.citations}
+        planConditions={detail.plan_conditions}
         tariff={quote.tariff}
         quoteState={quote.quoteState}
         monthlyPrice={quote.monthlyPrice}

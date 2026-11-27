@@ -80,6 +80,8 @@ export interface Exclusion {
   plan_version_id: string;
   title: string;
   description: string | null;
+  /** KAN-229 field 7: general exclusion vs plan-specific. Null on legacy rows. */
+  exclusion_type?: ExclusionType | null;
   sort_order: number;
   is_demo: boolean;
   created_at: string;
@@ -91,6 +93,101 @@ export interface WaitingPeriod {
   service_category: string;
   days: number;
   notes: string | null;
+  is_demo: boolean;
+  created_at: string;
+}
+
+export type ExclusionType = "general" | "especifica";
+
+export type DeductibleScope = "individual" | "familiar";
+
+export type DeductibleBasis =
+  | "por_evento"
+  | "por_anio"
+  | "por_ingreso"
+  | "vitalicio";
+
+export type ConditionNetwork = "en_red" | "fuera_de_red";
+
+export type PaymentMethod =
+  | "debito"
+  | "tarjeta_credito"
+  | "transferencia"
+  | "efectivo"
+  | "otro";
+
+export type PaymentFrequency = "mensual" | "trimestral" | "semestral" | "anual";
+
+export type CoverageCeilingScope =
+  | "por_persona"
+  | "por_familia"
+  | "por_evento"
+  | "por_anio"
+  | "vitalicio";
+
+export interface PlanDeductible {
+  id: string;
+  plan_version_id: string;
+  scope: DeductibleScope;
+  basis: DeductibleBasis;
+  /** USD, dollars not cents. 0 means no deductible. */
+  amount: number;
+  notes: string | null;
+  sort_order: number;
+  is_demo: boolean;
+  created_at: string;
+}
+
+export interface PlanCoinsurance {
+  id: string;
+  plan_version_id: string;
+  network: ConditionNetwork;
+  /** Percentage covered by the insurer. insurer_pct + insured_pct = 100. */
+  insurer_pct: number;
+  /** Percentage paid by the insured. */
+  insured_pct: number;
+  service_category: string | null;
+  notes: string | null;
+  sort_order: number;
+  is_demo: boolean;
+  created_at: string;
+}
+
+export interface PlanCopay {
+  id: string;
+  plan_version_id: string;
+  service_category: string;
+  network: ConditionNetwork;
+  /** USD fixed copay, dollars not cents. */
+  amount: number;
+  notes: string | null;
+  sort_order: number;
+  is_demo: boolean;
+  created_at: string;
+}
+
+export interface PlanPaymentModality {
+  id: string;
+  plan_version_id: string;
+  method: PaymentMethod;
+  frequency: PaymentFrequency;
+  is_default: boolean;
+  payment_url: string | null;
+  notes: string | null;
+  sort_order: number;
+  is_demo: boolean;
+  created_at: string;
+}
+
+export interface PlanCoverageCeiling {
+  id: string;
+  plan_version_id: string;
+  scope: CoverageCeilingScope;
+  /** USD ceiling, dollars not cents. */
+  amount: number;
+  service_category: string | null;
+  notes: string | null;
+  sort_order: number;
   is_demo: boolean;
   created_at: string;
 }
