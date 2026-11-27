@@ -1,18 +1,58 @@
 # CoverÜ
 
-Comparador de seguros de salud en Chile — Next.js App Router + Supabase.
+Marketplace de seguros de salud y asistencia en **Ecuador** (MVP): cotizador B2C público y **CoverU Office** (área autenticada en `/app`) para equipos que operan catálogo, marketplace y API B2B.
+
+**Stack:** Next.js 16, React 19, TypeScript, Supabase, zod, shadcn/ui, Vitest, Playwright.
+
+## Producto (Ecuador)
+
+| Superficie | Rutas | Rol |
+|------------|-------|-----|
+| **B2C — cotizador y marketing** | `/`, `/comparar`, páginas estáticas | Landing en español (`es-EC`), comparación por edad/género/región con precios en **USD**; datos de demostración claramente marcados hasta cargar el catálogo real |
+| **CoverU Office** | `/app`, `/app/marketplace`, configuración y `/app/desarrolladores` | Panel para organizaciones: marketplace con búsqueda/filtros, comparación de planes, detalle de póliza, asistente de cobertura fundamentado, claves API y uso |
+| **API B2B (v1)** | `/api/v1/*`, docs en `/developers` | Catálogo, cotizaciones, cobertura Q&A para integradores |
+
+Sin variables de Supabase, la app arranca en **modo demo** con datos en memoria. El catálogo de producción para Ecuador proviene del paquete **clean/v1.3** (ver más abajo).
 
 ## Features
 
-- Spanish landing with CoverÜ wordmark, Poppins font, and brand red `#DF0926`
-- Responsive header and footer
-- `/comparar` — age/gender/region gate with demo plan cards showing "tú pagas $X", honest limits, and expandable details
-- Static pages: `/nosotros`, `/agentes`, `/contacto`, `/faqs`
-- `/api/leads` — lead capture API
-- Supabase migrations for `insurers`, `plans`, `tariffs`, and `leads`
-- **Phase 1 (stacked PR):** organizations, B2B API keys, plan versions, coverage catalog, quotes, usage logs, `/api/v1` REST API, grounded coverage Q&A, `/developers` docs, auth panel at `/app`
-- **Phase 2 (stacked PR #3):** logged-in marketplace at `/app/marketplace` — search/filter/sort, plan cards, 2–4 plan compare workspace, policy detail viewer, embedded grounded coverage assistant
-- Demo data unmistakably labeled as `[DEMO]` / "DEMO — datos de ejemplo"
+- Marca CoverÜ (Poppins, rojo `#DF0926`) y assets en `public/brand/`
+- `/comparar` — puerta edad/género/región con tarjetas de plan, límites visibles y detalle expandible
+- Páginas estáticas: `/nosotros`, `/agentes`, `/contacto`, `/faqs`
+- `/api/leads` — captura de leads
+- Migraciones Supabase: aseguradoras, planes, tarifas, leads, organizaciones, cotizaciones, API keys
+- Marketplace autenticado, workspace de comparación, visor de detalle y asistente de cobertura
+- Datos de ejemplo marcados como `[DEMO]` / "DEMO — datos de ejemplo"
+
+## Catálogo v1.3 (Ecuador)
+
+Paquete Mike **clean/v1.3** (`2026.09.03.1.3`) en `data/catalog/v1.3/`. Aseguradoras verificadas en `insurers.csv`:
+
+| Aseguradora | Slug | Notas |
+|-------------|------|--------|
+| **BMI** | `bmi` | Matriz tarifaria mayoritaria en el paquete |
+| **Confiamed** | `confiamed` | Incluye línea ConfiPlus (`maternidad` Si/No en tarifas) |
+| **Saludsa** | `saludsa` | GMM en matriz v1.3 |
+
+**Conteos del paquete** (`MANIFEST.json` y `data/catalog/v1.3/README.md`):
+
+- **3** aseguradoras, **141** planes y `plan_versions`, **6137** filas de tarifa cargables (`is_demo=false` en CSV)
+- Precio mensual vendible: `monthly_price` = USD `NUMERIC` con impuesto incluido (`prima_mensual_con_imp`, `tax_included=true`)
+- Regiones tarifarias v1.3: `Nacional`, `Austro`, `Costa`, `Sierra`
+- Tablas de cobertura en v1.3 (**coverage_clauses**, exclusions, waiting_periods, scenarios, policy_documents, citations): **0 filas de datos** — el loader no inventa texto de cobertura
+
+**Carga a Supabase** (requiere service role; no corre en CI):
+
+```bash
+npm run catalog:load:dry-run   # validar CSV sin escribir
+npm run catalog:load           # upsert + publicar plan_versions para marketplace
+```
+
+Ver `scripts/README.md` y `scripts/catalog-v1_3/`.
+
+**Esquema DB:** migración `supabase/migrations/20260903190000_tariff_schema_v1_3.sql` — grain de carga, CHECKs alineados a v1.3, índice único `tariffs_v1_3_load_grain_unique_idx`. Comentarios de columna documentan campos dispersos (p. ej. `deductible` y `annual_limit` a menudo nulos fuera de BMI/Confiamed).
+
+Logos v1.3: `supabase/migrations/20260904010000_insurer_logo_urls_v1_3.sql` y `public/insurers/USAGE.md`.
 
 ## Quick start
 
@@ -22,9 +62,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Logged-in marketplace: [http://localhost:3000/app/marketplace](http://localhost:3000/app/marketplace) (demo mode without Supabase).
-
-Without Supabase env vars, the app runs in demo mode using in-memory example data.
+- Sitio público: [http://localhost:3000](http://localhost:3000)
+- Office / marketplace: [http://localhost:3000/app/marketplace](http://localhost:3000/app/marketplace) (demo sin Supabase)
 
 ## Environment variables
 
@@ -32,7 +71,7 @@ Without Supabase env vars, the app runs in demo mode using in-memory example dat
 |----------|----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | For persistence | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For persistence | Supabase anon (publishable) key |
-| `SUPABASE_SERVICE_ROLE_KEY` | For lead API | Server-only service role key |
+| `SUPABASE_SERVICE_ROLE_KEY` | For lead API / catalog load | Server-only service role key |
 | `API_KEY_PEPPER` | For B2B API | Server-only pepper for API key hashing |
 | `COVERAGE_QA_PROVIDER` | Optional | `demo` (default) or `openai` |
 | `OPENAI_API_KEY` | For OpenAI Q&A | Server-only, only if using OpenAI provider |
@@ -43,35 +82,17 @@ Never commit real secrets. Use `.env.local` locally and Vercel env vars in produ
 
 1. Create a Supabase project at [supabase.com](https://supabase.com).
 2. Link the project and set env vars (see above).
-3. Apply migrations:
+3. Apply migrations (in order under `supabase/migrations/`), including `20260903190000_tariff_schema_v1_3.sql` before a load v1.3.
 
 ```bash
-# With Supabase CLI linked to your project
 supabase db push
 ```
 
-Or run the SQL files in `supabase/migrations/` via the Supabase SQL editor in order:
-- `20250101000000_initial_schema.sql`
-- `20250101000001_seed_demo_data.sql`
-- `20250102000000_phase1_schema.sql`
-- `20250102000001_phase1_seed_demo.sql`
-- `20260903180000_tariff_schema_v1_1.sql`
-
-Migrations enable RLS: public read on published catalog; tenant isolation for orgs/quotes; API keys verified server-side only.
-
-## Tariff schema v1.1 (loader readiness)
-
-Migration `20260903180000_tariff_schema_v1_1.sql` applies locked clean/v1.1 schema decisions **without importing data**:
-
-- `tariffs.monthly_price` is `NUMERIC(12,2)` USD monthly from matrix `prima_mensual_con_imp` (dollars, not cents; never divide BMI annual values by 12).
-- Additive loader columns: `plan_version_id`, `grupo_asegurado`, `tax_included`, `tax_basis_raw`; plans provenance fields; `coverage_status` extended with `unknown` plus nullable `coverage_status_text`.
-- **Preview and production Excel load remains gated** until clean/v1.1 SHA approval from Mike's package.
-- **RED1/RED2 region mapping and tax policy remain open** — not resolved in this PR.
-- **No production data** is imported or modified by this migration.
+RLS: lectura pública del catálogo publicado; aislamiento por organización en cotizaciones/API keys.
 
 ## API B2B (v1)
 
-- Docs: `/developers` — OpenAPI spec at `/openapi.json`
+- Docs: `/developers` — OpenAPI en `/openapi.json`
 - Demo API key (local only): `cov_demo_test_key_phase1_only`
 - Endpoints: `/api/v1/insurers`, `/plans`, `/plan-versions`, `/tariffs`, `/quotes`, `/coverage/qa`
 
@@ -79,7 +100,9 @@ Migration `20260903180000_tariff_schema_v1_1.sql` applies locked clean/v1.1 sche
 
 1. Import the GitHub repo in [Vercel](https://vercel.com).
 2. Set environment variables in Project Settings → Environment Variables.
-3. Deploy. Next.js builds with zero Supabase config (demo mode) or with vars for live persistence.
+3. Deploy. Builds work with zero Supabase config (demo mode) or with vars for live persistence.
+
+Release gates and CI: `docs/RELEASE_GATES.md`.
 
 ## Scripts
 
@@ -90,8 +113,11 @@ Migration `20260903180000_tariff_schema_v1_1.sql` applies locked clean/v1.1 sche
 | `npm run start` | Start production server |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript check |
-| `npm run test` | Vitest unit tests |
+| `npm run test:unit` | Vitest unit tests |
+| `npm run test:e2e` | Playwright smoke (local server) |
+| `npm run catalog:load:dry-run` | Validate v1.3 CSV package |
+| `npm run catalog:load` | Load v1.3 into Supabase |
 
 ## Demo data notice
 
-All plans and prices shown are **example data** for demonstration. They are not real insurance products or live quotes.
+All plans and prices shown in **demo mode** are example data. They are not live insurer quotes until the v1.3 catalog is loaded and published in your Supabase project.
